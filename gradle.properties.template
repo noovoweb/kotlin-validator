@@ -1,0 +1,9 @@
+# Gradle Properties Configuration
+
+# Java Home
+org.gradle.java.home=/Users/danygiguere/Library/Java/JavaVirtualMachines/ms-21.0.7/Contents/Home
+
+# Build Configuration
+org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m
+org.gradle.parallel=true
+org.gradle.caching=true

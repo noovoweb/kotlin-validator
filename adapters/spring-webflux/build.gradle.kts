@@ -1,0 +1,34 @@
+plugins {
+    kotlin("jvm")
+    kotlin("plugin.spring") version "2.0.21"
+}
+
+dependencies {
+    // Core validator modules
+    api(project(":kotlin-validator-core"))
+    api(project(":kotlin-validator-runtime"))
+
+    // Spring Boot WebFlux
+    api("org.springframework.boot:spring-boot-starter-webflux:3.2.0")
+    api("org.springframework.boot:spring-boot-autoconfigure:3.2.0")
+
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.9.0")
+
+    // Optional: Configuration processor for IDE support
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:3.2.0")
+
+    // Testing
+    testImplementation(kotlin("test"))
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.2.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
