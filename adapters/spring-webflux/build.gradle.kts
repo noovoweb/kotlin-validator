@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     // Core validator modules
-    api(project(":kotlin-validator-core"))
+    api(project(":kotlin-validator-engine"))
     api(project(":kotlin-validator-runtime"))
 
     // Spring Boot WebFlux

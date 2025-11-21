@@ -5,7 +5,7 @@ plugins {
 dependencies {
     // Module dependencies
     implementation(project(":kotlin-validator-annotations"))
-    implementation(project(":kotlin-validator-core"))
+    implementation(project(":kotlin-validator-engine"))
     implementation(project(":kotlin-validator-runtime"))
 
     // KSP API

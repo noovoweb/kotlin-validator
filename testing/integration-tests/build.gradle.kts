@@ -6,9 +6,9 @@ plugins {
 dependencies {
     // All modules for integration testing
     implementation(project(":kotlin-validator-annotations"))
-    implementation(project(":kotlin-validator-core"))
+    implementation(project(":kotlin-validator-engine"))
     implementation(project(":kotlin-validator-runtime"))
-    ksp(project(":kotlin-validator-ksp"))
+    ksp(project(":kotlin-validator-processor"))
 
     // Coroutines (needed by generated code)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")

@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     // Core module dependency (includes coroutines)
-    api(project(":kotlin-validator-core"))
+    api(project(":kotlin-validator-engine"))
 
     // Coroutines (transitive from core, but explicit for clarity)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")

@@ -2,7 +2,7 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Maven Central](https://img.shields.io/badge/Maven%20Central-0.1.1-blue.svg)](https://search.maven.org/search?q=g:com.noovoweb%20AND%20a:kotlin-validator-*)
+[![Maven Central](https://img.shields.io/badge/Maven%20Central-0.1.0--beta.1-blue.svg)](https://search.maven.org/search?q=g:com.noovoweb%20AND%20a:kotlin-validator-*)
 
 A **high-performance, type-safe validation library** for Kotlin using compile-time code generation via KSP (Kotlin Symbol Processor). Unlike reflection-based validators, Kotlin Validator generates optimized validator code at compile-time, delivering **1.5-2x better performance** with **60% lower memory usage**.
 
@@ -47,8 +47,8 @@ A **high-performance, type-safe validation library** for Kotlin using compile-ti
 | Module | Description | Required |
 |--------|-------------|----------|
 | **kotlin-validator-annotations** | 64 validation annotations organized by category | ✅ Yes |
-| **kotlin-validator-core** | Core validation engine with `ValidationContext`, `ValidationResult`, etc. | ✅ Yes |
-| **kotlin-validator-ksp** | KSP processor for compile-time code generation | ✅ Yes (dev) |
+| **kotlin-validator-engine** | Core validation engine with `ValidationContext`, `ValidationResult`, etc. | ✅ Yes |
+| **kotlin-validator-processor** | KSP processor for compile-time code generation | ✅ Yes (dev) |
 | **kotlin-validator-runtime** | Runtime support utilities (`GeneratedValidator` interface) | ✅ Yes |
 | **kotlin-validator-spring-webflux** | Spring Boot WebFlux integration (reactive) with auto-configuration and i18n | Optional |
 | **kotlin-validator-spring-mvc** | Spring Boot MVC integration (traditional) with auto-configuration and i18n | Optional |
@@ -98,14 +98,14 @@ repositories {
 
 dependencies {
     // Core modules (required)
-    implementation("com.noovoweb:kotlin-validator-annotations:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-runtime:0.1.1")
-    ksp("com.noovoweb:kotlin-validator-ksp:0.1.1")
+    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.1")
+    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.1")
 
     // Framework integration (pick one)
-    // implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.1")  // For Spring WebFlux
-    // implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.1")      // For Spring MVC
-    // implementation("com.noovoweb:kotlin-validator-ktor:0.1.1")            // For Ktor
+    // implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.1")  // For Spring WebFlux
+    // implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.1")      // For Spring MVC
+    // implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.1")            // For Ktor
 }
 
 // Configure KSP to generate validators
@@ -208,10 +208,10 @@ The `kotlin-validator-spring-webflux` module provides automatic configuration, e
 
 ```kotlin
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-annotations:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-runtime:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.1")
-    ksp("com.noovoweb:kotlin-validator-ksp:0.1.1")
+    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.1")
+    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.1")
     
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
@@ -344,7 +344,7 @@ class Routes(private val handler: UserHandler) {
 ```json
 {
   "status": 422,
-  "error": "Validation Failed",
+  "message": "Validation Failed",
   "errors": {
     "email": ["Please enter a valid email address"],
     "age": ["This field must be at least 18.0"]
@@ -399,10 +399,10 @@ The `kotlin-validator-spring-mvc` module provides the same features for traditio
 
 ```kotlin
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-annotations:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-runtime:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.1")
-    ksp("com.noovoweb:kotlin-validator-ksp:0.1.1")
+    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.1")
+    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.1")
     
     implementation("org.springframework.boot:spring-boot-starter-web")
 }
@@ -490,7 +490,7 @@ class UserController(
 ```json
 {
   "status": 422,
-  "error": "Validation Failed",
+  "message": "Validation Failed",
   "errors": {
     "email": ["Please enter a valid email address"],
     "age": ["This field must be at least 18.0"]
@@ -519,10 +519,10 @@ plugins {
 
 dependencies {
     // Core validator
-    implementation("com.noovoweb:kotlin-validator-annotations:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-runtime:0.1.1")
-    implementation("com.noovoweb:kotlin-validator-ktor:0.1.1")
-    ksp("com.noovoweb:kotlin-validator-ksp:0.1.1")
+    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.1")
+    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.1")
 
     // Ktor server
     implementation("io.ktor:ktor-server-core:2.3.12")
@@ -660,7 +660,7 @@ fun Route.userRoutes() {
 ```json
 {
   "status": 422,
-  "error": "Validation Failed",
+  "message": "Validation Failed",
   "errors": {
     "email": ["Please enter a valid email address"],
     "age": ["This field must be at least 18.0"]
@@ -708,7 +708,7 @@ curl -X POST http://localhost:8082/api/register \
 ```json
 {
   "status": 422,
-  "error": "Validation Failed",
+  "message": "Validation Failed",
   "errors": {
     "email": ["Veuillez entrer une adresse e-mail valide"]
   }
@@ -965,9 +965,9 @@ PARALLEL EXECUTION (across fields):
 
 ### Boolean Validators (1)
 
-| Validator | Description | Example |
-|-----------|-------------|---------|
-| `@Accepted` | Must be true | `@Accepted val termsAccepted: Boolean?` |
+| Validator | Description                                                              | Example |
+|-----------|--------------------------------------------------------------------------|---------|
+| `@Accepted` | Must be  "1", "yes", "true", or "on" (String) - true (Boolean) - 1 (Int) | `@Accepted val termsAccepted: Boolean?` |
 
 ### Structural Validators (3)
 
@@ -1475,19 +1475,6 @@ cd kotlin-validator
 ./gradlew test
 ```
 
-Run specific test categories:
-
-```bash
-# Core module tests (79 tests)
-./gradlew kotlin-validator-testing:test --tests "com.noovoweb.validator.core.*"
-
-# Annotation validator tests
-./gradlew kotlin-validator-testing:test --tests "com.noovoweb.validator.annotations.*"
-
-# KSP processor tests
-./gradlew kotlin-validator-ksp:test
-```
-
 Generate coverage report:
 
 ```bash
@@ -1557,6 +1544,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 - **WebFlux Example**: [kotlin-validator-spring-webflux-example](https://github.com/noovoweb/kotlin-validator-spring-webflux-example)
 - **MVC Example**: [kotlin-validator-spring-mvc-example](https://github.com/noovoweb/kotlin-validator-spring-mvc-example)
+- **Ktor Example**: [kotlin-validator-ktor-example](https://github.com/noovoweb/kotlin-validator-ktor-example)
 - **Issues**: [GitHub Issues](https://github.com/noovoweb/kotlin-validator/issues)
 - **Documentation**: See READMEs in each module
 
