@@ -25,7 +25,7 @@ class ValidationExceptionHandlerTest {
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, response.statusCode)
         assertEquals(422, response.body?.status)
-        assertEquals("Validation Failed", response.body?.error)
+        assertEquals("Validation Failed", response.body?.message)
     }
 
     @Test
@@ -90,12 +90,12 @@ class ValidationExceptionHandlerTest {
         val errors = mapOf("field" to listOf("error"))
         val errorResponse = ValidationErrorResponse(
             status = 422,
-            error = "Validation Failed",
+            message = "Validation Failed",
             errors = errors
         )
 
         assertEquals(422, errorResponse.status)
-        assertEquals("Validation Failed", errorResponse.error)
+        assertEquals("Validation Failed", errorResponse.message)
         assertEquals(errors, errorResponse.errors)
     }
 

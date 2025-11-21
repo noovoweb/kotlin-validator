@@ -72,7 +72,7 @@ class ValidationPlugin(configuration: Configuration) {
                         HttpStatusCode.UnprocessableEntity,
                         ValidationErrorResponse(
                             status = HttpStatusCode.UnprocessableEntity.value,
-                            error = "Validation Failed",
+                            message = "Validation Failed",
                             errors = ex.errors
                         )
                     )
@@ -129,13 +129,13 @@ class ValidationPlugin(configuration: Configuration) {
  * Structured validation error response for REST APIs.
  *
  * @property status HTTP status code (422)
- * @property error Error message ("Validation Failed")
+ * @property message Error message ("Validation Failed")
  * @property errors Map of field names to error messages
  */
 @kotlinx.serialization.Serializable
 data class ValidationErrorResponse(
     val status: Int,
-    val error: String,
+    val message: String,
     val errors: Map<String, List<String>>
 )
 

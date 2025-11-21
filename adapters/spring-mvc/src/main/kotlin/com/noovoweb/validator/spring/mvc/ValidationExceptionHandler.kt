@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
  * ```json
  * {
  *   "status": 422,
- *   "error": "Validation Failed",
+ *   "message": "Validation Failed",
  *   "errors": {
  *     "email": ["Must be a valid email address"],
  *     "age": ["Must be at least 18"]
@@ -34,7 +34,7 @@ class ValidationExceptionHandler {
     fun handleValidationException(ex: ValidationException): ResponseEntity<ValidationErrorResponse> {
         val response = ValidationErrorResponse(
             status = HttpStatus.UNPROCESSABLE_ENTITY.value(),
-            error = "Validation Failed",
+            message = "Validation Failed",
             errors = ex.errors
         )
 
@@ -48,11 +48,11 @@ class ValidationExceptionHandler {
  * Structured validation error response for REST APIs.
  *
  * @property status HTTP status code (422)
- * @property error Error message ("Validation Failed")
+ * @property message Error message ("Validation Failed")
  * @property errors Map of field names to error messages
  */
 data class ValidationErrorResponse(
     val status: Int,
-    val error: String,
+    val message: String,
     val errors: Map<String, List<String>>
 )
