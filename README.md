@@ -965,9 +965,9 @@ PARALLEL EXECUTION (across fields):
 
 ### Boolean Validators (1)
 
-| Validator | Description                                                              | Example |
-|-----------|--------------------------------------------------------------------------|---------|
-| `@Accepted` | Must be  "1", "yes", "true", or "on" (String) - true (Boolean) - 1 (Int) | `@Accepted val termsAccepted: Boolean?` |
+| Validator | Description                                                     | Example                                |
+|-----------|-----------------------------------------------------------------|----------------------------------------|
+| `@Accepted` | Must be "1", "yes", "true", or "on" | `@Accepted val termsAccepted: String?` |
 
 ### Structural Validators (3)
 
@@ -1494,7 +1494,7 @@ cd kotlin-validator
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ```
-Copyright 2024 NoovoWeb
+Copyright 2025 Noovoweb
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
