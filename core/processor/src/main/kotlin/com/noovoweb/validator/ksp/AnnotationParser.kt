@@ -84,6 +84,9 @@ class AnnotationParser(private val logger: KSPLogger) {
                                 validators.add(validator)
                                 validatorCount++
                             }
+                        } else {
+                            // Only warn if it's neither a built-in validator nor a meta-annotation
+                            logger.warn("Unknown validation annotation: $annotationName")
                         }
                     }
                 }
@@ -356,10 +359,7 @@ class AnnotationParser(private val logger: KSPLogger) {
                 customMessage = message
             )
 
-            else -> {
-                logger.warn("Unknown validation annotation: $annotationName")
-                null
-            }
+            else -> null
 
         }
     }

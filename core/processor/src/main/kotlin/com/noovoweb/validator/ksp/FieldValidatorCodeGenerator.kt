@@ -156,6 +156,7 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Required")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
@@ -171,6 +172,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Email")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -200,6 +202,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Url - Uses URL class validation (no ReDoS risk)")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidURL for safe validation")
             addStatement("val isValid = %T.isValidURL(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -220,6 +223,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Uuid")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -249,6 +253,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Length(min=%L, max=%L)", validator.min, validator.max)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (it.length !in %L..%L)", validator.min, validator.max)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
@@ -267,6 +272,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MinLength(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (it.length < %L)", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -285,6 +291,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MaxLength(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (it.length > %L)", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -311,6 +318,7 @@ class FieldValidatorCodeGenerator {
                 addStatement("// PERFORMANCE WARNING: Pattern may be slow on long inputs. Use @MaxLength before @Pattern.")
             }
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for pattern matching (ReDoS protection)")
@@ -341,6 +349,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Alpha")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -370,6 +379,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Alphanumeric")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -399,6 +409,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Ascii")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -428,6 +439,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Lowercase")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (it != it.lowercase())")
             add(addErrorMessage(validator))
@@ -446,6 +458,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Uppercase")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (it != it.uppercase())")
             add(addErrorMessage(validator))
@@ -464,6 +477,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @StartsWith")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (!it.startsWith(%S))", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
@@ -482,6 +496,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @EndsWith")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (!it.endsWith(%S))", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
@@ -500,6 +515,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Contains")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("if (!it.contains(%S))", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
@@ -554,6 +570,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Json - Proper JSON structure validation")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidJson for proper validation")
             addStatement("val isValid = %T.isValidJson(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -574,6 +591,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Luhn - Luhn algorithm validation (credit cards, IMEI, etc.)")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Remove spaces and hyphens")
             addStatement("val digits = it.replace(\" \", \"\").replace(\"-\", \"\")")
@@ -614,6 +632,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Min(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -636,6 +655,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Max(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -658,6 +678,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Between(%L, %L)", validator.min, validator.max)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -681,6 +702,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Positive")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -703,6 +725,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Negative")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -725,6 +748,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Zero")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -747,6 +771,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Integer")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
             addStatement("is Float -> {")
@@ -778,6 +803,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Decimal")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Int, is Long, is Short, is Byte -> {")
             indent()
@@ -814,6 +840,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @DivisibleBy(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -836,6 +863,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Even")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -858,6 +886,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Odd")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Number -> {")
             indent()
@@ -880,6 +909,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @DecimalPlaces - validates string representation has exact decimal places")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is String -> {")
             indent()
@@ -946,6 +976,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Size(min=%L, max=%L)", validator.min, validator.max)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val size = when (it) {")
             indent()
             addStatement("is Collection<*> -> it.size")
@@ -970,6 +1001,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MinSize(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val size = when (it) {")
             indent()
             addStatement("is Collection<*> -> it.size")
@@ -994,6 +1026,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MaxSize(%L)", validator.value)
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val size = when (it) {")
             indent()
             addStatement("is Collection<*> -> it.size")
@@ -1018,6 +1051,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @NotEmpty")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val isEmpty = when (it) {")
             indent()
             addStatement("is Collection<*> -> it.isEmpty()")
@@ -1043,6 +1077,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Distinct")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is List<*> -> {")
             indent()
@@ -1056,7 +1091,7 @@ class FieldValidatorCodeGenerator {
             indent()
             addStatement("val arrayAsList = (it as Array<*>).toList()")
             addStatement("val distinctList = arrayAsList.distinct()")
-            beginControlFlow("if (it.size != distinctList.size)")
+            beginControlFlow("if (arrayAsList.size != distinctList.size)")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -1075,6 +1110,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @ContainsValue")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Collection<*> -> {")
             indent()
@@ -1108,6 +1144,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @NotContains")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Collection<*> -> {")
             indent()
@@ -1143,6 +1180,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @DateFormat")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             beginControlFlow("try")
             addStatement("java.time.format.DateTimeFormatter.ofPattern(%S).parse(it)", validator.format)
@@ -1163,6 +1201,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IsoDate")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -1192,6 +1231,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IsoDateTime")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -1221,6 +1261,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Future - uses injectable Clock from context")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is java.time.LocalDate -> {")
             indent()
@@ -1262,6 +1303,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Past - uses injectable Clock from context")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is java.time.LocalDate -> {")
             indent()
@@ -1303,6 +1345,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Today - uses injectable Clock from context")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is java.time.LocalDate -> {")
             indent()
@@ -1337,6 +1380,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IPv4 - Uses InetAddress validation (safe and reliable)")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidIPv4 for safe validation")
             addStatement("val isValid = %T.isValidIPv4(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -1357,6 +1401,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IPv6 - Uses InetAddress validation (no ReDoS risk)")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidIPv6 for safe validation")
             addStatement("val isValid = %T.isValidIPv6(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -1377,6 +1422,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IP (IPv4 or IPv6) - Uses InetAddress validation (safe)")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidIP for safe validation")
             addStatement("val isValid = %T.isValidIP(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -1397,6 +1443,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MacAddress")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -1426,6 +1473,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Port")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is Int -> {")
             indent()
@@ -1460,6 +1508,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MimeType - NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()
@@ -1512,6 +1561,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @FileExtension - Pure string check, non-blocking")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()
@@ -1556,6 +1606,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MaxFileSize - NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
+            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()
@@ -1621,6 +1672,7 @@ class FieldValidatorCodeGenerator {
             addStatement("// @RequiredIf")
             addStatement("val otherValue = payload.%L", validator.field)
             beginControlFlow("if (otherValue?.toString() == %S)", validator.value)
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
@@ -1638,6 +1690,7 @@ class FieldValidatorCodeGenerator {
             addStatement("// @RequiredUnless")
             addStatement("val otherValue = payload.%L", validator.field)
             beginControlFlow("if (otherValue?.toString() != %S)", validator.value)
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
@@ -1656,6 +1709,7 @@ class FieldValidatorCodeGenerator {
             val fieldsCheck = validator.fields.joinToString(" || ") { "payload.$it != null" }
             val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
             beginControlFlow("if ($fieldsCheck)")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             addStatement("val requiredFields = arrayOf($fieldsArray)")
             add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
@@ -1675,6 +1729,7 @@ class FieldValidatorCodeGenerator {
             val fieldsCheck = validator.fields.joinToString(" && ") { "payload.$it == null" }
             val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
             beginControlFlow("if ($fieldsCheck)")
+            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             addStatement("val requiredFields = arrayOf($fieldsArray)")
             add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))

@@ -1533,13 +1533,6 @@ We will respond within 48 hours.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-**Areas we'd especially appreciate help with:**
-- Additional built-in validators (with i18n)
-- New framework integrations (Quarkus, Micronaut, etc.)
-- Performance optimizations
-- Documentation improvements
-- Additional language translations
-
 ## 🔗 Links
 
 - **WebFlux Example**: [kotlin-validator-spring-webflux-example](https://github.com/noovoweb/kotlin-validator-spring-webflux-example)

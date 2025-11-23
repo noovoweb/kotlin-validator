@@ -303,6 +303,7 @@ class ValidatorClassGenerator(
                 .beginControlFlow("value?.let { collection ->")
                 .addStatement("coroutineScope {")
                 .indent()
+                .addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
                 .addStatement("val nestedValidations = when (collection) {")
                 .indent()
                 .addStatement("is Collection<*> -> collection.mapIndexed { index, item ->")
