@@ -118,6 +118,49 @@ class FieldValidatorCodeGenerator {
     // === Helper Methods ===
 
     /**
+     * Helper to wrap validation logic based on property nullability.
+     * For nullable properties, wraps in value?.let { }
+     * For non-nullable properties, uses value directly
+     */
+    private fun wrapInNullabilityCheck(
+        property: PropertyInfo,
+        validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit
+    ): CodeBlock {
+        return CodeBlock.builder().apply {
+            if (property.isNullable) {
+                beginControlFlow("value?.let")
+                validationLogic("it")
+                endControlFlow()
+            } else {
+                validationLogic("value")
+            }
+        }.build()
+    }
+
+    /**
+     * Helper to add type check for String validators.
+     * Only adds the check if property type is not guaranteed to be String.
+     */
+    private fun addStringTypeCheckIfNeeded(
+        property: PropertyInfo,
+        valueRef: String,
+        validationLogic: CodeBlock.Builder.() -> Unit
+    ): CodeBlock {
+        return CodeBlock.builder().apply {
+            if (property.type.isString()) {
+                // Property is guaranteed to be String, no type check needed
+                validationLogic()
+            } else {
+                // Property might not be String, add type check with suppression
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+                validationLogic()
+                endControlFlow()
+            }
+        }.build()
+    }
+
+    /**
      * Generate code to add an error message.
      */
     private fun addErrorMessage(validator: ValidationValidatorInfo, args: String? = null): CodeBlock {
@@ -156,8 +199,28 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Required")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+            
+            if (property.isNullable) {
+                // Nullable property - check both null and blank (for Strings)
+                if (property.type.isString()) {
+                    addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                    beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+                } else {
+                    // Nullable non-String - only check null
+                    beginControlFlow("if (value == null)")
+                }
+            } else {
+                // Non-nullable property
+                if (property.type.isString()) {
+                    // Non-nullable String - only check blank
+                    beginControlFlow("if (value.isBlank())")
+                } else {
+                    // Non-nullable non-String type - only check null (should never be null, but for safety)
+                    addStatement("@Suppress(%S)", "SENSELESS_COMPARISON")
+                    beginControlFlow("if (value == null)")
+                }
+            }
+            
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -171,26 +234,26 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Email")
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
-            // SECURITY: Length check to prevent ReDoS on very long inputs
-            addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
-            beginControlFlow("if (it.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
-            addStatement(
-                "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
-                "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
-            )
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            // PERFORMANCE: Use cached regex from companion object
-            beginControlFlow("if (!emailRegex.matches(it))")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            add(wrapInNullabilityCheck(property) { valueRef ->
+                add(addStringTypeCheckIfNeeded(property, valueRef) {
+                    // SECURITY: Length check to prevent ReDoS on very long inputs
+                    addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
+                    beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
+                    addStatement(
+                        "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
+                        "field.too_long",
+                        RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                    )
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                    // PERFORMANCE: Use cached regex from companion object
+                    beginControlFlow("if (!emailRegex.matches($valueRef))")
+                    add(addErrorMessage(validator))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                })
+            })
         }.build()
     }
 
@@ -201,17 +264,33 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Url - Uses URL class validation (no ReDoS risk)")
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
             addStatement("// Use ValidationPatterns.isValidURL for safe validation")
-            addStatement("val isValid = %T.isValidURL(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
+            addStatement("val isValid = %T.isValidURL($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
             beginControlFlow("if (!isValid)")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -222,12 +301,22 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Uuid")
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
-            beginControlFlow("if (it.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
+            beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
@@ -236,12 +325,18 @@ class FieldValidatorCodeGenerator {
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
             // PERFORMANCE: Use cached regex from companion object
-            beginControlFlow("if (!uuidRegex.matches(it))")
+            beginControlFlow("if (!uuidRegex.matches($valueRef))")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -252,15 +347,31 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Length(min=%L, max=%L)", validator.min, validator.max)
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
-            beginControlFlow("if (it.length !in %L..%L)", validator.min, validator.max)
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
+            beginControlFlow("if ($valueRef.length !in %L..%L)", validator.min, validator.max)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -271,15 +382,31 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MinLength(%L)", validator.value)
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
-            beginControlFlow("if (it.length < %L)", validator.value)
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
+            beginControlFlow("if ($valueRef.length < %L)", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -290,15 +417,31 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MaxLength(%L)", validator.value)
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
-            beginControlFlow("if (it.length > %L)", validator.value)
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
+            beginControlFlow("if ($valueRef.length > %L)", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -317,12 +460,22 @@ class FieldValidatorCodeGenerator {
                 // Add warning - keep it short for readability
                 addStatement("// PERFORMANCE WARNING: Pattern may be slow on long inputs. Use @MaxLength before @Pattern.")
             }
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for pattern matching (ReDoS protection)")
-            beginControlFlow("if (it.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
+            beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.pattern.too_long",
@@ -332,12 +485,18 @@ class FieldValidatorCodeGenerator {
             endControlFlow()
             // Use cached regex from companion object
             addStatement("// Use pre-compiled regex for performance")
-            beginControlFlow("else if (!${property.name}Regex.matches(it))")
+            beginControlFlow("else if (!${property.name}Regex.matches($valueRef))")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -348,12 +507,22 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Alpha")
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
-            beginControlFlow("if (it.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
+            beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
@@ -362,12 +531,18 @@ class FieldValidatorCodeGenerator {
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
             // PERFORMANCE: Use cached regex from companion object
-            beginControlFlow("if (!alphaRegex.matches(it))")
+            beginControlFlow("if (!alphaRegex.matches($valueRef))")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 
@@ -378,12 +553,22 @@ class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Alphanumeric")
-            beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-            beginControlFlow("if (it is String)")
+            
+            val valueRef = if (property.isNullable) {
+                beginControlFlow("value?.let")
+                "it"
+            } else {
+                "value"
+            }
+            
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+            
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
-            beginControlFlow("if (it.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
+            beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
@@ -392,12 +577,18 @@ class FieldValidatorCodeGenerator {
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
             // PERFORMANCE: Use cached regex from companion object
-            beginControlFlow("if (!alphanumericRegex.matches(it))")
+            beginControlFlow("if (!alphanumericRegex.matches($valueRef))")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            endControlFlow()
-            endControlFlow()
+            
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+            
+            if (property.isNullable) {
+                endControlFlow()
+            }
         }.build()
     }
 

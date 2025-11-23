@@ -43,7 +43,7 @@ class AcceptLanguageHeaderIntegrationTest {
             primaryLanguage == null -> Locale.ENGLISH
             primaryLanguage.startsWith("fr") -> Locale.FRENCH
             primaryLanguage.startsWith("de") -> Locale.GERMAN
-            primaryLanguage.startsWith("es") -> Locale("es")
+            primaryLanguage.startsWith("es") -> Locale.forLanguageTag("es")
             primaryLanguage.startsWith("en") -> Locale.ENGLISH
             else -> Locale.ENGLISH
         }
