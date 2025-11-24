@@ -1432,20 +1432,10 @@ Every validator annotation accepts an optional `message` parameter that allows y
 
 ```kotlin
 @Validated
-data class UpdateUserRequest(
-    val oldName: String?,
-    
-    // Use custom message key instead of default "field.different"
-    @Different("oldName", "name.different")
-    val name: String?,
-    
+data class UpdateEmailRequest(
     // Custom message for email validation
     @Email("user.email.invalid")
     val email: String?,
-    
-    // Custom message for password length
-    @MinLength(8, "user.password.too_short")
-    val password: String?
 )
 ```
 
@@ -1453,16 +1443,12 @@ Then define your custom messages in your application's properties files:
 
 **`src/main/resources/messages.properties`** (English):
 ```properties
-name.different=The name you entered must be different from the previous one
 user.email.invalid=Please provide a valid email address for your account
-user.password.too_short=Your password must be at least 8 characters long for security
 ```
 
 **`src/main/resources/messages_fr.properties`** (French):
 ```properties
-name.different=Le nom que vous avez saisi doit être différent du précédent
 user.email.invalid=Veuillez fournir une adresse e-mail valide pour votre compte
-user.password.too_short=Votre mot de passe doit contenir au moins 8 caractères pour des raisons de sécurité
 ```
 
 **Benefits:**
