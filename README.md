@@ -1432,10 +1432,14 @@ Every validator annotation accepts an optional `message` parameter that allows y
 
 ```kotlin
 @Validated
-data class UpdateEmailRequest(
+data class UpdateUserRequest(
     // Custom message for email validation
     @Email("user.email.invalid")
     val email: String?,
+    
+    // Custom message for password length
+    @MinLength(3, "user.name.too_short")
+    val name: String?
 )
 ```
 
@@ -1444,11 +1448,13 @@ Then define your custom messages in your application's properties files:
 **`src/main/resources/messages.properties`** (English):
 ```properties
 user.email.invalid=Please provide a valid email address for your account
+user.name.too_short=Your name must be at least 8 characters long
 ```
 
 **`src/main/resources/messages_fr.properties`** (French):
 ```properties
 user.email.invalid=Veuillez fournir une adresse e-mail valide pour votre compte
+user.name.too_short=Votre nom doit contenir au moins 8 caractères
 ```
 
 **Benefits:**
