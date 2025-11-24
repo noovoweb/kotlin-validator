@@ -164,18 +164,15 @@ class FieldValidatorCodeGenerator {
      * Generate code to add an error message.
      */
     private fun addErrorMessage(validator: ValidationValidatorInfo, args: String? = null): CodeBlock {
-        return if (validator.customMessage != null) {
-            // Custom message provided
-            CodeBlock.of("errors.add(%S)\n", validator.customMessage)
-        } else {
-            // Use message provider
-            val argsCode = args ?: "null"
-            CodeBlock.of(
-                "errors.add(context.messageProvider.getMessage(%S, %L, context.locale))\n",
-                validator.messageKey,
-                argsCode
-            )
-        }
+        val argsCode = args ?: "null"
+        val messageKey = validator.customMessage ?: validator.messageKey
+        
+        // Always use message provider to allow for i18n and custom message keys
+        return CodeBlock.of(
+            "errors.add(context.messageProvider.getMessage(%S, %L, context.locale))\n",
+            messageKey,
+            argsCode
+        )
     }
 
     /**

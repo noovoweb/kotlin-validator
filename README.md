@@ -1426,6 +1426,51 @@ Located in `ValidationMessages.properties` and `ValidationMessages_fr.properties
 
 ### Custom Messages
 
+Every validator annotation accepts an optional `message` parameter that allows you to override the default error message with a custom message key.
+
+#### Using Custom Message Keys
+
+```kotlin
+@Validated
+data class UpdateUserRequest(
+    val oldName: String?,
+    
+    // Use custom message key instead of default "field.different"
+    @Different("name", "name.different")
+    val name: String?,
+    
+    // Custom message for email validation
+    @Email("user.email.invalid")
+    val email: String?,
+    
+    // Custom message for password length
+    @MinLength(8, "user.password.too_short")
+    val password: String?
+)
+```
+
+Then define your custom messages in your application's properties files:
+
+**`src/main/resources/messages.properties`** (English):
+```properties
+name.different=The name you entered must be different from the previous one
+user.email.invalid=Please provide a valid email address for your account
+user.password.too_short=Your password must be at least 8 characters long for security
+```
+
+**`src/main/resources/messages_fr.properties`** (French):
+```properties
+name.different=Le nom que vous avez saisi doit être différent du précédent
+user.email.invalid=Veuillez fournir une adresse e-mail valide pour votre compte
+user.password.too_short=Votre mot de passe doit contenir au moins 8 caractères pour des raisons de sécurité
+```
+
+**Benefits:**
+- ✅ **Field-specific messages** - Different messages for the same validator on different fields
+- ✅ **Full i18n support** - Messages automatically resolved based on `Accept-Language` header
+- ✅ **Centralized** - All messages in one place for easy management
+- ✅ **Consistent** - Same message system as built-in validators
+
 #### For Standalone Usage
 
 Implement `MessageProvider`:
@@ -1451,20 +1496,21 @@ validator.validate(payload, context)
 
 #### For Spring Boot
 
-The `kotlin-validator-spring-webflux` module automatically creates a `SpringMessageProvider` that:
+The `kotlin-validator-spring-webflux` and `kotlin-validator-spring-mvc` modules automatically create a `SpringMessageProvider` that:
 1. First checks Spring's `MessageSource` (your `messages.properties`)
 2. Falls back to built-in `ValidationMessages.properties`
 3. Respects the `Accept-Language` header
 
-Just add your custom messages to `src/main/resources/messages.properties`:
+Just add your custom messages to `src/main/resources/messages.properties` as shown above.
 
-```properties
-# English
-custom.validation.message=Custom validation failed
+#### For Ktor
 
-# French (messages_fr.properties)
-custom.validation.message=La validation personnalisée a échoué
-```
+The `kotlin-validator-ktor` module uses resource bundle-based message resolution:
+1. First checks `ValidationMessages.properties` in your application
+2. Falls back to built-in messages in the library
+3. Respects the `Accept-Language` header
+
+Add your custom messages to `src/main/resources/ValidationMessages.properties` in your Ktor application.
 
 ## 🧪 Testing
 
