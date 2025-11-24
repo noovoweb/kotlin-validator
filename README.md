@@ -1088,26 +1088,27 @@ Create custom validation logic using the `@CustomValidator` annotation:
 import com.noovoweb.validator.ValidationContext
 import com.noovoweb.validator.ValidationException
 
-object PasswordValidators {
+object PasswordValidator {
+    private const val MIN_LENGTH = 8
+    private const val MAX_LENGTH = 128 
+
+    /**
+     * Validates that a password meets strong password requirements:
+     * - Between 8-128 characters
+     * - At least one uppercase letter (A-Z)
+     * - At least one lowercase letter (a-z)
+     * - At least one digit (0-9)
+     */
     suspend fun validateStrongPassword(value: String?, context: ValidationContext): Boolean {
         if (value == null) return true
 
-        val hasMinLength = value.length >= 12
+        val hasMinLength = value.length >= MIN_LENGTH
+        val hasMaxLength = value.length <= MAX_LENGTH
         val hasUppercase = value.any { it.isUpperCase() }
         val hasLowercase = value.any { it.isLowerCase() }
         val hasDigit = value.any { it.isDigit() }
-        val hasSpecialChar = value.any { !it.isLetterOrDigit() }
 
-        return if (hasMinLength && hasUppercase && hasLowercase && hasDigit && hasSpecialChar) {
-            true
-        } else {
-            val message = context.messageProvider.getMessage(
-                "password.strong_password",
-                null,
-                context.locale
-            )
-            throw ValidationException(mapOf("password" to listOf(message)))
-        }
+        return hasMinLength && hasMaxLength && hasUppercase && hasLowercase && hasDigit
     }
 }
 ```
