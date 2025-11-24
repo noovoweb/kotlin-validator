@@ -1436,7 +1436,7 @@ data class UpdateUserRequest(
     val oldName: String?,
     
     // Use custom message key instead of default "field.different"
-    @Different("name", "name.different")
+    @Different("oldName", "name.different")
     val name: String?,
     
     // Custom message for email validation
