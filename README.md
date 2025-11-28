@@ -38,7 +38,6 @@ A **high-performance, type-safe validation library** for Kotlin using compile-ti
 - 🌍 **Internationalization (i18n)** - Built-in English/French messages, easily extensible to any language
 - 🏗️ **Framework integrations** - Production-ready modules for Spring Boot (WebFlux & MVC) and Ktor
 - 🛑 **@FailFast** - Fine-grained control over validation flow per field
-- 🔓 **@Nullable** - Explicit null handling for optional fields with proper semantics
 - 🎭 **HTTP 422 responses** - Automatic structured error responses with proper status codes
 - 🔒 **Security hardened** - ReDoS protection, pattern caching, no dangerous operations
 
@@ -817,33 +816,6 @@ When validating `email: "invalid-email"`:
 
 **Best Practice:** Place `@FailFast` after your most important validators (like `@Required`, `@Email`) to fail fast and avoid unnecessary checks.
 
-### @Nullable - Allow Null Values
-
-Use `@Nullable` to explicitly allow null values. When marked with `@Nullable`, other validators are skipped if the value is `null`.
-
-```kotlin
-@Validated
-data class User(
-    @Nullable
-    @MinLength(2)
-    @MaxLength(50)
-    @Alpha
-    val middleName: String?
-)
-```
-
-When validating `middleName: null`:
-- ✅ Validation passes (null is allowed)
-
-When validating `middleName: "A"`:
-```json
-{
-  "errors": {
-    "middleName": ["This field must contain at least 2 characters"]
-  }
-}
-```
-
 ### Parallel Validation
 
 **Validation Execution Model:**
@@ -969,12 +941,11 @@ PARALLEL EXECUTION (across fields):
 |-----------|-----------------------------------------------------------------|----------------------------------------|
 | `@Accepted` | Must be "1", "yes", "true", or "on" | `@Accepted val termsAccepted: String?` |
 
-### Structural Validators (3)
+### Structural Validators (2)
 
 | Validator | Description | Example |
 |-----------|-------------|---------|
 | `@Valid(each)` | Validate nested objects | `@Valid val address: Address?` |
-| `@Nullable` | Explicitly allow null values | `@Nullable @MinLength(2) val middleName: String?` |
 | `@FailFast` | Stop validation on first error | `@Email @FailFast @MaxLength(100) val email: String?` |
 
 ### Custom Validators (1)

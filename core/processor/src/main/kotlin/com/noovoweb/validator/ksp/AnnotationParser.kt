@@ -49,7 +49,6 @@ class AnnotationParser(private val logger: KSPLogger) {
         // Extract all validation validators from annotations
         val validators = mutableListOf<ValidationValidatorInfo>()
         val failFastPositions = mutableListOf<Int>()
-        var hasNullable = false
         var nestedValidation: NestedValidationInfo? = null
         var annotationIndex = 0
         var validatorCount = 0
@@ -64,7 +63,6 @@ class AnnotationParser(private val logger: KSPLogger) {
                     // (after the validator that precedes this annotation)
                     failFastPositions.add(validatorCount)
                 }
-                "Nullable" -> hasNullable = true
                 "Valid" -> {
                     val each = annotation.arguments.find { it.name?.asString() == "each" }?.value as? Boolean ?: false
                     nestedValidation = NestedValidationInfo(validateEachElement = each)
@@ -105,7 +103,6 @@ class AnnotationParser(private val logger: KSPLogger) {
             type = type,
             validators = validators,
             isNullable = type.isNullable,
-            hasNullableAnnotation = hasNullable,
             failFastPositions = failFastPositions,
             nestedValidation = nestedValidation
         )

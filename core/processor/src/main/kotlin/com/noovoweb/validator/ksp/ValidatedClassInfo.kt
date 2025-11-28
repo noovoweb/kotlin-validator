@@ -32,7 +32,6 @@ data class ValidatedClassInfo(
  * @property type Type information
  * @property validators List of validation validators to apply
  * @property isNullable Whether the property type is nullable
- * @property hasNullableAnnotation Whether @Nullable annotation is present
  * @property failFastPositions Positions where @FailFast checkpoints are placed (indices in the annotation order)
  * @property nestedValidation Nested validation info if @Valid is present
  */
@@ -41,7 +40,6 @@ data class PropertyInfo(
     val type: TypeInfo,
     val validators: List<ValidationValidatorInfo>,
     val isNullable: Boolean,
-    val hasNullableAnnotation: Boolean,
     val failFastPositions: List<Int>,
     val nestedValidation: NestedValidationInfo?
 ) {

@@ -20,7 +20,6 @@ class ValidatedClassInfoTest {
                 ValidationValidatorInfo.EmailValidator(null)
             ),
             isNullable = true,
-            hasNullableAnnotation = false,
             failFastPositions = emptyList(),
             nestedValidation = null
         )
@@ -47,7 +46,6 @@ class ValidatedClassInfoTest {
                 ValidationValidatorInfo.MinValidator(18.0, null)
             ),
             isNullable = true,
-            hasNullableAnnotation = false,
             failFastPositions = emptyList(),
             nestedValidation = null
         )
@@ -56,24 +54,7 @@ class ValidatedClassInfoTest {
         assertEquals("Int", property.type.simpleName)
         assertEquals(2, property.validators.size)
         assertTrue(property.isNullable)
-        assertFalse(property.hasNullableAnnotation)
         assertTrue(property.failFastPositions.isEmpty())
-    }
-
-    @Test
-    fun `should handle property with @Nullable annotation`() {
-        val property = PropertyInfo(
-            name = "nickname",
-            type = TypeInfo("kotlin.String", "String", true),
-            validators = emptyList(),
-            isNullable = true,
-            hasNullableAnnotation = true,
-            failFastPositions = emptyList(),
-            nestedValidation = null
-        )
-
-        assertTrue(property.hasNullableAnnotation)
-        assertTrue(property.isNullable)
     }
 
     @Test
@@ -86,7 +67,6 @@ class ValidatedClassInfoTest {
                 ValidationValidatorInfo.EmailValidator(null)
             ),
             isNullable = true,
-            hasNullableAnnotation = false,
             failFastPositions = listOf(2),
             nestedValidation = null
         )
@@ -105,7 +85,6 @@ class ValidatedClassInfoTest {
             type = TypeInfo("kotlin.collections.List", "List", false),
             validators = emptyList(),
             isNullable = false,
-            hasNullableAnnotation = false,
             failFastPositions = emptyList(),
             nestedValidation = nestedValidation
         )
@@ -121,7 +100,6 @@ class ValidatedClassInfoTest {
                 type = TypeInfo("kotlin.String", "String", true),
                 validators = listOf(ValidationValidatorInfo.RequiredValidator(null)),
                 isNullable = true,
-                hasNullableAnnotation = false,
                 failFastPositions = emptyList(),
                 nestedValidation = null
             ),
@@ -130,7 +108,6 @@ class ValidatedClassInfoTest {
                 type = TypeInfo("kotlin.String", "String", true),
                 validators = listOf(ValidationValidatorInfo.EmailValidator(null)),
                 isNullable = true,
-                hasNullableAnnotation = false,
                 failFastPositions = emptyList(),
                 nestedValidation = null
             ),
@@ -139,7 +116,6 @@ class ValidatedClassInfoTest {
                 type = TypeInfo("kotlin.Int", "Int", true),
                 validators = listOf(ValidationValidatorInfo.MinValidator(18.0, null)),
                 isNullable = true,
-                hasNullableAnnotation = false,
                 failFastPositions = emptyList(),
                 nestedValidation = null
             )

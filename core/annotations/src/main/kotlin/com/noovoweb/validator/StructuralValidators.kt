@@ -26,28 +26,6 @@ annotation class Valid(
 )
 
 /**
- * Allows null values but validates if present.
- *
- * By default, nullable fields are validated when non-null. This annotation makes the
- * behavior explicit and can be used for clarity.
- *
- * @param message Custom error message (optional)
- *
- * Example:
- * ```kotlin
- * @Validated
- * data class User(
- *     @Nullable @Email val email: String?  // Only validates email format if not null
- * )
- * ```
- */
-@Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.SOURCE)
-annotation class Nullable(
-    val message: String = ""
-)
-
-/**
  * Creates a validation checkpoint that stops field validation if any previous validator failed.
  *
  * @FailFast works as a **checkpoint marker** that can be placed anywhere in your validation

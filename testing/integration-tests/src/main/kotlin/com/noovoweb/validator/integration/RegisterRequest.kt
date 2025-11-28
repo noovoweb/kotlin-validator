@@ -8,7 +8,6 @@ import com.noovoweb.validator.Max
 import com.noovoweb.validator.MaxLength
 import com.noovoweb.validator.Min
 import com.noovoweb.validator.MinLength
-import com.noovoweb.validator.Nullable
 import com.noovoweb.validator.Pattern
 import com.noovoweb.validator.Required
 import com.noovoweb.validator.Same

@@ -26,7 +26,6 @@ class FieldValidatorCodeGeneratorTest {
             ),
             validators = emptyList(),
             isNullable = isNullable,
-            hasNullableAnnotation = false,
             failFastPositions = emptyList(),
             nestedValidation = null
         )
