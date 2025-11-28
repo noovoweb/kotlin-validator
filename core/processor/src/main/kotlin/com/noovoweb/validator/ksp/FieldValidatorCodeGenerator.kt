@@ -2360,10 +2360,10 @@ class FieldValidatorCodeGenerator {
 
             // Catch ValidationException to collect detailed errors
             nextControlFlow("catch (ex: %T)", com.noovoweb.validator.ValidationException::class)
-            addStatement("// CustomValidator threw ValidationException with detailed errors")
-            addStatement("// Merge errors into the field errors list")
-            beginControlFlow("ex.errors.forEach { (field, messages) ->")
-            addStatement("if (field == %S) errors.addAll(messages)", fieldPath)
+            addStatement("// CustomValidator threw ValidationException - map all errors to current field path")
+            addStatement("// This prevents issues with hardcoded field names in custom validators")
+            beginControlFlow("ex.errors.values.forEach { messages ->")
+            addStatement("errors.addAll(messages)")
             endControlFlow()
             // Note: @FailFast checkpoints are now handled at ValidatorClassGenerator level
             // No need to handle fail-fast here in CustomValidator

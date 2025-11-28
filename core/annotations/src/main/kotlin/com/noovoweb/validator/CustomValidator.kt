@@ -50,7 +50,42 @@ package com.noovoweb.validator
  * }
  * ```
  *
- * **For complex errors with multiple issues:**
+ * **IMPORTANT: Best Practice for Custom Validators**
+ *
+ * Custom validators should return `true` (valid) or `false` (invalid).
+ * The framework will automatically use the `message` parameter from the annotation
+ * and map errors to the correct field name.
+ *
+ * ```kotlin
+ * object PasswordValidators {
+ *     suspend fun validateStrongPassword(value: String?, context: ValidationContext): Boolean {
+ *         if (value == null) return true
+ *         
+ *         val hasMinLength = value.length >= 8
+ *         val hasUppercase = value.any { it.isUpperCase() }
+ *         val hasLowercase = value.any { it.isLowerCase() }
+ *         val hasDigit = value.any { it.isDigit() }
+ *         
+ *         return hasMinLength && hasUppercase && hasLowercase && hasDigit
+ *     }
+ * }
+ * 
+ * // Usage with any field name
+ * @Validated
+ * data class User(
+ *     @CustomValidator(
+ *         validator = "PasswordValidators::validateStrongPassword",
+ *         message = "password.strong_password"
+ *     )
+ *     val newPassword: String?  // Error will correctly map to "newPassword"
+ * )
+ * ```
+ *
+ * **Advanced: Throwing ValidationException for complex error messages**
+ *
+ * If you need to throw ValidationException with custom messages, note that
+ * all error messages will be mapped to the field being validated, regardless
+ * of the field names you specify in the exception map.
  *
  * ```kotlin
  * object ProductValidators {
@@ -64,9 +99,8 @@ package com.noovoweb.validator
  *         return if (errors.isEmpty()) {
  *             true
  *         } else {
- *             throw ValidationException(mapOf(
- *                 "price" to errors
- *             ))
+ *             // Field name in map is ignored - errors map to the actual field
+ *             throw ValidationException(mapOf("_" to errors))
  *         }
  *     }
  * }

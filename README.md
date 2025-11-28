@@ -224,8 +224,8 @@ data class RegisterRequest(
     @Email
     @MaxLength(100)
     val email: String?,
-    
-    @CustomValidator(validator = "com.example.validators.PasswordValidators::validateStrongPassword")
+
+    @StrongPassword
     val password: String?,
     
     @Same("password")
@@ -415,8 +415,8 @@ data class RegisterRequest(
     @Email
     @MaxLength(100)
     val email: String?,
-    
-    @CustomValidator(validator = "com.example.validators.PasswordValidators::validateStrongPassword")
+
+    @StrongPassword
     val password: String?,
     
     @Same("password")
@@ -551,7 +551,7 @@ data class RegisterRequest(
     @MaxLength(100)
     val email: String?,
 
-    @CustomValidator(validator = "com.example.validators.PasswordValidators::validateStrongPassword")
+    @StrongPassword
     val password: String?,
 
     @Same("password")
@@ -1059,6 +1059,14 @@ Create custom validation logic using the `@CustomValidator` annotation:
 import com.noovoweb.validator.ValidationContext
 import com.noovoweb.validator.ValidationException
 
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.SOURCE)
+@CustomValidator(
+    validator = "com.noovoweb.project.validator.PasswordValidator::validateStrongPassword",
+    message = "password.strong_password"
+)
+annotation class StrongPassword
+
 object PasswordValidator {
     private const val MIN_LENGTH = 8
     private const val MAX_LENGTH = 128 
@@ -1092,92 +1100,9 @@ data class RegisterRequest(
     @Email
     val email: String?,
     
-    @CustomValidator(
-        validator = "com.example.validators.PasswordValidators::validateStrongPassword",
-        message = "password.strong_password"
-    )
+    @StrongPassword
     val password: String?
 )
-```
-
-### 3. Creating Reusable Custom Annotations (Meta-Annotations)
-
-Instead of repeating `@CustomValidator(...)` everywhere, create your own reusable annotations:
-
-#### Define Your Custom Annotation
-
-```kotlin
-package com.example.validators
-
-import com.noovoweb.validator.CustomValidator
-
-@Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.SOURCE)
-@CustomValidator(
-    validator = "com.example.validators.PasswordValidators::validateStrongPassword",
-    message = "password.strong_password"
-)
-annotation class StrongPassword
-
-@Target(AnnotationTarget.PROPERTY)
-@Retention(AnnotationRetention.SOURCE)
-@CustomValidator(
-    validator = "com.example.validators.PostalCodeValidators::validateCanadianPostalCode",
-    message = "postal_code.invalid_canadian"
-)
-annotation class ValidCanadianPostalCode
-```
-
-#### Use Throughout Your Application
-
-```kotlin
-@Validated
-data class RegisterRequest(
-    @Required
-    @Email
-    val email: String?,
-    
-    @StrongPassword  // ✨ Clean and reusable!
-    val password: String?,
-    
-    @Required
-    @Same("password")
-    val passwordConfirmation: String?,
-    
-    @ValidCanadianPostalCode
-    val postalCode: String?
-)
-
-@Validated
-data class ChangePasswordRequest(
-    @StrongPassword  // ✨ Reuse the same annotation!
-    val newPassword: String?
-)
-
-@Validated
-data class AddressRequest(
-    @Required
-    @MinLength(3)
-    val street: String?,
-    
-    @ValidCanadianPostalCode  // ✨ Reuse again!
-    val postalCode: String?
-)
-```
-
-**Benefits of Meta-Annotations:**
-- ✅ **Cleaner code** - No verbose `@CustomValidator` strings
-- ✅ **Reusable** - Define once, use everywhere
-- ✅ **Type-safe** - Compile-time checking
-- ✅ **Self-documenting** - `@StrongPassword` is clearer than a long validator string
-- ✅ **IDE-friendly** - Auto-completion and go-to-definition work perfectly
-
-### 4. Add Custom Message
-
-In `src/main/resources/messages.properties`:
-
-```properties
-password.strong_password=Password must be at least 12 characters with uppercase, lowercase, digit, and special character
 ```
 
 ## 🚀 Advanced Usage
