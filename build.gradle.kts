@@ -21,18 +21,17 @@ subprojects {
     // apply(plugin = "io.gitlab.arturbosch.detekt")
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-        disabledRules.set(
-            listOf(
-                "filename",
-                "standard:comment-spacing",
-                "standard:kdoc-wrapping",
-                "standard:discouraged-comment-location",
-            ),
-        )
+        // Use editorConfigOverride instead of disabledRules (ktlint 0.48+)
         filter {
             exclude("**/build/**")
             exclude("**/generated/**")
         }
+    }
+
+    // Disable specific ktlint rules via .editorconfig overrides
+    tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask>().configureEach {
+        exclude("**/build/**")
+        exclude("**/generated/**")
     }
 }
 
