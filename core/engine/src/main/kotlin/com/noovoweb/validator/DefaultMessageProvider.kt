@@ -25,15 +25,15 @@ import java.util.concurrent.ConcurrentHashMap
  * - English (en)
  * - French (fr)
  */
-class DefaultMessageProvider : MessageProvider {
+class DefaultMessageProvider(
+    supportedLocales: List<Locale> = listOf(Locale.ENGLISH, Locale.FRENCH)
+) : MessageProvider {
 
     private val messageCache = ConcurrentHashMap<Pair<Locale, String>, String>()
 
     init {
         // Pre-load messages for supported locales at initialization
-        loadMessagesForLocale(Locale.ENGLISH)
-        loadMessagesForLocale(Locale.FRENCH)
-        // Add more locales here as needed
+        supportedLocales.forEach { loadMessagesForLocale(it) }
     }
 
     /**
