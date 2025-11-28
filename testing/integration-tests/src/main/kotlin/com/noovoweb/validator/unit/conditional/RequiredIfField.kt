@@ -7,5 +7,5 @@ import com.noovoweb.validator.Validated
 data class RequiredIfField(
     val shipToAddress: String?,
     @RequiredIf("shipToAddress", "other")
-    val customAddress: String?
+    val customAddress: String?,
 )

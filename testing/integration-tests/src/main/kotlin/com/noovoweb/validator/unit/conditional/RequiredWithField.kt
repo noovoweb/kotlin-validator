@@ -8,5 +8,5 @@ data class RequiredWithField(
     val email: String?,
     val phone: String?,
     @RequiredWith(["email", "phone"])
-    val name: String?
+    val name: String?,
 )

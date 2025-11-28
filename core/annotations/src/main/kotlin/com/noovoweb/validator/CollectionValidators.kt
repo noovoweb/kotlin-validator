@@ -16,7 +16,7 @@ package com.noovoweb.validator
 annotation class Size(
     val min: Int,
     val max: Int,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -33,7 +33,7 @@ annotation class Size(
 @Retention(AnnotationRetention.SOURCE)
 annotation class MinSize(
     val value: Int,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -50,7 +50,7 @@ annotation class MinSize(
 @Retention(AnnotationRetention.SOURCE)
 annotation class MaxSize(
     val value: Int,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -65,7 +65,7 @@ annotation class MaxSize(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class NotEmpty(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -81,7 +81,7 @@ annotation class NotEmpty(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Distinct(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -98,7 +98,7 @@ annotation class Distinct(
 @Retention(AnnotationRetention.SOURCE)
 annotation class ContainsValue(
     val value: String,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -115,5 +115,5 @@ annotation class ContainsValue(
 @Retention(AnnotationRetention.SOURCE)
 annotation class NotContains(
     val value: String,
-    val message: String = ""
+    val message: String = "",
 )

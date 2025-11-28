@@ -9,60 +9,66 @@ import kotlin.test.assertTrue
 
 class NestedObjectValidatorTest {
     @Test
-    fun `valid validator accepts valid nested object`() = runTest {
-        val validator = NestedObjectValidator()
-        validator.validate(
-            NestedObject(
-                name = "John",
-                address = Address(street = "123 Main St", city = "New York")
-            )
-        )
-    }
-
-    @Test
-    fun `valid validator rejects invalid nested object`() = runTest {
-        val validator = NestedObjectValidator()
-        assertThrows<ValidationException> {
+    fun `valid validator accepts valid nested object`() =
+        runTest {
+            val validator = NestedObjectValidator()
             validator.validate(
                 NestedObject(
                     name = "John",
-                    address = Address(street = null, city = "New York")
-                )
+                    address = Address(street = "123 Main St", city = "New York"),
+                ),
             )
         }
-    }
 
     @Test
-    fun `valid validator rejects invalid parent field`() = runTest {
-        val validator = NestedObjectValidator()
-        assertThrows<ValidationException> {
-            validator.validate(
-                NestedObject(
-                    name = null,
-                    address = Address(street = "123 Main St", city = "New York")
+    fun `valid validator rejects invalid nested object`() =
+        runTest {
+            val validator = NestedObjectValidator()
+            assertThrows<ValidationException> {
+                validator.validate(
+                    NestedObject(
+                        name = "John",
+                        address = Address(street = null, city = "New York"),
+                    ),
                 )
-            )
+            }
         }
-    }
 
     @Test
-    fun `valid validator allows null nested object`() = runTest {
-        val validator = NestedObjectValidator()
-        validator.validate(NestedObject(name = "John", address = null))
-    }
-
-    @Test
-    fun `valid validator provides nested error path`() = runTest {
-        val exception = assertThrows<ValidationException> {
-            NestedObjectValidator().validate(
-                NestedObject(
-                    name = "John",
-                    address = Address(street = null, city = null)
+    fun `valid validator rejects invalid parent field`() =
+        runTest {
+            val validator = NestedObjectValidator()
+            assertThrows<ValidationException> {
+                validator.validate(
+                    NestedObject(
+                        name = null,
+                        address = Address(street = "123 Main St", city = "New York"),
+                    ),
                 )
-            )
+            }
         }
-        println("Error keys: ${exception.errors.keys}")
-        assertTrue(exception.errors.isNotEmpty())
-        assertFalse(exception.errors.values.flatten().isEmpty())
-    }
+
+    @Test
+    fun `valid validator allows null nested object`() =
+        runTest {
+            val validator = NestedObjectValidator()
+            validator.validate(NestedObject(name = "John", address = null))
+        }
+
+    @Test
+    fun `valid validator provides nested error path`() =
+        runTest {
+            val exception =
+                assertThrows<ValidationException> {
+                    NestedObjectValidator().validate(
+                        NestedObject(
+                            name = "John",
+                            address = Address(street = null, city = null),
+                        ),
+                    )
+                }
+            println("Error keys: ${exception.errors.keys}")
+            assertTrue(exception.errors.isNotEmpty())
+            assertFalse(exception.errors.values.flatten().isEmpty())
+        }
 }

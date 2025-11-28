@@ -1,26 +1,19 @@
 package com.noovoweb.validator.spring.mvc
 
-import com.noovoweb.validator.DefaultMessageProvider
 import com.noovoweb.validator.MessageProvider
 import com.noovoweb.validator.ValidationContext
-import jakarta.servlet.http.HttpServletRequest
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Scope
-import org.springframework.context.annotation.ScopedProxyMode
-import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.servlet.DispatcherServlet
 import org.springframework.web.servlet.LocaleResolver
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver
-import java.util.*
+import java.util.Locale
 
 /**
  * Auto-configuration for kotlin-validator in Spring MVC.
@@ -67,7 +60,6 @@ import java.util.*
 @ConditionalOnClass(DispatcherServlet::class)
 @EnableConfigurationProperties(ValidatorProperties::class)
 class ValidatorAutoConfiguration {
-
     /**
      * Create default MessageProvider that integrates with Spring's MessageSource.
      */
@@ -97,11 +89,11 @@ class ValidatorAutoConfiguration {
     @ConditionalOnMissingBean(ValidationContext::class)
     fun validationContext(
         properties: ValidatorProperties,
-        messageProvider: MessageProvider
+        messageProvider: MessageProvider,
     ): ValidationContext {
         return ValidationContext(
             locale = properties.locale ?: Locale.getDefault(),
-            messageProvider = messageProvider
+            messageProvider = messageProvider,
         )
     }
 

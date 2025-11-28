@@ -21,9 +21,8 @@ import java.nio.charset.StandardCharsets
 class ValidatorProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
-    private val options: Map<String, String>
+    private val options: Map<String, String>,
 ) : SymbolProcessor {
-
     private val annotationParser = AnnotationParser(logger)
     private val fieldValidatorCodeGenerator = FieldValidatorCodeGenerator()
     private val validatorClassGenerator = ValidatorClassGenerator(fieldValidatorCodeGenerator)
@@ -46,9 +45,10 @@ class ValidatorProcessor(
         logger.info("ValidatorProcessor started")
 
         // Find all classes annotated with @Validated
-        val validatedClasses = resolver
-            .getSymbolsWithAnnotation("com.noovoweb.validator.Validated")
-            .filterIsInstance<KSClassDeclaration>()
+        val validatedClasses =
+            resolver
+                .getSymbolsWithAnnotation("com.noovoweb.validator.Validated")
+                .filterIsInstance<KSClassDeclaration>()
 
         if (!validatedClasses.iterator().hasNext()) {
             logger.info("No @Validated classes found")
@@ -72,7 +72,7 @@ class ValidatorProcessor(
                 if (Modifier.DATA !in classDeclaration.modifiers) {
                     logger.error(
                         "@Validated can only be applied to data classes",
-                        classDeclaration
+                        classDeclaration,
                     )
                     errorCount++
                     return@forEach
@@ -91,15 +91,16 @@ class ValidatorProcessor(
                 val fileSpec = validatorClassGenerator.generate(classInfo)
 
                 // Write the generated file
-                val dependencies = Dependencies(
-                    aggregating = true,
-                    sources = arrayOf(classDeclaration.containingFile!!)
-                )
+                val dependencies =
+                    Dependencies(
+                        aggregating = true,
+                        sources = arrayOf(classDeclaration.containingFile!!),
+                    )
 
                 codeGenerator.createNewFile(
                     dependencies = dependencies,
                     packageName = fileSpec.packageName,
-                    fileName = fileSpec.name
+                    fileName = fileSpec.name,
                 ).use { outputStream ->
                     OutputStreamWriter(outputStream, StandardCharsets.UTF_8).use { writer ->
                         fileSpec.writeTo(writer)
@@ -108,11 +109,10 @@ class ValidatorProcessor(
 
                 logger.info("Generated validator: ${classInfo.validatorClassName}")
                 processedCount++
-
             } catch (e: Exception) {
                 logger.error(
                     "Failed to process ${classDeclaration.qualifiedName?.asString()}: ${e.message}",
-                    classDeclaration
+                    classDeclaration,
                 )
                 logger.exception(e)
                 errorCount++
@@ -146,7 +146,6 @@ class ValidatorProcessor(
  * Must be registered in META-INF/services.
  */
 class ValidatorProcessorProvider : SymbolProcessorProvider {
-
     /**
      * Create a new ValidatorProcessor instance.
      */
@@ -154,7 +153,7 @@ class ValidatorProcessorProvider : SymbolProcessorProvider {
         return ValidatorProcessor(
             codeGenerator = environment.codeGenerator,
             logger = environment.logger,
-            options = environment.options
+            options = environment.options,
         )
     }
 }

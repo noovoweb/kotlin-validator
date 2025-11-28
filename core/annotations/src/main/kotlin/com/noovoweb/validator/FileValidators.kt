@@ -22,7 +22,7 @@ package com.noovoweb.validator
 @Retention(AnnotationRetention.SOURCE)
 annotation class MimeType(
     val values: Array<String>,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -47,7 +47,7 @@ annotation class MimeType(
 @Retention(AnnotationRetention.SOURCE)
 annotation class FileExtension(
     val values: Array<String>,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -72,5 +72,5 @@ annotation class FileExtension(
 @Retention(AnnotationRetention.SOURCE)
 annotation class MaxFileSize(
     val bytes: Long,
-    val message: String = ""
+    val message: String = "",
 )

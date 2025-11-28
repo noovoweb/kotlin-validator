@@ -11,7 +11,7 @@ data class PasswordData(
     @MinLength(8)
     @CustomValidator(
         validator = "com.noovoweb.validator.unit.custom.CustomValidators::validateStrongPassword",
-        message = "Password must contain uppercase, lowercase, digit, and special character"
+        message = "Password must contain uppercase, lowercase, digit, and special character",
     )
-    val password: String?
+    val password: String?,
 )

@@ -5,7 +5,7 @@ import com.noovoweb.validator.ValidationContext
 import kotlinx.coroutines.reactor.mono
 import org.springframework.web.reactive.function.server.ServerRequest
 import reactor.core.publisher.Mono
-import java.util.*
+import java.util.Locale
 
 /**
  * Extension property to get the locale from the ServerRequest's Accept-Language header.
@@ -42,7 +42,7 @@ private fun <T : Any> getValidatorClassName(payload: T): String {
 private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
     val validatorClassName = getValidatorClassName(payload)
     val payloadClassLoader = payload::class.java.classLoader
-    
+
     // Use payload's classloader to load validator (handles DevTools restarts)
     try {
         val validatorClass = Class.forName(validatorClassName, true, payloadClassLoader)
@@ -50,8 +50,8 @@ private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
     } catch (e: ClassNotFoundException) {
         throw IllegalStateException(
             "Validator not found: $validatorClassName. " +
-            "Make sure your class is annotated with @Validated and KSP has generated the validator.",
-            e
+                "Make sure your class is annotated with @Validated and KSP has generated the validator.",
+            e,
         )
     }
 }
@@ -75,7 +75,10 @@ private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
  * @param request ServerRequest for automatic locale extraction
  * @param baseContext Base validation context (injected)
  */
-suspend fun <T : Any> T.validate(request: ServerRequest, baseContext: ValidationContext) {
+suspend fun <T : Any> T.validate(
+    request: ServerRequest,
+    baseContext: ValidationContext,
+) {
     val validator = getValidatorFor(this)
     val localizedContext = baseContext.withLocale(request)
     validator.validate(this, localizedContext)
@@ -114,9 +117,13 @@ suspend fun <T : Any> T.validate() {
  * }
  * ```
  */
-fun <T : Any> T.validateMono(request: ServerRequest, baseContext: ValidationContext): Mono<Void> = mono {
-    validate(request, baseContext)
-}.then()
+fun <T : Any> T.validateMono(
+    request: ServerRequest,
+    baseContext: ValidationContext,
+): Mono<Void> =
+    mono {
+        validate(request, baseContext)
+    }.then()
 
 /**
  * **SIMPLIFIED REACTIVE API**: Validate payload with default context.
@@ -130,19 +137,20 @@ fun <T : Any> T.validateMono(request: ServerRequest, baseContext: ValidationCont
  * }
  * ```
  */
-fun <T : Any> T.validateMono(): Mono<Void> = mono {
-    validate()
-}.then()
+fun <T : Any> T.validateMono(): Mono<Void> =
+    mono {
+        validate()
+    }.then()
 
 /**
  * Extension function to validate with locale extracted from the request (EXPLICIT VALIDATOR).
- * 
+ *
  * **NOTE**: Consider using the simplified `payload.validate(request, context)` instead.
  */
 suspend fun <T> GeneratedValidator<T>.validate(
     payload: T,
     request: ServerRequest,
-    baseContext: ValidationContext
+    baseContext: ValidationContext,
 ) {
     val localizedContext = baseContext.withLocale(request)
     this.validate(payload, localizedContext)
@@ -170,10 +178,11 @@ suspend fun <T> GeneratedValidator<T>.validate(
  */
 fun <T> GeneratedValidator<T>.validateMono(
     payload: T,
-    context: ValidationContext
-): Mono<Void> = mono {
-    validate(payload, context)
-}.then()
+    context: ValidationContext,
+): Mono<Void> =
+    mono {
+        validate(payload, context)
+    }.then()
 
 /**
  * Reactive validation with automatic locale extraction from ServerRequest.
@@ -197,8 +206,9 @@ fun <T> GeneratedValidator<T>.validateMono(
 fun <T> GeneratedValidator<T>.validateMono(
     payload: T,
     request: ServerRequest,
-    baseContext: ValidationContext
-): Mono<Void> = mono {
-    val localizedContext = baseContext.withLocale(request)
-    validate(payload, localizedContext)
-}.then()
+    baseContext: ValidationContext,
+): Mono<Void> =
+    mono {
+        val localizedContext = baseContext.withLocale(request)
+        validate(payload, localizedContext)
+    }.then()

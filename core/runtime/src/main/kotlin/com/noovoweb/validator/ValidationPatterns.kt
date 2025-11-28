@@ -6,7 +6,6 @@ package com.noovoweb.validator
  * All regex patterns and validation helpers used by the code generator.
  */
 object ValidationPatterns {
-
     // === String Patterns ===
 
     /**
@@ -47,18 +46,18 @@ object ValidationPatterns {
     /**
      * IPv4 address pattern.
      * Matches valid IPv4 addresses (0.0.0.0 to 255.255.255.255).
-     * 
+     *
      * Simple and safe pattern with no ReDoS risk.
      */
     const val IPV4 = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$"
 
     /**
      * IPv6 address pattern - SIMPLIFIED for safety.
-     * 
+     *
      * NOTE: This is a simplified pattern that catches most IPv6 addresses.
      * For production use, consider using InetAddress.getByName() instead
      * which provides proper validation without ReDoS risk.
-     * 
+     *
      * Matches: Standard IPv6 (2001:0db8:85a3::8a2e:0370:7334)
      * May not catch all edge cases but is safe from ReDoS.
      */
@@ -94,23 +93,26 @@ object ValidationPatterns {
      * - No trailing commas
      * - Valid number formats
      * - Valid escape sequences
-     * 
+     *
      * This is a lightweight implementation without external dependencies.
      */
     fun isValidJson(input: String): Boolean {
         if (input.isBlank()) return false
-        
+
         val trimmed = input.trim()
-        
+
         // Quick sanity check
-        if (!((trimmed.startsWith("{") && trimmed.endsWith("}")) ||
-              (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
-              trimmed.startsWith("\"") || trimmed == "true" || 
-              trimmed == "false" || trimmed == "null" ||
-              trimmed.firstOrNull()?.let { it.isDigit() || it == '-' } == true)) {
+        if (!(
+                (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+                    (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+                    trimmed.startsWith("\"") || trimmed == "true" ||
+                    trimmed == "false" || trimmed == "null" ||
+                    trimmed.firstOrNull()?.let { it.isDigit() || it == '-' } == true
+            )
+        ) {
             return false
         }
-        
+
         return try {
             JsonParser(trimmed).parse()
             true
@@ -118,13 +120,13 @@ object ValidationPatterns {
             false
         }
     }
-    
+
     /**
      * Simple JSON parser for validation.
      */
     private class JsonParser(private val json: String) {
         private var index = 0
-        
+
         fun parse() {
             parseValue()
             skipWhitespace()
@@ -132,17 +134,17 @@ object ValidationPatterns {
                 throw IllegalArgumentException("Extra characters after JSON")
             }
         }
-        
+
         private fun skipWhitespace() {
             while (index < json.length && json[index].isWhitespace()) {
                 index++
             }
         }
-        
+
         private fun parseValue() {
             skipWhitespace()
             if (index >= json.length) throw IllegalArgumentException("Unexpected end")
-            
+
             when (json[index]) {
                 '{' -> parseObject()
                 '[' -> parseArray()
@@ -153,34 +155,34 @@ object ValidationPatterns {
                 else -> throw IllegalArgumentException("Invalid JSON value")
             }
         }
-        
+
         private fun parseObject() {
             index++ // skip '{'
             skipWhitespace()
-            
+
             if (index < json.length && json[index] == '}') {
                 index++
                 return
             }
-            
+
             while (true) {
                 skipWhitespace()
                 if (index >= json.length) throw IllegalArgumentException("Unclosed object")
-                
+
                 if (json[index] != '"') throw IllegalArgumentException("Key must be string")
                 parseString()
-                
+
                 skipWhitespace()
                 if (index >= json.length || json[index] != ':') {
                     throw IllegalArgumentException("Expected ':'")
                 }
                 index++
-                
+
                 parseValue()
-                
+
                 skipWhitespace()
                 if (index >= json.length) throw IllegalArgumentException("Unclosed object")
-                
+
                 when (json[index]) {
                     ',' -> {
                         index++
@@ -197,22 +199,22 @@ object ValidationPatterns {
                 }
             }
         }
-        
+
         private fun parseArray() {
             index++ // skip '['
             skipWhitespace()
-            
+
             if (index < json.length && json[index] == ']') {
                 index++
                 return
             }
-            
+
             while (true) {
                 parseValue()
-                
+
                 skipWhitespace()
                 if (index >= json.length) throw IllegalArgumentException("Unclosed array")
-                
+
                 when (json[index]) {
                     ',' -> {
                         index++
@@ -229,10 +231,10 @@ object ValidationPatterns {
                 }
             }
         }
-        
+
         private fun parseString() {
             index++ // skip '"'
-            
+
             while (index < json.length) {
                 when (val ch = json[index]) {
                     '"' -> {
@@ -256,14 +258,14 @@ object ValidationPatterns {
             }
             throw IllegalArgumentException("Unclosed string")
         }
-        
+
         private fun parseNumber() {
             if (json[index] == '-') index++
-            
+
             if (index >= json.length || !json[index].isDigit()) {
                 throw IllegalArgumentException("Invalid number")
             }
-            
+
             if (json[index] == '0') {
                 index++
             } else {
@@ -271,7 +273,7 @@ object ValidationPatterns {
                     index++
                 }
             }
-            
+
             if (index < json.length && json[index] == '.') {
                 index++
                 if (index >= json.length || !json[index].isDigit()) {
@@ -281,7 +283,7 @@ object ValidationPatterns {
                     index++
                 }
             }
-            
+
             if (index < json.length && (json[index] == 'e' || json[index] == 'E')) {
                 index++
                 if (index < json.length && (json[index] == '+' || json[index] == '-')) {
@@ -295,7 +297,7 @@ object ValidationPatterns {
                 }
             }
         }
-        
+
         private fun parseBoolean() {
             if (json.substring(index).startsWith("true")) {
                 index += 4
@@ -305,7 +307,7 @@ object ValidationPatterns {
                 throw IllegalArgumentException("Invalid boolean")
             }
         }
-        
+
         private fun parseNull() {
             if (json.substring(index).startsWith("null")) {
                 index += 4
@@ -359,13 +361,13 @@ object ValidationPatterns {
             else -> false
         }
     }
-    
+
     /**
      * Validates IPv4 address using Java's InetAddress.
-     * 
+     *
      * This is more reliable and secure than regex validation.
      * Properly handles edge cases and prevents ReDoS.
-     * 
+     *
      * @param address The IPv4 address string to validate
      * @return true if valid IPv4, false otherwise
      */
@@ -373,29 +375,29 @@ object ValidationPatterns {
         return try {
             val addr = java.net.InetAddress.getByName(address)
             // Check it's IPv4 (not IPv6) and matches the input format
-            addr is java.net.Inet4Address && 
-            address.matches(Regex("^\\d+\\.\\d+\\.\\d+\\.\\d+$"))
+            addr is java.net.Inet4Address &&
+                address.matches(Regex("^\\d+\\.\\d+\\.\\d+\\.\\d+$"))
         } catch (e: Exception) {
             false
         }
     }
-    
+
     /**
      * Validates IPv6 address using Java's InetAddress.
-     * 
+     *
      * This is MUCH safer and more reliable than regex validation.
      * - No ReDoS risk
      * - Handles all IPv6 formats (compressed, expanded, IPv4-mapped, etc.)
      * - Properly validates address ranges
      * - No performance issues with malicious input
-     * 
+     *
      * Examples of valid IPv6:
      * - 2001:0db8:85a3:0000:0000:8a2e:0370:7334
      * - 2001:db8:85a3::8a2e:370:7334 (compressed)
      * - ::1 (loopback)
      * - fe80::1 (link-local)
      * - ::ffff:192.0.2.1 (IPv4-mapped)
-     * 
+     *
      * @param address The IPv6 address string to validate
      * @return true if valid IPv6, false otherwise
      */
@@ -407,52 +409,52 @@ object ValidationPatterns {
             false
         }
     }
-    
+
     /**
      * Validates if address is either valid IPv4 or IPv6.
-     * 
+     *
      * Uses InetAddress for proper validation without ReDoS risk.
-     * 
+     *
      * @param address The IP address string to validate
      * @return true if valid IPv4 or IPv6, false otherwise
      */
     fun isValidIP(address: String): Boolean {
         return isValidIPv4(address) || isValidIPv6(address)
     }
-    
+
     /**
      * Validates URL using Java's URL class.
-     * 
+     *
      * This is MUCH safer and more reliable than regex validation.
      * - No ReDoS risk
      * - Proper URL parsing and validation
      * - Validates protocol, host, port, path
      * - No performance issues with malicious input
-     * 
+     *
      * Only allows http:// and https:// protocols for security.
-     * 
+     *
      * Examples of valid URLs:
      * - http://example.com
      * - https://www.example.com
      * - https://example.com:8080/path
      * - https://example.com/path?query=value
      * - https://user@example.com/path
-     * 
+     *
      * @param urlString The URL string to validate
      * @return true if valid HTTP/HTTPS URL, false otherwise
      */
     fun isValidURL(urlString: String): Boolean {
         // Quick checks for empty or whitespace
         if (urlString.isBlank()) return false
-        if (urlString.trim() != urlString) return false  // Reject leading/trailing whitespace
-        
+        if (urlString.trim() != urlString) return false // Reject leading/trailing whitespace
+
         return try {
             val url = java.net.URL(urlString)
             // Only allow http and https protocols
             val validProtocol = url.protocol.lowercase() in listOf("http", "https")
             // Ensure host is not empty
             val hasHost = url.host.isNotBlank()
-            
+
             validProtocol && hasHost
         } catch (e: Exception) {
             false

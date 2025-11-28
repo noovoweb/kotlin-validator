@@ -2,14 +2,12 @@ package com.noovoweb.validator.ktor
 
 import com.noovoweb.validator.GeneratedValidator
 import com.noovoweb.validator.ValidationContext
-import io.ktor.server.application.*
-import io.ktor.server.request.*
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receive
 
 /**
  * Convenience extensions for validation in Ktor routes.
- */
-
-/**
+ *
  * Receive and validate request body in one call.
  *
  * Example:
@@ -22,9 +20,7 @@ import io.ktor.server.request.*
  *
  * @throws ValidationException if validation fails (automatically handled by plugin)
  */
-suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
-    validator: GeneratedValidator<T>
-): T {
+suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(validator: GeneratedValidator<T>): T {
     val payload = receive<T>()
     val context = validationContext()
     validator.validate(payload, context)
@@ -47,7 +43,7 @@ suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
  */
 suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
     validator: GeneratedValidator<T>,
-    context: ValidationContext
+    context: ValidationContext,
 ): T {
     val payload = receive<T>()
     validator.validate(payload, context)
@@ -70,7 +66,7 @@ suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
  */
 suspend fun <T : Any> ApplicationCall.validate(
     payload: T,
-    validator: GeneratedValidator<T>
+    validator: GeneratedValidator<T>,
 ) {
     val context = validationContext()
     validator.validate(payload, context)

@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Uppercase(
     @Uppercase
-    val name: String?
+    val name: String?,
 )

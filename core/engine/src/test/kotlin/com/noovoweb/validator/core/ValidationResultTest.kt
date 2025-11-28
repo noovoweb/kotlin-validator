@@ -1,21 +1,19 @@
 package com.noovoweb.validator.core
 
-import com.noovoweb.validator.ValidationContext
 import com.noovoweb.validator.ValidationError
 import com.noovoweb.validator.ValidationException
 import com.noovoweb.validator.ValidationResult
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import org.junit.jupiter.api.assertThrows
 
 /**
  * Unit tests for ValidationResult sealed class and result operations.
  */
 class ValidationResultTest {
-
     // ===== Success Path Tests =====
 
     @Test
@@ -89,10 +87,11 @@ class ValidationResultTest {
 
     @Test
     fun `ValidationResult_Failure stores error map correctly`() {
-        val errors = mapOf(
-            "field1" to listOf(ValidationError("error1")),
-            "field2" to listOf(ValidationError("error2"))
-        )
+        val errors =
+            mapOf(
+                "field1" to listOf(ValidationError("error1")),
+                "field2" to listOf(ValidationError("error2")),
+            )
         val result = ValidationResult.Failure(errors)
 
         assertTrue(result.isFailure())
@@ -104,9 +103,10 @@ class ValidationResultTest {
         val errors = mapOf("email" to listOf(ValidationError("Invalid email")))
         val result = ValidationResult.Failure(errors)
 
-        val exception = assertThrows<ValidationException> {
-            result.getOrThrow()
-        }
+        val exception =
+            assertThrows<ValidationException> {
+                result.getOrThrow()
+            }
 
         assertTrue(exception.hasFieldError("email"))
     }
@@ -134,9 +134,10 @@ class ValidationResultTest {
         val errors = mapOf("field1" to listOf(ValidationError("error")))
         val result = ValidationResult.Failure(errors)
 
-        val mapped = result.mapErrors { originalErrors ->
-            originalErrors.mapKeys { (field, _) -> "${field}_transformed" }
-        }
+        val mapped =
+            result.mapErrors { originalErrors ->
+                originalErrors.mapKeys { (field, _) -> "${field}_transformed" }
+            }
 
         when (mapped) {
             is ValidationResult.Failure -> {
@@ -197,10 +198,11 @@ class ValidationResultTest {
 
     @Test
     fun `can chain map operations on Success`() {
-        val result = ValidationResult.Success(5)
-            .map { it + 10 }
-            .map { it * 2 }
-            .map { it - 3 }
+        val result =
+            ValidationResult.Success(5)
+                .map { it + 10 }
+                .map { it * 2 }
+                .map { it - 3 }
 
         assertEquals(27, result.getOrNull())
     }
@@ -208,9 +210,10 @@ class ValidationResultTest {
     @Test
     fun `map chain stops at first Failure`() {
         val errors = mapOf("field" to listOf(ValidationError("error")))
-        val result: ValidationResult<Int> = ValidationResult.Failure(errors)
-            .map<Int> { 1 }
-            .map { it * 2 }
+        val result: ValidationResult<Int> =
+            ValidationResult.Failure(errors)
+                .map<Int> { 1 }
+                .map { it * 2 }
 
         assertTrue(result.isFailure())
     }
@@ -220,9 +223,10 @@ class ValidationResultTest {
         var successExecuted = false
         var failureExecuted = false
 
-        val result = ValidationResult.Success(42)
-            .onSuccess { successExecuted = true }
-            .onFailure { failureExecuted = true }
+        val result =
+            ValidationResult.Success(42)
+                .onSuccess { successExecuted = true }
+                .onFailure { failureExecuted = true }
 
         assertTrue(successExecuted)
         assertFalse(failureExecuted)
@@ -233,8 +237,9 @@ class ValidationResultTest {
         var successExecuted = false
         val errors = mapOf("field" to listOf(ValidationError("error")))
 
-        val result = ValidationResult.Failure(errors)
-            .onSuccess { successExecuted = true }
+        val result =
+            ValidationResult.Failure(errors)
+                .onSuccess { successExecuted = true }
 
         assertFalse(successExecuted)
     }
@@ -243,16 +248,18 @@ class ValidationResultTest {
 
     @Test
     fun `map can transform to completely different type`() {
-        val result = ValidationResult.Success(42)
-            .map { it.toString() }
+        val result =
+            ValidationResult.Success(42)
+                .map { it.toString() }
 
         assertEquals("42", result.getOrNull())
     }
 
     @Test
     fun `map preserves generic type information`() {
-        val result = ValidationResult.Success(listOf(1, 2, 3))
-            .map { it.size }
+        val result =
+            ValidationResult.Success(listOf(1, 2, 3))
+                .map { it.size }
 
         assertEquals(3, result.getOrNull())
     }

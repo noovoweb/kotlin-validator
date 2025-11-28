@@ -1,7 +1,7 @@
 package com.noovoweb.validator.spring.mvc
 
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * Tests for ValidatorProperties configuration class.
  */
 class ValidatorPropertiesTest {
-
     @Test
     fun `should have default values`() {
         val properties = ValidatorProperties()
@@ -28,10 +27,11 @@ class ValidatorPropertiesTest {
 
     @Test
     fun `should allow setting useRequestLocale`() {
-        val properties = ValidatorProperties(
-            locale = Locale.GERMAN,
-            useRequestLocale = false
-        )
+        val properties =
+            ValidatorProperties(
+                locale = Locale.GERMAN,
+                useRequestLocale = false,
+            )
 
         assertEquals(Locale.GERMAN, properties.locale)
         assertEquals(false, properties.useRequestLocale)

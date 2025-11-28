@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class DateFormat(
     @DateFormat("yyyy-MM-dd")
-    val date: String?
+    val date: String?,
 )

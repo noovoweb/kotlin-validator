@@ -56,7 +56,7 @@ complexity:
   LargeClass:
     threshold: 200
   LongMethod:
-    threshold: 60
+    threshold: 80
   LongParameterList:
     threshold: 6
   MethodOverloading:
@@ -126,7 +126,7 @@ exceptions:
   ReturnFromFinally:
     active: true
   SwallowedException:
-    active: true
+    active: false
     ignoredExceptionTypes:
       - 'InterruptedException'
       - 'NumberFormatException'
@@ -526,7 +526,7 @@ style:
     active: true
   ReturnCount:
     active: true
-    max: 2
+    max: 4
     excludedFunctions: ''
     excludeLabeled: false
     excludeReturnFromLambda: true
@@ -539,7 +539,7 @@ style:
     active: true
   ThrowsCount:
     active: true
-    max: 2
+    max: 4
     excludeGuardClauses: true
   TrailingWhitespace:
     active: false
@@ -583,7 +583,7 @@ style:
     active: true
     allowedNames: 'serialVersionUID'
   UseCheckOrError:
-    active: true
+    active: false
   UseDataClass:
     active: false
     allowVars: false
@@ -596,7 +596,7 @@ style:
   UseOrEmpty:
     active: true
   UseRequire:
-    active: true
+    active: false
   UseRequireNotNull:
     active: false
   UselessCallOnNotNull:

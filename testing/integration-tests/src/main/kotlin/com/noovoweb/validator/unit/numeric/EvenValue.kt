@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class EvenValue(
     @Even
-    val value: Int?
+    val value: Int?,
 )

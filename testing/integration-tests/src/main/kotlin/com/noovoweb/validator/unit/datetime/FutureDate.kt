@@ -7,5 +7,5 @@ import java.time.LocalDate
 @Validated
 data class FutureDate(
     @Future
-    val date: LocalDate?
+    val date: LocalDate?,
 )

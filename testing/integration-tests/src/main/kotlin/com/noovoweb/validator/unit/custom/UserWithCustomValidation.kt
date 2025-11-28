@@ -8,5 +8,5 @@ import com.noovoweb.validator.Validated
 data class UserWithCustomValidation(
     @Required
     @CustomValidator(validator = "com.noovoweb.validator.unit.custom.CustomValidators::validateUsername")
-    val username: String?
+    val username: String?,
 )

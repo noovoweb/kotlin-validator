@@ -49,9 +49,8 @@ import org.springframework.validation.Validator
 class SpringValidatorAdapter<T : Any>(
     private val validator: GeneratedValidator<T>,
     private val context: ValidationContext = ValidationContext(),
-    private val targetClass: Class<T>
+    private val targetClass: Class<T>,
 ) : Validator {
-
     /**
      * Check if this validator supports the given class.
      */
@@ -66,7 +65,10 @@ class SpringValidatorAdapter<T : Any>(
      * This is acceptable in Spring MVC which is blocking by default. The validator can
      * perform async I/O operations internally while presenting a blocking API to Spring.
      */
-    override fun validate(target: Any, errors: Errors) {
+    override fun validate(
+        target: Any,
+        errors: Errors,
+    ) {
         @Suppress("UNCHECKED_CAST")
         val typedTarget = target as T
 

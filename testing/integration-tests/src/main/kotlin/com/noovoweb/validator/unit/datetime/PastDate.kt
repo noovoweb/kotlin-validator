@@ -7,5 +7,5 @@ import java.time.LocalDate
 @Validated
 data class PastDate(
     @Past
-    val date: LocalDate?
+    val date: LocalDate?,
 )

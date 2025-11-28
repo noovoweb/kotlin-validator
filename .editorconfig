@@ -1,0 +1,18 @@
+root = true
+
+[*.kt]
+indent_size = 4
+tab_width = 4
+charset = utf-8
+insert_final_newline = true
+trim_trailing_whitespace = true
+end_of_line = lf
+
+[core/annotations/src/main/kotlin/com/noovoweb/validator/BooleanValidators.kt]
+ktlint_filename = disabled
+
+# Test files - disable magic number and unused parameter checks
+[{**/test/**/*.kt,**/integration-tests/src/main/**/*.kt}]
+ktlint_standard_no-wildcard-imports = disabled
+detekt.MagicNumber = false
+detekt.UnusedParameter = false

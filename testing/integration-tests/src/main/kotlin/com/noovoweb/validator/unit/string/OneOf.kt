@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class OneOf(
     @OneOf(["option1", "option2", "option3"])
-    val name: String?
+    val name: String?,
 )

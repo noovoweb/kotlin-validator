@@ -26,9 +26,8 @@ import java.util.concurrent.ConcurrentHashMap
  * - French (fr)
  */
 class DefaultMessageProvider(
-    supportedLocales: List<Locale> = listOf(Locale.ENGLISH, Locale.FRENCH)
+    supportedLocales: List<Locale> = listOf(Locale.ENGLISH, Locale.FRENCH),
 ) : MessageProvider {
-
     private val messageCache = ConcurrentHashMap<Pair<Locale, String>, String>()
 
     init {
@@ -58,11 +57,16 @@ class DefaultMessageProvider(
      * Performs pure memory lookup - no I/O operations.
      * Falls back to English if the locale is not cached.
      */
-    override suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale): String {
+    override suspend fun getMessage(
+        key: String,
+        args: Array<Any>?,
+        locale: Locale,
+    ): String {
         // Pure memory lookup - fully non-blocking
-        val template = messageCache[locale to key]
-            ?: messageCache[Locale.ENGLISH to key]
-            ?: key // Fallback to key if not found
+        val template =
+            messageCache[locale to key]
+                ?: messageCache[Locale.ENGLISH to key]
+                ?: key // Fallback to key if not found
 
         return if (args != null && args.isNotEmpty()) {
             // MessageFormat is CPU-bound, use Default dispatcher

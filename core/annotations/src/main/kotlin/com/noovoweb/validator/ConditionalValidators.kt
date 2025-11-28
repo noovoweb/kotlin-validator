@@ -23,7 +23,7 @@ package com.noovoweb.validator
 @Retention(AnnotationRetention.SOURCE)
 annotation class Same(
     val field: String,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -47,7 +47,7 @@ annotation class Same(
 @Retention(AnnotationRetention.SOURCE)
 annotation class Different(
     val field: String,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -73,7 +73,7 @@ annotation class Different(
 annotation class RequiredIf(
     val field: String,
     val value: String,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -99,7 +99,7 @@ annotation class RequiredIf(
 annotation class RequiredUnless(
     val field: String,
     val value: String,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -124,7 +124,7 @@ annotation class RequiredUnless(
 @Retention(AnnotationRetention.SOURCE)
 annotation class RequiredWith(
     val fields: Array<String>,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -149,5 +149,5 @@ annotation class RequiredWith(
 @Retention(AnnotationRetention.SOURCE)
 annotation class RequiredWithout(
     val fields: Array<String>,
-    val message: String = ""
+    val message: String = "",
 )

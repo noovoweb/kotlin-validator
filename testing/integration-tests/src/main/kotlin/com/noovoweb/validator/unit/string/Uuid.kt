@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Uuid(
     @Uuid
-    val name: String?
+    val name: String?,
 )

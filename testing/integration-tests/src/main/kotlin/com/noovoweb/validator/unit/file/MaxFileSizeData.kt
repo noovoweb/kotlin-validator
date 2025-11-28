@@ -6,6 +6,6 @@ import java.io.File
 
 @Validated
 data class MaxFileSizeData(
-    @MaxFileSize(1048576)  // 1 MB
-    val file: File?
+    @MaxFileSize(1048576) // 1 MB
+    val file: File?,
 )

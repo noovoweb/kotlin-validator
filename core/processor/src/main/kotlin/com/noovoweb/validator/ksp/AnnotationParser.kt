@@ -1,7 +1,12 @@
 package com.noovoweb.validator.ksp
 
-import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeReference
+import com.google.devtools.ksp.symbol.KSValueArgument
 
 /**
  * Parses @Validated classes and extracts validators.
@@ -9,7 +14,6 @@ import com.google.devtools.ksp.processing.KSPLogger
  * Converts KSP declarations into our internal representation (ValidatedClassInfo).
  */
 class AnnotationParser(private val logger: KSPLogger) {
-
     /**
      * Parse a class annotated with @Validated.
      *
@@ -23,9 +27,10 @@ class AnnotationParser(private val logger: KSPLogger) {
         logger.info("Parsing @Validated class: $packageName.$className")
 
         // Extract all properties with validation annotations
-        val properties = classDeclaration.getAllProperties()
-            .mapNotNull { property -> parseProperty(property) }
-            .toList()
+        val properties =
+            classDeclaration.getAllProperties()
+                .mapNotNull { property -> parseProperty(property) }
+                .toList()
 
         if (properties.isEmpty()) {
             logger.warn("No validated properties found in $className")
@@ -35,7 +40,7 @@ class AnnotationParser(private val logger: KSPLogger) {
         return ValidatedClassInfo(
             packageName = packageName,
             className = className,
-            properties = properties
+            properties = properties,
         )
     }
 
@@ -75,18 +80,18 @@ class AnnotationParser(private val logger: KSPLogger) {
                         validators.add(validator)
                         validatorCount++
                     }
-                    // If not a built-in validator, check if it's a meta-annotation
-                    ?: run {
-                        if (isMetaAnnotation(annotation)) {
-                            parseCustomValidatorFromMeta(annotation)?.let { validator ->
-                                validators.add(validator)
-                                validatorCount++
+                        // If not a built-in validator, check if it's a meta-annotation
+                        ?: run {
+                            if (isMetaAnnotation(annotation)) {
+                                parseCustomValidatorFromMeta(annotation)?.let { validator ->
+                                    validators.add(validator)
+                                    validatorCount++
+                                }
+                            } else {
+                                // Only warn if it's neither a built-in validator nor a meta-annotation
+                                logger.warn("Unknown validation annotation: $annotationName")
                             }
-                        } else {
-                            // Only warn if it's neither a built-in validator nor a meta-annotation
-                            logger.warn("Unknown validation annotation: $annotationName")
                         }
-                    }
                 }
             }
 
@@ -104,7 +109,7 @@ class AnnotationParser(private val logger: KSPLogger) {
             validators = validators,
             isNullable = type.isNullable,
             failFastPositions = failFastPositions,
-            nestedValidation = nestedValidation
+            nestedValidation = nestedValidation,
         )
     }
 
@@ -117,15 +122,16 @@ class AnnotationParser(private val logger: KSPLogger) {
         val simpleName = type.declaration.simpleName.asString()
         val isNullable = type.isMarkedNullable
 
-        val typeArguments = type.arguments.mapNotNull { typeArg ->
-            typeArg.type?.let { parseType(it) }
-        }
+        val typeArguments =
+            type.arguments.mapNotNull { typeArg ->
+                typeArg.type?.let { parseType(it) }
+            }
 
         return TypeInfo(
             qualifiedName = qualifiedName,
             simpleName = simpleName,
             isNullable = isNullable,
-            typeArguments = typeArguments
+            typeArguments = typeArguments,
         )
     }
 
@@ -137,8 +143,8 @@ class AnnotationParser(private val logger: KSPLogger) {
      */
     private fun isMetaAnnotation(annotation: KSAnnotation): Boolean {
         val annotationDeclaration = annotation.annotationType.resolve().declaration
-        return annotationDeclaration.annotations.any { 
-            it.shortName.asString() == "CustomValidator" 
+        return annotationDeclaration.annotations.any {
+            it.shortName.asString() == "CustomValidator"
         }
     }
 
@@ -152,23 +158,26 @@ class AnnotationParser(private val logger: KSPLogger) {
      */
     private fun parseCustomValidatorFromMeta(annotation: KSAnnotation): ValidationValidatorInfo.CustomValidatorInfo? {
         val annotationDeclaration = annotation.annotationType.resolve().declaration
-        val customValidatorAnnotation = annotationDeclaration.annotations
-            .firstOrNull { it.shortName.asString() == "CustomValidator" }
-            ?: return null
-        
+        val customValidatorAnnotation =
+            annotationDeclaration.annotations
+                .firstOrNull { it.shortName.asString() == "CustomValidator" }
+                ?: return null
+
         // Extract validator function reference from the meta-annotation
-        val validator = customValidatorAnnotation.arguments
-            .firstOrNull { it.name?.asString() == "validator" }
-            ?.value as? String
-            ?: return null
-        
+        val validator =
+            customValidatorAnnotation.arguments
+                .firstOrNull { it.name?.asString() == "validator" }
+                ?.value as? String
+                ?: return null
+
         // Extract optional message from the meta-annotation
-        val message = customValidatorAnnotation.arguments
-            .firstOrNull { it.name?.asString() == "message" }
-            ?.value as? String
-        
+        val message =
+            customValidatorAnnotation.arguments
+                .firstOrNull { it.name?.asString() == "message" }
+                ?.value as? String
+
         logger.info("Found meta-annotation with validator: $validator")
-        
+
         return ValidationValidatorInfo.CustomValidatorInfo(validator, message)
     }
 
@@ -187,114 +196,134 @@ class AnnotationParser(private val logger: KSPLogger) {
             "Email" -> ValidationValidatorInfo.EmailValidator(message)
             "Url" -> ValidationValidatorInfo.UrlValidator(message)
             "Uuid" -> ValidationValidatorInfo.UuidValidator(message)
-            "Length" -> ValidationValidatorInfo.LengthValidator(
-                min = getAnnotationArgument<Int>(annotation, "min") ?: 0,
-                max = getAnnotationArgument<Int>(annotation, "max") ?: Int.MAX_VALUE,
-                customMessage = message
-            )
-            "MinLength" -> ValidationValidatorInfo.MinLengthValidator(
-                value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
-                customMessage = message
-            )
-            "MaxLength" -> ValidationValidatorInfo.MaxLengthValidator(
-                value = getAnnotationArgument<Int>(annotation, "value") ?: Int.MAX_VALUE,
-                customMessage = message
-            )
-            "Pattern" -> ValidationValidatorInfo.PatternValidator(
-                pattern = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
+            "Length" ->
+                ValidationValidatorInfo.LengthValidator(
+                    min = getAnnotationArgument<Int>(annotation, "min") ?: 0,
+                    max = getAnnotationArgument<Int>(annotation, "max") ?: Int.MAX_VALUE,
+                    customMessage = message,
+                )
+            "MinLength" ->
+                ValidationValidatorInfo.MinLengthValidator(
+                    value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
+                    customMessage = message,
+                )
+            "MaxLength" ->
+                ValidationValidatorInfo.MaxLengthValidator(
+                    value = getAnnotationArgument<Int>(annotation, "value") ?: Int.MAX_VALUE,
+                    customMessage = message,
+                )
+            "Pattern" ->
+                ValidationValidatorInfo.PatternValidator(
+                    pattern = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
             "Alpha" -> ValidationValidatorInfo.AlphaValidator(message)
             "Alphanumeric" -> ValidationValidatorInfo.AlphanumericValidator(message)
             "Ascii" -> ValidationValidatorInfo.AsciiValidator(message)
             "Lowercase" -> ValidationValidatorInfo.LowercaseValidator(message)
             "Uppercase" -> ValidationValidatorInfo.UppercaseValidator(message)
-            "StartsWith" -> ValidationValidatorInfo.StartsWithValidator(
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
-            "EndsWith" -> ValidationValidatorInfo.EndsWithValidator(
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
-            "Contains" -> ValidationValidatorInfo.ContainsValidator(
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
-            "OneOf" -> ValidationValidatorInfo.OneOfValidator(
-                values = getAnnotationArrayArgument<String>(annotation, "values"),
-                customMessage = message
-            )
-            "NotOneOf" -> ValidationValidatorInfo.NotOneOfValidator(
-                values = getAnnotationArrayArgument<String>(annotation, "values"),
-                customMessage = message
-            )
+            "StartsWith" ->
+                ValidationValidatorInfo.StartsWithValidator(
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
+            "EndsWith" ->
+                ValidationValidatorInfo.EndsWithValidator(
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
+            "Contains" ->
+                ValidationValidatorInfo.ContainsValidator(
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
+            "OneOf" ->
+                ValidationValidatorInfo.OneOfValidator(
+                    values = getAnnotationArrayArgument<String>(annotation, "values"),
+                    customMessage = message,
+                )
+            "NotOneOf" ->
+                ValidationValidatorInfo.NotOneOfValidator(
+                    values = getAnnotationArrayArgument<String>(annotation, "values"),
+                    customMessage = message,
+                )
             "Json" -> ValidationValidatorInfo.JsonValidator(message)
             "Luhn" -> ValidationValidatorInfo.LuhnValidator(message)
 
             // Numeric validators
-            "Min" -> ValidationValidatorInfo.MinValidator(
-                value = getAnnotationArgument<Double>(annotation, "value") ?: 0.0,
-                customMessage = message
-            )
-            "Max" -> ValidationValidatorInfo.MaxValidator(
-                value = getAnnotationArgument<Double>(annotation, "value") ?: Double.MAX_VALUE,
-                customMessage = message
-            )
-            "Between" -> ValidationValidatorInfo.BetweenValidator(
-                min = getAnnotationArgument<Double>(annotation, "min") ?: 0.0,
-                max = getAnnotationArgument<Double>(annotation, "max") ?: Double.MAX_VALUE,
-                customMessage = message
-            )
+            "Min" ->
+                ValidationValidatorInfo.MinValidator(
+                    value = getAnnotationArgument<Double>(annotation, "value") ?: 0.0,
+                    customMessage = message,
+                )
+            "Max" ->
+                ValidationValidatorInfo.MaxValidator(
+                    value = getAnnotationArgument<Double>(annotation, "value") ?: Double.MAX_VALUE,
+                    customMessage = message,
+                )
+            "Between" ->
+                ValidationValidatorInfo.BetweenValidator(
+                    min = getAnnotationArgument<Double>(annotation, "min") ?: 0.0,
+                    max = getAnnotationArgument<Double>(annotation, "max") ?: Double.MAX_VALUE,
+                    customMessage = message,
+                )
             "Positive" -> ValidationValidatorInfo.PositiveValidator(message)
             "Negative" -> ValidationValidatorInfo.NegativeValidator(message)
             "Zero" -> ValidationValidatorInfo.ZeroValidator(message)
             "Integer" -> ValidationValidatorInfo.IntegerValidator(message)
             "Decimal" -> ValidationValidatorInfo.DecimalValidator(message)
-            "DivisibleBy" -> ValidationValidatorInfo.DivisibleByValidator(
-                value = getAnnotationArgument<Int>(annotation, "value") ?: 1,
-                customMessage = message
-            )
+            "DivisibleBy" ->
+                ValidationValidatorInfo.DivisibleByValidator(
+                    value = getAnnotationArgument<Int>(annotation, "value") ?: 1,
+                    customMessage = message,
+                )
             "Even" -> ValidationValidatorInfo.EvenValidator(message)
             "Odd" -> ValidationValidatorInfo.OddValidator(message)
-            "DecimalPlaces" -> ValidationValidatorInfo.DecimalPlacesValidator(
-                value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
-                customMessage = message
-            )
+            "DecimalPlaces" ->
+                ValidationValidatorInfo.DecimalPlacesValidator(
+                    value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
+                    customMessage = message,
+                )
 
             // Boolean validators
             "Accepted" -> ValidationValidatorInfo.AcceptedValidator(message)
 
             // Collection validators
-            "Size" -> ValidationValidatorInfo.SizeValidator(
-                min = getAnnotationArgument<Int>(annotation, "min") ?: 0,
-                max = getAnnotationArgument<Int>(annotation, "max") ?: Int.MAX_VALUE,
-                customMessage = message
-            )
-            "MinSize" -> ValidationValidatorInfo.MinSizeValidator(
-                value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
-                customMessage = message
-            )
-            "MaxSize" -> ValidationValidatorInfo.MaxSizeValidator(
-                value = getAnnotationArgument<Int>(annotation, "value") ?: Int.MAX_VALUE,
-                customMessage = message
-            )
+            "Size" ->
+                ValidationValidatorInfo.SizeValidator(
+                    min = getAnnotationArgument<Int>(annotation, "min") ?: 0,
+                    max = getAnnotationArgument<Int>(annotation, "max") ?: Int.MAX_VALUE,
+                    customMessage = message,
+                )
+            "MinSize" ->
+                ValidationValidatorInfo.MinSizeValidator(
+                    value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
+                    customMessage = message,
+                )
+            "MaxSize" ->
+                ValidationValidatorInfo.MaxSizeValidator(
+                    value = getAnnotationArgument<Int>(annotation, "value") ?: Int.MAX_VALUE,
+                    customMessage = message,
+                )
             "NotEmpty" -> ValidationValidatorInfo.NotEmptyValidator(message)
             "Distinct" -> ValidationValidatorInfo.DistinctValidator(message)
-            "ContainsValue" -> ValidationValidatorInfo.ContainsValueValidator(
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
-            "NotContains" -> ValidationValidatorInfo.NotContainsValidator(
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
+            "ContainsValue" ->
+                ValidationValidatorInfo.ContainsValueValidator(
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
+            "NotContains" ->
+                ValidationValidatorInfo.NotContainsValidator(
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
 
             // Date/Time validators
-            "DateFormat" -> ValidationValidatorInfo.DateFormatValidator(
-                format = getAnnotationArgument<String>(annotation, "format") ?: "",
-                customMessage = message
-            )
+            "DateFormat" ->
+                ValidationValidatorInfo.DateFormatValidator(
+                    format = getAnnotationArgument<String>(annotation, "format") ?: "",
+                    customMessage = message,
+                )
             "IsoDate" -> ValidationValidatorInfo.IsoDateValidator(message)
             "IsoDateTime" -> ValidationValidatorInfo.IsoDateTimeValidator(message)
             "Future" -> ValidationValidatorInfo.FutureValidator(message)
@@ -309,55 +338,64 @@ class AnnotationParser(private val logger: KSPLogger) {
             "Port" -> ValidationValidatorInfo.PortValidator(message)
 
             // File validators
-            "MimeType" -> ValidationValidatorInfo.MimeTypeValidator(
-                values = getAnnotationArrayArgument<String>(annotation, "values"),
-                customMessage = message
-            )
-            "FileExtension" -> ValidationValidatorInfo.FileExtensionValidator(
-                values = getAnnotationArrayArgument<String>(annotation, "values"),
-                customMessage = message
-            )
-            "MaxFileSize" -> ValidationValidatorInfo.MaxFileSizeValidator(
-                bytes = getAnnotationArgument<Long>(annotation, "bytes") ?: Long.MAX_VALUE,
-                customMessage = message
-            )
+            "MimeType" ->
+                ValidationValidatorInfo.MimeTypeValidator(
+                    values = getAnnotationArrayArgument<String>(annotation, "values"),
+                    customMessage = message,
+                )
+            "FileExtension" ->
+                ValidationValidatorInfo.FileExtensionValidator(
+                    values = getAnnotationArrayArgument<String>(annotation, "values"),
+                    customMessage = message,
+                )
+            "MaxFileSize" ->
+                ValidationValidatorInfo.MaxFileSizeValidator(
+                    bytes = getAnnotationArgument<Long>(annotation, "bytes") ?: Long.MAX_VALUE,
+                    customMessage = message,
+                )
 
             // Conditional validators
-            "Same" -> ValidationValidatorInfo.SameValidator(
-                field = getAnnotationArgument<String>(annotation, "field") ?: "",
-                customMessage = message
-            )
-            "Different" -> ValidationValidatorInfo.DifferentValidator(
-                field = getAnnotationArgument<String>(annotation, "field") ?: "",
-                customMessage = message
-            )
-            "RequiredIf" -> ValidationValidatorInfo.RequiredIfValidator(
-                field = getAnnotationArgument<String>(annotation, "field") ?: "",
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
-            "RequiredUnless" -> ValidationValidatorInfo.RequiredUnlessValidator(
-                field = getAnnotationArgument<String>(annotation, "field") ?: "",
-                value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                customMessage = message
-            )
-            "RequiredWith" -> ValidationValidatorInfo.RequiredWithValidator(
-                fields = getAnnotationArrayArgument<String>(annotation, "fields"),
-                customMessage = message
-            )
-            "RequiredWithout" -> ValidationValidatorInfo.RequiredWithoutValidator(
-                fields = getAnnotationArrayArgument<String>(annotation, "fields"),
-                customMessage = message
-            )
+            "Same" ->
+                ValidationValidatorInfo.SameValidator(
+                    field = getAnnotationArgument<String>(annotation, "field") ?: "",
+                    customMessage = message,
+                )
+            "Different" ->
+                ValidationValidatorInfo.DifferentValidator(
+                    field = getAnnotationArgument<String>(annotation, "field") ?: "",
+                    customMessage = message,
+                )
+            "RequiredIf" ->
+                ValidationValidatorInfo.RequiredIfValidator(
+                    field = getAnnotationArgument<String>(annotation, "field") ?: "",
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
+            "RequiredUnless" ->
+                ValidationValidatorInfo.RequiredUnlessValidator(
+                    field = getAnnotationArgument<String>(annotation, "field") ?: "",
+                    value = getAnnotationArgument<String>(annotation, "value") ?: "",
+                    customMessage = message,
+                )
+            "RequiredWith" ->
+                ValidationValidatorInfo.RequiredWithValidator(
+                    fields = getAnnotationArrayArgument<String>(annotation, "fields"),
+                    customMessage = message,
+                )
+            "RequiredWithout" ->
+                ValidationValidatorInfo.RequiredWithoutValidator(
+                    fields = getAnnotationArrayArgument<String>(annotation, "fields"),
+                    customMessage = message,
+                )
 
             // Custom validators
-            "CustomValidator" -> ValidationValidatorInfo.CustomValidatorInfo(
-                validatorFunctionFqn = getAnnotationArgument<String>(annotation, "validator") ?: "",
-                customMessage = message
-            )
+            "CustomValidator" ->
+                ValidationValidatorInfo.CustomValidatorInfo(
+                    validatorFunctionFqn = getAnnotationArgument<String>(annotation, "validator") ?: "",
+                    customMessage = message,
+                )
 
             else -> null
-
         }
     }
 
@@ -367,7 +405,7 @@ class AnnotationParser(private val logger: KSPLogger) {
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T> getAnnotationArgument(
         annotation: KSAnnotation,
-        argName: String
+        argName: String,
     ): T? {
         return annotation.arguments
             .find { it.name?.asString() == argName }
@@ -380,11 +418,12 @@ class AnnotationParser(private val logger: KSPLogger) {
     @Suppress("UNCHECKED_CAST")
     private inline fun <reified T> getAnnotationArrayArgument(
         annotation: KSAnnotation,
-        argName: String
+        argName: String,
     ): List<T> {
-        val value = annotation.arguments
-            .find { it.name?.asString() == argName }
-            ?.value
+        val value =
+            annotation.arguments
+                .find { it.name?.asString() == argName }
+                ?.value
 
         return when (value) {
             is ArrayList<*> -> value.filterIsInstance<T>()

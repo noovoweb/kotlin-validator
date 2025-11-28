@@ -1,7 +1,7 @@
 package com.noovoweb.validator.spring.mvc
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import java.util.*
+import java.util.Locale
 
 /**
  * Configuration properties for kotlin-validator in Spring MVC.
@@ -29,7 +29,6 @@ data class ValidatorProperties(
      * Examples: "en_US", "fr_FR", "en"
      */
     var locale: Locale? = null,
-
     /**
      * Whether to use request-scoped ValidationContext with locale from Accept-Language header (default: true).
      *
@@ -42,5 +41,5 @@ data class ValidatorProperties(
      * - Uses singleton ValidationContext with fixed locale
      * - Better for non-web applications or when locale doesn't change per request
      */
-    var useRequestLocale: Boolean = true
+    var useRequestLocale: Boolean = true,
 )

@@ -16,7 +16,6 @@ import com.squareup.kotlinpoet.MemberName
  * - Calls suspend getMessage() for error messages
  */
 class FieldValidatorCodeGenerator {
-
     private val withContextIO = MemberName("kotlinx.coroutines", "withContext")
     private val dispatchersIO = MemberName("kotlinx.coroutines", "Dispatchers")
 
@@ -31,7 +30,7 @@ class FieldValidatorCodeGenerator {
     fun generateValidatorCode(
         validator: ValidationValidatorInfo,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return when (validator) {
             // String validators
@@ -124,7 +123,7 @@ class FieldValidatorCodeGenerator {
      */
     private fun wrapInNullabilityCheck(
         property: PropertyInfo,
-        validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit
+        validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             if (property.isNullable) {
@@ -144,7 +143,7 @@ class FieldValidatorCodeGenerator {
     private fun addStringTypeCheckIfNeeded(
         property: PropertyInfo,
         valueRef: String,
-        validationLogic: CodeBlock.Builder.() -> Unit
+        validationLogic: CodeBlock.Builder.() -> Unit,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             if (property.type.isString()) {
@@ -163,15 +162,18 @@ class FieldValidatorCodeGenerator {
     /**
      * Generate code to add an error message.
      */
-    private fun addErrorMessage(validator: ValidationValidatorInfo, args: String? = null): CodeBlock {
+    private fun addErrorMessage(
+        validator: ValidationValidatorInfo,
+        args: String? = null,
+    ): CodeBlock {
         val argsCode = args ?: "null"
         val messageKey = validator.customMessage ?: validator.messageKey
-        
+
         // Always use message provider to allow for i18n and custom message keys
         return CodeBlock.of(
             "errors.add(context.messageProvider.getMessage(%S, %L, context.locale))\n",
             messageKey,
-            argsCode
+            argsCode,
         )
     }
 
@@ -181,7 +183,10 @@ class FieldValidatorCodeGenerator {
      * NOTE: This method is now DEPRECATED and returns empty CodeBlock.
      * Fail-fast checkpoints are now handled by ValidatorClassGenerator at specific positions.
      */
-    private fun addFailFastIfNeeded(property: PropertyInfo, fieldPath: String): CodeBlock {
+    private fun addFailFastIfNeeded(
+        property: PropertyInfo,
+        fieldPath: String,
+    ): CodeBlock {
         // Checkpoints are now injected by ValidatorClassGenerator after validators
         // based on failFastPositions, not after every validator
         return CodeBlock.of("")
@@ -192,11 +197,11 @@ class FieldValidatorCodeGenerator {
     private fun generateRequiredValidator(
         validator: ValidationValidatorInfo.RequiredValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Required")
-            
+
             if (property.isNullable) {
                 // Nullable property - check both null and blank (for Strings)
                 if (property.type.isString()) {
@@ -217,7 +222,7 @@ class FieldValidatorCodeGenerator {
                     beginControlFlow("if (value == null)")
                 }
             }
-            
+
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -227,64 +232,69 @@ class FieldValidatorCodeGenerator {
     private fun generateEmailValidator(
         validator: ValidationValidatorInfo.EmailValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Email")
-            
-            add(wrapInNullabilityCheck(property) { valueRef ->
-                add(addStringTypeCheckIfNeeded(property, valueRef) {
-                    // SECURITY: Length check to prevent ReDoS on very long inputs
-                    addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
-                    beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
-                    addStatement(
-                        "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
-                        "field.too_long",
-                        RegexSafety.MAX_PATTERN_INPUT_LENGTH
+
+            add(
+                wrapInNullabilityCheck(property) { valueRef ->
+                    add(
+                        addStringTypeCheckIfNeeded(property, valueRef) {
+                            // SECURITY: Length check to prevent ReDoS on very long inputs
+                            addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
+                            beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
+                            addStatement(
+                                "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
+                                "field.too_long",
+                                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
+                            )
+                            add(addFailFastIfNeeded(property, fieldPath))
+                            endControlFlow()
+                            // PERFORMANCE: Use cached regex from companion object
+                            beginControlFlow("if (!emailRegex.matches($valueRef))")
+                            add(addErrorMessage(validator))
+                            add(addFailFastIfNeeded(property, fieldPath))
+                            endControlFlow()
+                        },
                     )
-                    add(addFailFastIfNeeded(property, fieldPath))
-                    endControlFlow()
-                    // PERFORMANCE: Use cached regex from companion object
-                    beginControlFlow("if (!emailRegex.matches($valueRef))")
-                    add(addErrorMessage(validator))
-                    add(addFailFastIfNeeded(property, fieldPath))
-                    endControlFlow()
-                })
-            })
+                },
+            )
         }.build()
     }
 
     private fun generateUrlValidator(
         validator: ValidationValidatorInfo.UrlValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Url - Uses URL class validation (no ReDoS risk)")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             addStatement("// Use ValidationPatterns.isValidURL for safe validation")
             addStatement("val isValid = %T.isValidURL($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
             beginControlFlow("if (!isValid)")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -294,30 +304,31 @@ class FieldValidatorCodeGenerator {
     private fun generateUuidValidator(
         validator: ValidationValidatorInfo.UuidValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Uuid")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -326,11 +337,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -340,32 +351,33 @@ class FieldValidatorCodeGenerator {
     private fun generateLengthValidator(
         validator: ValidationValidatorInfo.LengthValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Length(min=%L, max=%L)", validator.min, validator.max)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if ($valueRef.length !in %L..%L)", validator.min, validator.max)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -375,32 +387,33 @@ class FieldValidatorCodeGenerator {
     private fun generateMinLengthValidator(
         validator: ValidationValidatorInfo.MinLengthValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MinLength(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if ($valueRef.length < %L)", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -410,32 +423,33 @@ class FieldValidatorCodeGenerator {
     private fun generateMaxLengthValidator(
         validator: ValidationValidatorInfo.MaxLengthValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MaxLength(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if ($valueRef.length > %L)", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -445,38 +459,39 @@ class FieldValidatorCodeGenerator {
     private fun generatePatternValidator(
         validator: ValidationValidatorInfo.PatternValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         // Validate pattern safety at compile time
         RegexSafety.validatePatternCompiles(validator.pattern)
         val warning = RegexSafety.validatePattern(validator.pattern)
-        
+
         return CodeBlock.builder().apply {
             addStatement("// @Pattern")
             if (warning != null) {
                 // Add warning - keep it short for readability
                 addStatement("// PERFORMANCE WARNING: Pattern may be slow on long inputs. Use @MaxLength before @Pattern.")
             }
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for pattern matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.pattern.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -486,11 +501,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -500,30 +515,31 @@ class FieldValidatorCodeGenerator {
     private fun generateAlphaValidator(
         validator: ValidationValidatorInfo.AlphaValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Alpha")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -532,11 +548,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -546,30 +562,31 @@ class FieldValidatorCodeGenerator {
     private fun generateAlphanumericValidator(
         validator: ValidationValidatorInfo.AlphanumericValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Alphanumeric")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -578,11 +595,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -592,30 +609,31 @@ class FieldValidatorCodeGenerator {
     private fun generateAsciiValidator(
         validator: ValidationValidatorInfo.AsciiValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Ascii")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -624,11 +642,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -638,32 +656,33 @@ class FieldValidatorCodeGenerator {
     private fun generateLowercaseValidator(
         validator: ValidationValidatorInfo.LowercaseValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Lowercase")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if ($valueRef != $valueRef.lowercase())")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -673,32 +692,33 @@ class FieldValidatorCodeGenerator {
     private fun generateUppercaseValidator(
         validator: ValidationValidatorInfo.UppercaseValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Uppercase")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if ($valueRef != $valueRef.uppercase())")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -708,32 +728,33 @@ class FieldValidatorCodeGenerator {
     private fun generateStartsWithValidator(
         validator: ValidationValidatorInfo.StartsWithValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @StartsWith")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if (!$valueRef.startsWith(%S))", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -743,32 +764,33 @@ class FieldValidatorCodeGenerator {
     private fun generateEndsWithValidator(
         validator: ValidationValidatorInfo.EndsWithValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @EndsWith")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if (!$valueRef.endsWith(%S))", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -778,32 +800,33 @@ class FieldValidatorCodeGenerator {
     private fun generateContainsValidator(
         validator: ValidationValidatorInfo.ContainsValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Contains")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("if (!$valueRef.contains(%S))", validator.value)
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -813,25 +836,26 @@ class FieldValidatorCodeGenerator {
     private fun generateOneOfValidator(
         validator: ValidationValidatorInfo.OneOfValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @OneOf")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
             addStatement("val allowedValues = setOf($valuesString)")
             beginControlFlow("if ($valueRef.toString() !in allowedValues)")
             add(addErrorMessage(validator, "arrayOf<Any>(allowedValues.joinToString(\", \"))"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -841,25 +865,26 @@ class FieldValidatorCodeGenerator {
     private fun generateNotOneOfValidator(
         validator: ValidationValidatorInfo.NotOneOfValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @NotOneOf")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
             addStatement("val forbiddenValues = setOf($valuesString)")
             beginControlFlow("if ($valueRef.toString() in forbiddenValues)")
             add(addErrorMessage(validator, "arrayOf<Any>(forbiddenValues.joinToString(\", \"))"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -869,34 +894,35 @@ class FieldValidatorCodeGenerator {
     private fun generateJsonValidator(
         validator: ValidationValidatorInfo.JsonValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Json - Proper JSON structure validation")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             addStatement("// Use ValidationPatterns.isValidJson for proper validation")
             addStatement("val isValid = %T.isValidJson($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
             beginControlFlow("if (!isValid)")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -906,23 +932,24 @@ class FieldValidatorCodeGenerator {
     private fun generateLuhnValidator(
         validator: ValidationValidatorInfo.LuhnValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Luhn - Luhn algorithm validation (credit cards, IMEI, etc.)")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             addStatement("// Remove spaces and hyphens")
             addStatement("val digits = $valueRef.replace(\" \", \"\").replace(\"-\", \"\")")
             beginControlFlow("if (digits.all { c -> c.isDigit() })")
@@ -947,11 +974,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -963,18 +990,19 @@ class FieldValidatorCodeGenerator {
     private fun generateMinValidator(
         validator: ValidationValidatorInfo.MinValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Min(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -986,7 +1014,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -996,18 +1024,19 @@ class FieldValidatorCodeGenerator {
     private fun generateMaxValidator(
         validator: ValidationValidatorInfo.MaxValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Max(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1019,7 +1048,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1029,18 +1058,19 @@ class FieldValidatorCodeGenerator {
     private fun generateBetweenValidator(
         validator: ValidationValidatorInfo.BetweenValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Between(%L, %L)", validator.min, validator.max)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1053,7 +1083,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1063,18 +1093,19 @@ class FieldValidatorCodeGenerator {
     private fun generatePositiveValidator(
         validator: ValidationValidatorInfo.PositiveValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Positive")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1086,7 +1117,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1096,18 +1127,19 @@ class FieldValidatorCodeGenerator {
     private fun generateNegativeValidator(
         validator: ValidationValidatorInfo.NegativeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Negative")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1119,7 +1151,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1129,18 +1161,19 @@ class FieldValidatorCodeGenerator {
     private fun generateZeroValidator(
         validator: ValidationValidatorInfo.ZeroValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Zero")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1152,7 +1185,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1162,18 +1195,19 @@ class FieldValidatorCodeGenerator {
     private fun generateIntegerValidator(
         validator: ValidationValidatorInfo.IntegerValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Integer")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
@@ -1194,7 +1228,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1204,18 +1238,19 @@ class FieldValidatorCodeGenerator {
     private fun generateDecimalValidator(
         validator: ValidationValidatorInfo.DecimalValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Decimal")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Int, is Long, is Short, is Byte -> {")
@@ -1241,7 +1276,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1251,18 +1286,19 @@ class FieldValidatorCodeGenerator {
     private fun generateDivisibleByValidator(
         validator: ValidationValidatorInfo.DivisibleByValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @DivisibleBy(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1274,7 +1310,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1284,18 +1320,19 @@ class FieldValidatorCodeGenerator {
     private fun generateEvenValidator(
         validator: ValidationValidatorInfo.EvenValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Even")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1307,7 +1344,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1317,18 +1354,19 @@ class FieldValidatorCodeGenerator {
     private fun generateOddValidator(
         validator: ValidationValidatorInfo.OddValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Odd")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
@@ -1340,7 +1378,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1350,18 +1388,19 @@ class FieldValidatorCodeGenerator {
     private fun generateDecimalPlacesValidator(
         validator: ValidationValidatorInfo.DecimalPlacesValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @DecimalPlaces - validates string representation has exact decimal places")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is String -> {")
@@ -1374,7 +1413,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1386,18 +1425,19 @@ class FieldValidatorCodeGenerator {
     private fun generateAcceptedValidator(
         validator: ValidationValidatorInfo.AcceptedValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Accepted")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let { v ->")
-                "v"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let { v ->")
+                    "v"
+                } else {
+                    "value"
+                }
+
             // Generate type-specific check based on property type
             when {
                 property.type.qualifiedName == "kotlin.Boolean" -> {
@@ -1425,7 +1465,7 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1437,18 +1477,19 @@ class FieldValidatorCodeGenerator {
     private fun generateSizeValidator(
         validator: ValidationValidatorInfo.SizeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Size(min=%L, max=%L)", validator.min, validator.max)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val size = when ($valueRef) {")
             indent()
@@ -1462,7 +1503,7 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1472,18 +1513,19 @@ class FieldValidatorCodeGenerator {
     private fun generateMinSizeValidator(
         validator: ValidationValidatorInfo.MinSizeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MinSize(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val size = when ($valueRef) {")
             indent()
@@ -1497,7 +1539,7 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1507,18 +1549,19 @@ class FieldValidatorCodeGenerator {
     private fun generateMaxSizeValidator(
         validator: ValidationValidatorInfo.MaxSizeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MaxSize(%L)", validator.value)
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val size = when ($valueRef) {")
             indent()
@@ -1532,7 +1575,7 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1542,18 +1585,19 @@ class FieldValidatorCodeGenerator {
     private fun generateNotEmptyValidator(
         validator: ValidationValidatorInfo.NotEmptyValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @NotEmpty")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             addStatement("val isEmpty = when ($valueRef) {")
             indent()
@@ -1568,7 +1612,7 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1578,18 +1622,19 @@ class FieldValidatorCodeGenerator {
     private fun generateDistinctValidator(
         validator: ValidationValidatorInfo.DistinctValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Distinct")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is List<*> -> {")
@@ -1611,7 +1656,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1621,18 +1666,19 @@ class FieldValidatorCodeGenerator {
     private fun generateContainsValueValidator(
         validator: ValidationValidatorInfo.ContainsValueValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @ContainsValue")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Collection<*> -> {")
@@ -1655,7 +1701,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1665,18 +1711,19 @@ class FieldValidatorCodeGenerator {
     private fun generateNotContainsValidator(
         validator: ValidationValidatorInfo.NotContainsValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @NotContains")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is Collection<*> -> {")
@@ -1699,7 +1746,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1711,34 +1758,35 @@ class FieldValidatorCodeGenerator {
     private fun generateDateFormatValidator(
         validator: ValidationValidatorInfo.DateFormatValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @DateFormat")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             beginControlFlow("try")
             addStatement("java.time.format.DateTimeFormatter.ofPattern(%S).parse($valueRef)", validator.format)
             nextControlFlow("catch (e: Exception)")
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.format}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1748,30 +1796,31 @@ class FieldValidatorCodeGenerator {
     private fun generateIsoDateValidator(
         validator: ValidationValidatorInfo.IsoDateValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @IsoDate")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -1780,11 +1829,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1794,30 +1843,31 @@ class FieldValidatorCodeGenerator {
     private fun generateIsoDateTimeValidator(
         validator: ValidationValidatorInfo.IsoDateTimeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @IsoDateTime")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             if (!property.type.isString()) {
                 addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
-            
+
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
             beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -1826,11 +1876,11 @@ class FieldValidatorCodeGenerator {
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            
+
             if (!property.type.isString()) {
                 endControlFlow()
             }
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1840,18 +1890,19 @@ class FieldValidatorCodeGenerator {
     private fun generateFutureValidator(
         validator: ValidationValidatorInfo.FutureValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Future - uses injectable Clock from context")
-            
-            val valueRef = if (property.isNullable) {
-                beginControlFlow("value?.let")
-                "it"
-            } else {
-                "value"
-            }
-            
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
             addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
             beginControlFlow("when ($valueRef)")
             addStatement("is java.time.LocalDate -> {")
@@ -1882,7 +1933,7 @@ class FieldValidatorCodeGenerator {
             unindent()
             addStatement("}")
             endControlFlow()
-            
+
             if (property.isNullable) {
                 endControlFlow()
             }
@@ -1892,7 +1943,7 @@ class FieldValidatorCodeGenerator {
     private fun generatePastValidator(
         validator: ValidationValidatorInfo.PastValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Past - uses injectable Clock from context")
@@ -1934,7 +1985,7 @@ class FieldValidatorCodeGenerator {
     private fun generateTodayValidator(
         validator: ValidationValidatorInfo.TodayValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Today - uses injectable Clock from context")
@@ -1969,7 +2020,7 @@ class FieldValidatorCodeGenerator {
     private fun generateIPv4Validator(
         validator: ValidationValidatorInfo.IPv4Validator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @IPv4 - Uses InetAddress validation (safe and reliable)")
@@ -1990,7 +2041,7 @@ class FieldValidatorCodeGenerator {
     private fun generateIPv6Validator(
         validator: ValidationValidatorInfo.IPv6Validator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @IPv6 - Uses InetAddress validation (no ReDoS risk)")
@@ -2011,7 +2062,7 @@ class FieldValidatorCodeGenerator {
     private fun generateIPValidator(
         validator: ValidationValidatorInfo.IPValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @IP (IPv4 or IPv6) - Uses InetAddress validation (safe)")
@@ -2032,7 +2083,7 @@ class FieldValidatorCodeGenerator {
     private fun generateMacAddressValidator(
         validator: ValidationValidatorInfo.MacAddressValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MacAddress")
@@ -2045,7 +2096,7 @@ class FieldValidatorCodeGenerator {
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -2062,7 +2113,7 @@ class FieldValidatorCodeGenerator {
     private fun generatePortValidator(
         validator: ValidationValidatorInfo.PortValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Port")
@@ -2096,7 +2147,7 @@ class FieldValidatorCodeGenerator {
     private fun generateMimeTypeValidator(
         validator: ValidationValidatorInfo.MimeTypeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         return CodeBlock.builder().apply {
@@ -2149,7 +2200,7 @@ class FieldValidatorCodeGenerator {
     private fun generateFileExtensionValidator(
         validator: ValidationValidatorInfo.FileExtensionValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         return CodeBlock.builder().apply {
@@ -2195,7 +2246,7 @@ class FieldValidatorCodeGenerator {
     private fun generateMaxFileSizeValidator(
         validator: ValidationValidatorInfo.MaxFileSizeValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @MaxFileSize - NON-BLOCKING with IO dispatcher")
@@ -2230,7 +2281,7 @@ class FieldValidatorCodeGenerator {
     private fun generateSameValidator(
         validator: ValidationValidatorInfo.SameValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Same - Compare with another field")
@@ -2245,7 +2296,7 @@ class FieldValidatorCodeGenerator {
     private fun generateDifferentValidator(
         validator: ValidationValidatorInfo.DifferentValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Different - Must differ from another field")
@@ -2260,7 +2311,7 @@ class FieldValidatorCodeGenerator {
     private fun generateRequiredIfValidator(
         validator: ValidationValidatorInfo.RequiredIfValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @RequiredIf")
@@ -2278,7 +2329,7 @@ class FieldValidatorCodeGenerator {
     private fun generateRequiredUnlessValidator(
         validator: ValidationValidatorInfo.RequiredUnlessValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @RequiredUnless")
@@ -2296,7 +2347,7 @@ class FieldValidatorCodeGenerator {
     private fun generateRequiredWithValidator(
         validator: ValidationValidatorInfo.RequiredWithValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @RequiredWith")
@@ -2316,7 +2367,7 @@ class FieldValidatorCodeGenerator {
     private fun generateRequiredWithoutValidator(
         validator: ValidationValidatorInfo.RequiredWithoutValidator,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @RequiredWithout")
@@ -2336,7 +2387,7 @@ class FieldValidatorCodeGenerator {
     private fun generateCustomValidator(
         validator: ValidationValidatorInfo.CustomValidatorInfo,
         property: PropertyInfo,
-        fieldPath: String
+        fieldPath: String,
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @CustomValidator - Custom validation logic")

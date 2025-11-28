@@ -22,7 +22,7 @@ package com.noovoweb.validator
 @Retention(AnnotationRetention.SOURCE)
 annotation class Valid(
     val each: Boolean = false,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -111,5 +111,5 @@ annotation class Valid(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class FailFast(
-    val message: String = ""
+    val message: String = "",
 )

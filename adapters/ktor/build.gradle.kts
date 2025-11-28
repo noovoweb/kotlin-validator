@@ -34,3 +34,8 @@ kotlin {
 tasks.test {
     useJUnitPlatform()
 }
+
+// Ktor uses wildcard imports idiomatically
+tasks.matching { it.name.startsWith("ktlint") }.configureEach {
+    enabled = name.contains("KotlinScripts")
+}

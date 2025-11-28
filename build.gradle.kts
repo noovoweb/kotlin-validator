@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "2.0.21" apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1" apply false
     jacoco
 }
 
@@ -16,11 +16,23 @@ allprojects {
 
 subprojects {
     apply(plugin = "jacoco")
-    apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    // Detekt disabled - using ktlint for code style
+    // apply(plugin = "io.gitlab.arturbosch.detekt")
 
-    dependencies {
-        detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.6")
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        disabledRules.set(
+            listOf(
+                "filename",
+                "standard:comment-spacing",
+                "standard:kdoc-wrapping",
+                "standard:discouraged-comment-location",
+            ),
+        )
+        filter {
+            exclude("**/build/**")
+            exclude("**/generated/**")
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 package com.noovoweb.validator.core
 
-import com.noovoweb.validator.ValidationError
 import com.noovoweb.validator.ValidationException
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -12,14 +11,14 @@ import kotlin.test.assertTrue
  * Unit tests for ValidationException structure and utility methods.
  */
 class ValidationExceptionTest {
-
     @Test
     fun `ValidationException stores errors by field`() {
-        val errors = mapOf(
-            "email" to listOf("Invalid email", "Email too long"),
-            "age" to listOf("Age must be at least 18"),
-            "name" to listOf("Name is required")
-        )
+        val errors =
+            mapOf(
+                "email" to listOf("Invalid email", "Email too long"),
+                "age" to listOf("Age must be at least 18"),
+                "name" to listOf("Name is required"),
+            )
         val exception = ValidationException(errors)
 
         assertEquals(errors, exception.errors)
@@ -28,11 +27,12 @@ class ValidationExceptionTest {
 
     @Test
     fun `ValidationException message includes field count`() {
-        val errors = mapOf(
-            "field1" to listOf("error"),
-            "field2" to listOf("error"),
-            "field3" to listOf("error")
-        )
+        val errors =
+            mapOf(
+                "field1" to listOf("error"),
+                "field2" to listOf("error"),
+                "field3" to listOf("error"),
+            )
         val exception = ValidationException(errors)
 
         assertTrue(exception.message!!.contains("3 field"))
@@ -40,10 +40,11 @@ class ValidationExceptionTest {
 
     @Test
     fun `getFieldErrors retrieves errors for specific field`() {
-        val errors = mapOf(
-            "email" to listOf("Invalid email", "Too long"),
-            "age" to listOf("Too young")
-        )
+        val errors =
+            mapOf(
+                "email" to listOf("Invalid email", "Too long"),
+                "age" to listOf("Too young"),
+            )
         val exception = ValidationException(errors)
 
         val emailErrors = exception.getFieldErrors("email")
@@ -63,10 +64,11 @@ class ValidationExceptionTest {
 
     @Test
     fun `hasFieldError checks field error presence`() {
-        val errors = mapOf(
-            "email" to listOf("error"),
-            "age" to listOf("error")
-        )
+        val errors =
+            mapOf(
+                "email" to listOf("error"),
+                "age" to listOf("error"),
+            )
         val exception = ValidationException(errors)
 
         assertTrue(exception.hasFieldError("email"))
@@ -76,11 +78,12 @@ class ValidationExceptionTest {
 
     @Test
     fun `getAllMessages returns flat error list`() {
-        val errors = mapOf(
-            "email" to listOf("Invalid email", "Too long"),
-            "age" to listOf("Too young"),
-            "name" to listOf("Required", "Too short")
-        )
+        val errors =
+            mapOf(
+                "email" to listOf("Invalid email", "Too long"),
+                "age" to listOf("Too young"),
+                "name" to listOf("Required", "Too short"),
+            )
         val exception = ValidationException(errors)
 
         val allMessages = exception.getAllMessages()
@@ -102,10 +105,11 @@ class ValidationExceptionTest {
 
     @Test
     fun `toJson formats errors as JSON string`() {
-        val errors = mapOf(
-            "email" to listOf("Invalid email"),
-            "age" to listOf("Too young")
-        )
+        val errors =
+            mapOf(
+                "email" to listOf("Invalid email"),
+                "age" to listOf("Too young"),
+            )
         val exception = ValidationException(errors)
 
         val json = exception.toJson()
@@ -119,9 +123,10 @@ class ValidationExceptionTest {
 
     @Test
     fun `toJson handles multiple errors per field`() {
-        val errors = mapOf(
-            "password" to listOf("Too short", "No uppercase", "No number")
-        )
+        val errors =
+            mapOf(
+                "password" to listOf("Too short", "No uppercase", "No number"),
+            )
         val exception = ValidationException(errors)
 
         val json = exception.toJson()
@@ -132,9 +137,10 @@ class ValidationExceptionTest {
 
     @Test
     fun `toJson escapes special characters in messages`() {
-        val errors = mapOf(
-            "field" to listOf("Message with \"quotes\" and \\backslash")
-        )
+        val errors =
+            mapOf(
+                "field" to listOf("Message with \"quotes\" and \\backslash"),
+            )
         val exception = ValidationException(errors)
 
         val json = exception.toJson()
@@ -175,13 +181,14 @@ class ValidationExceptionTest {
 
     @Test
     fun `multiple field errors are independently accessible`() {
-        val errors = mapOf(
-            "firstName" to listOf("Required"),
-            "lastName" to listOf("Required"),
-            "email" to listOf("Invalid", "Too long"),
-            "age" to listOf("Too young"),
-            "address.city" to listOf("Required")
-        )
+        val errors =
+            mapOf(
+                "firstName" to listOf("Required"),
+                "lastName" to listOf("Required"),
+                "email" to listOf("Invalid", "Too long"),
+                "age" to listOf("Too young"),
+                "address.city" to listOf("Required"),
+            )
         val exception = ValidationException(errors)
 
         assertEquals(listOf("Required"), exception.getFieldErrors("firstName"))
@@ -193,11 +200,12 @@ class ValidationExceptionTest {
 
     @Test
     fun `error path construction for nested fields`() {
-        val errors = mapOf(
-            "user.address.city" to listOf("Required"),
-            "user.phoneNumbers[0].number" to listOf("Invalid format"),
-            "user.phoneNumbers[1].type" to listOf("Invalid type")
-        )
+        val errors =
+            mapOf(
+                "user.address.city" to listOf("Required"),
+                "user.phoneNumbers[0].number" to listOf("Invalid format"),
+                "user.phoneNumbers[1].type" to listOf("Invalid type"),
+            )
         val exception = ValidationException(errors)
 
         assertTrue(exception.hasFieldError("user.address.city"))

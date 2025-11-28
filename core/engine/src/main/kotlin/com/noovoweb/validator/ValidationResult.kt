@@ -8,7 +8,6 @@ package com.noovoweb.validator
  * @param T The type of the validated value
  */
 sealed class ValidationResult<out T> {
-
     /**
      * Represents successful validation.
      *
@@ -29,22 +28,24 @@ sealed class ValidationResult<out T> {
      * @return The validated value
      * @throws ValidationException if validation failed
      */
-    fun getOrThrow(): T = when (this) {
-        is Success -> value
-        is Failure -> throw ValidationException(
-            errors.mapValues { (_, errors) -> errors.map { it.message } }
-        )
-    }
+    fun getOrThrow(): T =
+        when (this) {
+            is Success -> value
+            is Failure -> throw ValidationException(
+                errors.mapValues { (_, errors) -> errors.map { it.message } },
+            )
+        }
 
     /**
      * Returns the value if successful, null if failed.
      *
      * @return The validated value or null
      */
-    fun getOrNull(): T? = when (this) {
-        is Success -> value
-        is Failure -> null
-    }
+    fun getOrNull(): T? =
+        when (this) {
+            is Success -> value
+            is Failure -> null
+        }
 
     /**
      * Returns the value if successful, or the default value if failed.
@@ -52,10 +53,11 @@ sealed class ValidationResult<out T> {
      * @param defaultValue Value to return on failure
      * @return The validated value or default
      */
-    fun getOrDefault(defaultValue: @UnsafeVariance T): T = when (this) {
-        is Success -> value
-        is Failure -> defaultValue
-    }
+    fun getOrDefault(defaultValue: @UnsafeVariance T): T =
+        when (this) {
+            is Success -> value
+            is Failure -> defaultValue
+        }
 
     /**
      * Returns the value if successful, or computes a default value if failed.
@@ -63,10 +65,11 @@ sealed class ValidationResult<out T> {
      * @param defaultValue Lambda to compute default value
      * @return The validated value or computed default
      */
-    inline fun getOrElse(defaultValue: (Map<String, List<ValidationError>>) -> @UnsafeVariance T): @UnsafeVariance T = when (this) {
-        is Success -> value
-        is Failure -> defaultValue(errors)
-    }
+    inline fun getOrElse(defaultValue: (Map<String, List<ValidationError>>) -> @UnsafeVariance T): @UnsafeVariance T =
+        when (this) {
+            is Success -> value
+            is Failure -> defaultValue(errors)
+        }
 
     /**
      * Execute block if validation succeeded.
@@ -96,10 +99,11 @@ sealed class ValidationResult<out T> {
      * @param transform Transformation function
      * @return Transformed result
      */
-    inline fun <R> map(transform: (T) -> R): ValidationResult<R> = when (this) {
-        is Success -> Success(transform(value))
-        is Failure -> this
-    }
+    inline fun <R> map(transform: (T) -> R): ValidationResult<R> =
+        when (this) {
+            is Success -> Success(transform(value))
+            is Failure -> this
+        }
 
     /**
      * Transform successful result with another ValidationResult.
@@ -107,10 +111,11 @@ sealed class ValidationResult<out T> {
      * @param transform Transformation function returning ValidationResult
      * @return Transformed result
      */
-    inline fun <R> flatMap(transform: (T) -> ValidationResult<R>): ValidationResult<R> = when (this) {
-        is Success -> transform(value)
-        is Failure -> this
-    }
+    inline fun <R> flatMap(transform: (T) -> ValidationResult<R>): ValidationResult<R> =
+        when (this) {
+            is Success -> transform(value)
+            is Failure -> this
+        }
 
     /**
      * Transform failed result.
@@ -118,12 +123,11 @@ sealed class ValidationResult<out T> {
      * @param transform Transformation function for errors
      * @return Result with transformed errors
      */
-    inline fun mapErrors(
-        transform: (Map<String, List<ValidationError>>) -> Map<String, List<ValidationError>>
-    ): ValidationResult<T> = when (this) {
-        is Success -> this
-        is Failure -> Failure(transform(errors))
-    }
+    inline fun mapErrors(transform: (Map<String, List<ValidationError>>) -> Map<String, List<ValidationError>>): ValidationResult<T> =
+        when (this) {
+            is Success -> this
+            is Failure -> Failure(transform(errors))
+        }
 
     /**
      * Fold the result into a single value.
@@ -134,11 +138,12 @@ sealed class ValidationResult<out T> {
      */
     inline fun <R> fold(
         onSuccess: (T) -> R,
-        onFailure: (Map<String, List<ValidationError>>) -> R
-    ): R = when (this) {
-        is Success -> onSuccess(value)
-        is Failure -> onFailure(errors)
-    }
+        onFailure: (Map<String, List<ValidationError>>) -> R,
+    ): R =
+        when (this) {
+            is Success -> onSuccess(value)
+            is Failure -> onFailure(errors)
+        }
 
     /**
      * Check if validation was successful.

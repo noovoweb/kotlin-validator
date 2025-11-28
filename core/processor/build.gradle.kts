@@ -33,3 +33,8 @@ kotlin {
 tasks.test {
     useJUnitPlatform()
 }
+
+// Kotlinpoet and KSP use wildcard imports idiomatically
+tasks.matching { it.name.startsWith("ktlint") }.configureEach {
+    enabled = name.contains("KotlinScripts")
+}

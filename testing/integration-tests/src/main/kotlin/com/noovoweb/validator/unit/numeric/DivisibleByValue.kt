@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class DivisibleByValue(
     @DivisibleBy(5)
-    val value: Int?
+    val value: Int?,
 )

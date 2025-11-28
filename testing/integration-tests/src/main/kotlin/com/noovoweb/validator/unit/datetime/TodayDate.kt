@@ -7,5 +7,5 @@ import java.time.LocalDate
 @Validated
 data class TodayDate(
     @Today
-    val date: LocalDate?
+    val date: LocalDate?,
 )

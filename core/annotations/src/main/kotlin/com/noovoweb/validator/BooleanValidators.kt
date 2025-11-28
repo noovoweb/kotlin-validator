@@ -1,4 +1,4 @@
-@file:Suppress("MatchingDeclarationName")
+@file:Suppress("MatchingDeclarationName", "Filename")
 
 package com.noovoweb.validator
 
@@ -28,5 +28,5 @@ package com.noovoweb.validator
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Accepted(
-    val message: String = ""
+    val message: String = "",
 )

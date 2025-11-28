@@ -26,17 +26,17 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class ValidationExceptionHandler {
-
     /**
      * Handle ValidationException and return 422 Unprocessable Entity with error details.
      */
     @ExceptionHandler(ValidationException::class)
     fun handleValidationException(ex: ValidationException): ResponseEntity<ValidationErrorResponse> {
-        val response = ValidationErrorResponse(
-            status = HttpStatus.UNPROCESSABLE_ENTITY.value(),
-            message = "Validation Failed",
-            errors = ex.errors
-        )
+        val response =
+            ValidationErrorResponse(
+                status = HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                message = "Validation Failed",
+                errors = ex.errors,
+            )
 
         return ResponseEntity
             .status(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -54,5 +54,5 @@ class ValidationExceptionHandler {
 data class ValidationErrorResponse(
     val status: Int,
     val message: String,
-    val errors: Map<String, List<String>>
+    val errors: Map<String, List<String>>,
 )

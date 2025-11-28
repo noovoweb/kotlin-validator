@@ -7,5 +7,5 @@ import java.io.File
 @Validated
 data class FileExtensionData(
     @FileExtension(["jpg", "png", "gif"])
-    val file: File?
+    val file: File?,
 )

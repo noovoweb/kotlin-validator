@@ -7,5 +7,5 @@ import com.noovoweb.validator.Validated
 data class DifferentField(
     val currentPassword: String?,
     @Different("currentPassword")
-    val newPassword: String?
+    val newPassword: String?,
 )

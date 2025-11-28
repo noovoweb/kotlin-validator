@@ -7,16 +7,16 @@ import org.springframework.web.servlet.LocaleResolver
 
 /**
  * Provider for ValidationContext in Spring MVC applications.
- * 
+ *
  * This singleton bean provides a clean, performant way to create
  * localized validation contexts from HTTP requests. The locale is
  * extracted from the Accept-Language header via Spring's LocaleResolver.
- * 
+ *
  * **Performance**: Unlike request-scoped beans, this singleton approach:
  * - Avoids CGLIB proxy overhead
  * - Eliminates per-request object creation
  * - Is thread-safe without synchronization (immutable state)
- * 
+ *
  * **Usage in Controllers**:
  * ```kotlin
  * @RestController
@@ -33,15 +33,14 @@ import org.springframework.web.servlet.LocaleResolver
 @Component
 class ValidationContextProvider(
     private val baseContext: ValidationContext,
-    private val localeResolver: LocaleResolver
+    private val localeResolver: LocaleResolver,
 ) {
-    
     /**
      * Get a ValidationContext with locale from the HttpServletRequest.
-     * 
+     *
      * Extracts locale from the Accept-Language header via the LocaleResolver
      * and creates a new context with all other settings preserved.
-     * 
+     *
      * @param request The current HTTP request
      * @return ValidationContext with the request's locale
      */
@@ -49,13 +48,13 @@ class ValidationContextProvider(
         val locale = localeResolver.resolveLocale(request)
         return baseContext.withLocale(locale)
     }
-    
+
     /**
      * Get the base ValidationContext without locale resolution.
-     * 
+     *
      * Useful when you want to use a specific locale or when
      * locale doesn't matter for the validation.
-     * 
+     *
      * @return The base ValidationContext
      */
     fun getBase(): ValidationContext = baseContext

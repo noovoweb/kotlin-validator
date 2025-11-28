@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class DecimalValue(
     @Decimal
-    val value: Double?
+    val value: Double?,
 )

@@ -4,22 +4,25 @@ import com.noovoweb.validator.DefaultMessageProvider
 import com.noovoweb.validator.MessageProvider
 import org.springframework.context.MessageSource
 import org.springframework.context.NoSuchMessageException
-import java.util.*
+import java.util.Locale
 
 /**
  * Spring MVC-aware MessageProvider that delegates to Spring's MessageSource.
- * 
+ *
  * This allows custom validation messages to be loaded from Spring's
  * messages.properties files, while falling back to the default
  * ValidationMessages.properties for built-in validators.
  */
 class SpringMessageProvider(
-    private val messageSource: MessageSource
+    private val messageSource: MessageSource,
 ) : MessageProvider {
-
     private val defaultProvider = DefaultMessageProvider()
 
-    override suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale): String {
+    override suspend fun getMessage(
+        key: String,
+        args: Array<Any>?,
+        locale: Locale,
+    ): String {
         return try {
             // First try Spring's MessageSource (for custom messages)
             messageSource.getMessage(key, args, locale)

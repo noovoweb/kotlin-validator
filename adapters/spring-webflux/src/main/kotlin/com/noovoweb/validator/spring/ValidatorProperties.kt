@@ -1,7 +1,7 @@
 package com.noovoweb.validator.spring
 
 import org.springframework.boot.context.properties.ConfigurationProperties
-import java.util.*
+import java.util.Locale
 
 /**
  * Configuration properties for kotlin-validator.
@@ -26,5 +26,5 @@ data class ValidatorProperties(
      * If not set, uses Locale.getDefault().
      * Examples: "en_US", "fr_FR", "en"
      */
-    var locale: Locale? = null
+    var locale: Locale? = null,
 )

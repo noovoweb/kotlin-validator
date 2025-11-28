@@ -1,7 +1,6 @@
 package com.noovoweb.validator.spring
 
 import com.noovoweb.validator.MessageProvider
-import com.noovoweb.validator.DefaultMessageProvider
 import com.noovoweb.validator.ValidationContext
 import kotlinx.coroutines.Dispatchers
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -10,7 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.MessageSource
 import org.springframework.context.annotation.Bean
 import java.time.Clock
-import java.util.*
+import java.util.Locale
 
 /**
  * Auto-configuration for kotlin-validator in Spring Boot applications.
@@ -29,7 +28,6 @@ import java.util.*
 @AutoConfiguration
 @EnableConfigurationProperties(ValidatorProperties::class)
 class ValidatorAutoConfiguration {
-
     /**
      * Provide a Spring-aware MessageProvider that uses MessageSource.
      */
@@ -56,13 +54,13 @@ class ValidatorAutoConfiguration {
     fun validationContext(
         properties: ValidatorProperties,
         messageProvider: MessageProvider,
-        clock: Clock
+        clock: Clock,
     ): ValidationContext {
         return ValidationContext(
             locale = properties.locale ?: Locale.getDefault(),
             messageProvider = messageProvider,
             dispatcher = Dispatchers.Default,
-            clock = clock
+            clock = clock,
         )
     }
 
@@ -83,5 +81,4 @@ class ValidatorAutoConfiguration {
     fun validationExceptionHandler(): ValidationExceptionHandler {
         return ValidationExceptionHandler()
     }
-
 }

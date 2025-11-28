@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class IsoDateTime(
     @IsoDateTime
-    val datetime: String?
+    val datetime: String?,
 )

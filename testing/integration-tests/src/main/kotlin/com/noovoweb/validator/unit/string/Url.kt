@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Url(
     @Url
-    val name: String?
+    val name: String?,
 )

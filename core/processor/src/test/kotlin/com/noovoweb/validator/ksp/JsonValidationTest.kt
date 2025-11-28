@@ -6,75 +6,77 @@ import kotlin.test.assertTrue
 
 /**
  * Tests for improved JSON validation that actually parses JSON structure.
- * 
+ *
  * These tests ensure the JSON validator properly validates structure
  * and doesn't just check for braces.
  */
 class JsonValidationTest {
-
     @Test
     fun `test valid JSON objects`() {
-        val validJsonObjects = listOf(
-            """{}""",
-            """{"key": "value"}""",
-            """{"name": "John", "age": 30}""",
-            """{"nested": {"key": "value"}}""",
-            """{"array": [1, 2, 3]}""",
-            """{"bool": true, "null": null}""",
-            """{"number": 42, "float": 3.14, "exp": 1.5e10}""",
-            """  {  "whitespace"  :  "handled"  }  """,
-            """{"escaped": "quote: \" and backslash: \\"}"""
-        )
+        val validJsonObjects =
+            listOf(
+                """{}""",
+                """{"key": "value"}""",
+                """{"name": "John", "age": 30}""",
+                """{"nested": {"key": "value"}}""",
+                """{"array": [1, 2, 3]}""",
+                """{"bool": true, "null": null}""",
+                """{"number": 42, "float": 3.14, "exp": 1.5e10}""",
+                """  {  "whitespace"  :  "handled"  }  """,
+                """{"escaped": "quote: \" and backslash: \\"}""",
+            )
 
         validJsonObjects.forEach { json ->
             assertTrue(
                 ValidationPatterns.isValidJson(json),
-                "Expected valid JSON: $json"
+                "Expected valid JSON: $json",
             )
         }
     }
 
     @Test
     fun `test valid JSON arrays`() {
-        val validJsonArrays = listOf(
-            """[]""",
-            """[1, 2, 3]""",
-            """["a", "b", "c"]""",
-            """[{"key": "value"}]""",
-            """[1, "two", {"three": 3}, [4]]""",
-            """[true, false, null]""",
-            """  [  1  ,  2  ,  3  ]  """
-        )
+        val validJsonArrays =
+            listOf(
+                """[]""",
+                """[1, 2, 3]""",
+                """["a", "b", "c"]""",
+                """[{"key": "value"}]""",
+                """[1, "two", {"three": 3}, [4]]""",
+                """[true, false, null]""",
+                """  [  1  ,  2  ,  3  ]  """,
+            )
 
         validJsonArrays.forEach { json ->
             assertTrue(
                 ValidationPatterns.isValidJson(json),
-                "Expected valid JSON: $json"
+                "Expected valid JSON: $json",
             )
         }
     }
 
     @Test
     fun `test invalid JSON - structural errors`() {
-        val invalidJson = listOf(
-            """{invalid}""",                    // Unquoted key
-            """{"key": }""",                    // Missing value
-            """{"key" "value"}""",              // Missing colon
-            """{key: "value"}""",               // Unquoted key
-            """{"key": "value",}""",            // Trailing comma
-            """[1, 2, 3,]""",                   // Trailing comma
-            """{"unclosed": "string}""",        // Unclosed string
-            """{"key": "value"""",              // Unclosed object
-            """[1, 2, 3""",                     // Unclosed array
-            """{"key": 'value'}""",             // Single quotes
-            """{"key": undefined}"""            // Undefined value
-            // Note: Duplicate keys are technically valid JSON (though bad practice)
-        )
+        val invalidJson =
+            listOf(
+                """{invalid}""", // Unquoted key
+                """{"key": }""", // Missing value
+                """{"key" "value"}""", // Missing colon
+                """{key: "value"}""", // Unquoted key
+                """{"key": "value",}""", // Trailing comma
+                """[1, 2, 3,]""", // Trailing comma
+                """{"unclosed": "string}""", // Unclosed string
+                """{"key": "value"""", // Unclosed object
+                """[1, 2, 3""", // Unclosed array
+                """{"key": 'value'}""", // Single quotes
+                """{"key": undefined}""", // Undefined value
+                // Note: Duplicate keys are technically valid JSON (though bad practice)
+            )
 
         invalidJson.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: $json"
+                "Expected invalid JSON: $json",
             )
         }
     }
@@ -82,59 +84,62 @@ class JsonValidationTest {
     @Test
     fun `test invalid JSON - just braces`() {
         // These would pass the old validation but should fail the new one
-        val justBraces = listOf(
-            """{""",
-            """}""",
-            """}{""",
-            """{{}""",
-            """}}}""",
-            """[""",
-            """]""",
-            """][""",
-            """[[]""",
-            """]]]"""
-        )
+        val justBraces =
+            listOf(
+                """{""",
+                """}""",
+                """}{""",
+                """{{}""",
+                """}}}""",
+                """[""",
+                """]""",
+                """][""",
+                """[[]""",
+                """]]]""",
+            )
 
         justBraces.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: $json"
+                "Expected invalid JSON: $json",
             )
         }
     }
 
     @Test
     fun `test invalid JSON - escape sequences`() {
-        val invalidEscapes = listOf(
-            """{"key": "invalid \x escape"}""",  // Invalid escape (\x is not valid)
-            """{"key": "line
-break"}"""                                      // Unescaped newline (actual newline in string)
-            // Note: Control characters in Kotlin strings are already escaped by Kotlin compiler
-        )
+        val invalidEscapes =
+            listOf(
+                """{"key": "invalid \x escape"}""", // Invalid escape (\x is not valid)
+                """{"key": "line
+break"}""", // Unescaped newline (actual newline in string)
+                // Note: Control characters in Kotlin strings are already escaped by Kotlin compiler
+            )
 
         invalidEscapes.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: ${json.replace("\n", "\\n")}"
+                "Expected invalid JSON: ${json.replace("\n", "\\n")}",
             )
         }
     }
 
     @Test
     fun `test invalid JSON - number formats`() {
-        val invalidNumbers = listOf(
-            """{"num": 01}""",                  // Leading zero
-            """{"num": .5}""",                  // No leading digit
-            """{"num": 5.}""",                  // No trailing digit
-            """{"num": 1e}""",                  // Incomplete exponent
-            """{"num": +5}""",                  // Leading plus
-            """{"num": 0x10}"""                 // Hex notation
-        )
+        val invalidNumbers =
+            listOf(
+                """{"num": 01}""", // Leading zero
+                """{"num": .5}""", // No leading digit
+                """{"num": 5.}""", // No trailing digit
+                """{"num": 1e}""", // Incomplete exponent
+                """{"num": +5}""", // Leading plus
+                """{"num": 0x10}""", // Hex notation
+            )
 
         invalidNumbers.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: $json"
+                "Expected invalid JSON: $json",
             )
         }
     }
@@ -193,17 +198,18 @@ break"}"""                                      // Unescaped newline (actual new
 
     @Test
     fun `test extra characters after JSON`() {
-        val extraChars = listOf(
-            """{"key": "value"} extra""",
-            """[1, 2, 3] garbage""",
-            """{}{}""",
-            """[][]"""
-        )
+        val extraChars =
+            listOf(
+                """{"key": "value"} extra""",
+                """[1, 2, 3] garbage""",
+                """{}{}""",
+                """[][]""",
+            )
 
         extraChars.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON with extra characters: $json"
+                "Expected invalid JSON with extra characters: $json",
             )
         }
     }
@@ -222,16 +228,17 @@ break"}"""                                      // Unescaped newline (actual new
 
     @Test
     fun `test valid JSON with unicode`() {
-        val unicodeJson = listOf(
-            """{"emoji": "😀"}""",
-            """{"chinese": "你好"}""",
-            """{"arabic": "مرحبا"}"""
-        )
+        val unicodeJson =
+            listOf(
+                """{"emoji": "😀"}""",
+                """{"chinese": "你好"}""",
+                """{"arabic": "مرحبا"}""",
+            )
 
         unicodeJson.forEach { json ->
             assertTrue(
                 ValidationPatterns.isValidJson(json),
-                "Expected valid JSON with unicode: $json"
+                "Expected valid JSON with unicode: $json",
             )
         }
     }

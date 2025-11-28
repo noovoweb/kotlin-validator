@@ -7,5 +7,5 @@ import com.noovoweb.validator.Validated
 data class SameField(
     val password: String?,
     @Same("password")
-    val passwordConfirmation: String?
+    val passwordConfirmation: String?,
 )

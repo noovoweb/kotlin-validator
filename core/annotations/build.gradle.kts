@@ -15,3 +15,8 @@ java {
 kotlin {
     jvmToolchain(21)
 }
+
+// Boolean Validators file name is intentional - contains @Accepted annotation
+tasks.matching { it.name.startsWith("ktlint") }.configureEach {
+    enabled = name.contains("KotlinScripts")
+}

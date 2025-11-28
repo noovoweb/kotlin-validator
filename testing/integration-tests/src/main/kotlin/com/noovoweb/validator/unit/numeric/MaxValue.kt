@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class MaxValue(
     @Max(100.0)
-    val value: Int?
+    val value: Int?,
 )

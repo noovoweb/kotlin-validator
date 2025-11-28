@@ -1,7 +1,7 @@
 package com.noovoweb.validator.spring
 
 import org.junit.jupiter.api.Test
-import java.util.*
+import java.util.Locale
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
@@ -9,7 +9,6 @@ import kotlin.test.assertNull
  * Tests for ValidatorProperties configuration class.
  */
 class ValidatorPropertiesTest {
-
     @Test
     fun `should have default values`() {
         val properties = ValidatorProperties()

@@ -8,5 +8,5 @@ data class RequiredWithoutField(
     val email: String?,
     val phone: String?,
     @RequiredWithout(["email", "phone"])
-    val mailingAddress: String?
+    val mailingAddress: String?,
 )

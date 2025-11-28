@@ -11,13 +11,13 @@ import kotlin.test.assertTrue
  * Unit tests for ValidationError data structure.
  */
 class ValidationErrorTest {
-
     @Test
     fun `ValidationError stores message and code`() {
-        val error = ValidationError(
-            message = "Invalid email format",
-            code = "invalid_email"
-        )
+        val error =
+            ValidationError(
+                message = "Invalid email format",
+                code = "invalid_email",
+            )
 
         assertEquals("Invalid email format", error.message)
         assertEquals("invalid_email", error.code)
@@ -26,11 +26,12 @@ class ValidationErrorTest {
     @Test
     fun `ValidationError stores optional metadata`() {
         val metadata = mapOf("fieldName" to "email", "value" to "invalid@")
-        val error = ValidationError(
-            message = "Invalid email",
-            code = "invalid",
-            metadata = metadata
-        )
+        val error =
+            ValidationError(
+                message = "Invalid email",
+                code = "invalid",
+                metadata = metadata,
+            )
 
         assertEquals(metadata, error.metadata)
     }
@@ -67,16 +68,18 @@ class ValidationErrorTest {
 
     @Test
     fun `ValidationError is immutable data class`() {
-        val error = ValidationError(
-            message = "Test",
-            code = "test_code"
-        )
+        val error =
+            ValidationError(
+                message = "Test",
+                code = "test_code",
+            )
 
         // Trying to verify immutability through equals/hashCode
-        val samError = ValidationError(
-            message = "Test",
-            code = "test_code"
-        )
+        val samError =
+            ValidationError(
+                message = "Test",
+                code = "test_code",
+            )
 
         assertEquals(error, samError)
         assertEquals(error.hashCode(), samError.hashCode())
@@ -84,10 +87,11 @@ class ValidationErrorTest {
 
     @Test
     fun `ValidationError factory with custom message and code`() {
-        val error = ValidationError(
-            message = "Custom validation failed",
-            code = "custom_validation"
-        )
+        val error =
+            ValidationError(
+                message = "Custom validation failed",
+                code = "custom_validation",
+            )
 
         assertNotNull(error.message)
         assertNotNull(error.code)

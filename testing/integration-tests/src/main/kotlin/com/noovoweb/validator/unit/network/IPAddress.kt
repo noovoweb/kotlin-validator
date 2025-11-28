@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class IPAddress(
     @IP
-    val address: String?
+    val address: String?,
 )

@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class PortNumber(
     @Port
-    val port: Int?
+    val port: Int?,
 )

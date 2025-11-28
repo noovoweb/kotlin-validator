@@ -10,9 +10,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class FileExtensionDataValidatorTest {
-
     @Test
-    fun `file extension validator accepts valid extensions`(@TempDir tempDir: File) = runTest {
+    fun `file extension validator accepts valid extensions`(
+        @TempDir tempDir: File,
+    ) = runTest {
         val validator = FileExtensionDataValidator()
 
         val jpgFile = File(tempDir, "image.jpg").apply { createNewFile() }
@@ -26,30 +27,37 @@ class FileExtensionDataValidatorTest {
     }
 
     @Test
-    fun `file extension validator rejects invalid extensions`(@TempDir tempDir: File) = runTest {
+    fun `file extension validator rejects invalid extensions`(
+        @TempDir tempDir: File,
+    ) = runTest {
         val validator = FileExtensionDataValidator()
 
         val pdfFile = File(tempDir, "document.pdf").apply { createNewFile() }
-        val exception = assertThrows<ValidationException> {
-            validator.validate(FileExtensionData(file = pdfFile))
-        }
+        val exception =
+            assertThrows<ValidationException> {
+                validator.validate(FileExtensionData(file = pdfFile))
+            }
         assertTrue(exception.errors.containsKey("file"))
     }
 
     @Test
-    fun `file extension validator allows null when not required`() = runTest {
-        val validator = FileExtensionDataValidator()
-        validator.validate(FileExtensionData(file = null))
-    }
+    fun `file extension validator allows null when not required`() =
+        runTest {
+            val validator = FileExtensionDataValidator()
+            validator.validate(FileExtensionData(file = null))
+        }
 
     @Test
-    fun `file extension validator provides error message`(@TempDir tempDir: File) = runTest {
+    fun `file extension validator provides error message`(
+        @TempDir tempDir: File,
+    ) = runTest {
         val validator = FileExtensionDataValidator()
 
         val txtFile = File(tempDir, "file.txt").apply { createNewFile() }
-        val exception = assertThrows<ValidationException> {
-            validator.validate(FileExtensionData(file = txtFile))
-        }
+        val exception =
+            assertThrows<ValidationException> {
+                validator.validate(FileExtensionData(file = txtFile))
+            }
 
         assertTrue(exception.errors.containsKey("file"))
         assertFalse(exception.errors["file"]!!.isEmpty())

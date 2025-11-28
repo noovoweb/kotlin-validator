@@ -10,7 +10,7 @@ package com.noovoweb.validator.ksp
 data class ValidatedClassInfo(
     val packageName: String,
     val className: String,
-    val properties: List<PropertyInfo>
+    val properties: List<PropertyInfo>,
 ) {
     /**
      * Get the fully qualified name of the class.
@@ -41,7 +41,7 @@ data class PropertyInfo(
     val validators: List<ValidationValidatorInfo>,
     val isNullable: Boolean,
     val failFastPositions: List<Int>,
-    val nestedValidation: NestedValidationInfo?
+    val nestedValidation: NestedValidationInfo?,
 ) {
     /**
      * Check if this property has any validation validators.
@@ -78,7 +78,7 @@ data class PropertyInfo(
  * @property validateEachElement Whether to validate each element in a collection (@Valid(each = true))
  */
 data class NestedValidationInfo(
-    val validateEachElement: Boolean
+    val validateEachElement: Boolean,
 )
 
 /**

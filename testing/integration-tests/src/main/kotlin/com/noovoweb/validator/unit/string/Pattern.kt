@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Pattern(
     @Pattern("^[A-Z][a-z]+$")
-    val name: String?
+    val name: String?,
 )

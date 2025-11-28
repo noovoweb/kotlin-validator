@@ -12,7 +12,7 @@ data class TypeInfo(
     val qualifiedName: String,
     val simpleName: String,
     val isNullable: Boolean,
-    val typeArguments: List<TypeInfo> = emptyList()
+    val typeArguments: List<TypeInfo> = emptyList(),
 ) {
     /**
      * Check if this type is a String.
@@ -45,33 +45,37 @@ data class TypeInfo(
     fun isDateTime(): Boolean = qualifiedName in DATE_TIME_TYPES
 
     companion object {
-        private val NUMERIC_TYPES = setOf(
-            "kotlin.Int",
-            "kotlin.Long",
-            "kotlin.Float",
-            "kotlin.Double",
-            "kotlin.Short",
-            "kotlin.Byte"
-        )
+        private val NUMERIC_TYPES =
+            setOf(
+                "kotlin.Int",
+                "kotlin.Long",
+                "kotlin.Float",
+                "kotlin.Double",
+                "kotlin.Short",
+                "kotlin.Byte",
+            )
 
-        private val COLLECTION_TYPES = setOf(
-            "kotlin.collections.List",
-            "kotlin.collections.Set",
-            "kotlin.collections.Collection",
-            "kotlin.Array"
-        )
+        private val COLLECTION_TYPES =
+            setOf(
+                "kotlin.collections.List",
+                "kotlin.collections.Set",
+                "kotlin.collections.Collection",
+                "kotlin.Array",
+            )
 
-        private val FILE_TYPES = setOf(
-            "java.io.File",
-            "java.nio.file.Path"
-        )
+        private val FILE_TYPES =
+            setOf(
+                "java.io.File",
+                "java.nio.file.Path",
+            )
 
-        private val DATE_TIME_TYPES = setOf(
-            "java.time.LocalDate",
-            "java.time.LocalDateTime",
-            "java.time.Instant",
-            "java.time.ZonedDateTime",
-            "java.time.OffsetDateTime"
-        )
+        private val DATE_TIME_TYPES =
+            setOf(
+                "java.time.LocalDate",
+                "java.time.LocalDateTime",
+                "java.time.Instant",
+                "java.time.ZonedDateTime",
+                "java.time.OffsetDateTime",
+            )
     }
 }

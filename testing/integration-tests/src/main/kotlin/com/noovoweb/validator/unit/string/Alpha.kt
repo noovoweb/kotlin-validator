@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Alpha(
     @Alpha
-    val name: String?
+    val name: String?,
 )

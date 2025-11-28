@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Ascii(
     @Ascii
-    val name: String?
+    val name: String?,
 )

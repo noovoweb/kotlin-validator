@@ -9,11 +9,11 @@ data class CollectionWithValid(
     @Required
     val name: String?,
     @Valid(each = true)
-    val items: List<Item>?
+    val items: List<Item>?,
 )
 
 @Validated
 data class Item(
     @Required
-    val value: String?
+    val value: String?,
 )

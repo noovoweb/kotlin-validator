@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Alphanumeric(
     @Alphanumeric
-    val name: String?
+    val name: String?,
 )

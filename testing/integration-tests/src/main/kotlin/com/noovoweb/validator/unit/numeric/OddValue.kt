@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class OddValue(
     @Odd
-    val value: Int?
+    val value: Int?,
 )

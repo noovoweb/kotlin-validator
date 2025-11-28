@@ -2,15 +2,12 @@ package com.noovoweb.validator.ksp
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 /**
  * Tests for ValidationValidatorInfo sealed class and its subtypes.
  */
 class ValidationValidatorInfoTest {
-
     @Test
     fun `RequiredValidator should store custom message`() {
         val validator = ValidationValidatorInfo.RequiredValidator(customMessage = "Custom required message")

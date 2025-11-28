@@ -6,7 +6,6 @@ package com.noovoweb.validator.ksp
  * All regex patterns and validation helpers used by the code generator.
  */
 object ValidationPatterns {
-
     // === String Patterns ===
 
     /**
@@ -47,18 +46,18 @@ object ValidationPatterns {
     /**
      * IPv4 address pattern.
      * Matches valid IPv4 addresses (0.0.0.0 to 255.255.255.255).
-     * 
+     *
      * Simple and safe pattern with no ReDoS risk.
      */
     const val IPV4 = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$"
 
     /**
      * IPv6 address pattern - SIMPLIFIED for safety.
-     * 
+     *
      * NOTE: This is a simplified pattern that catches most IPv6 addresses.
      * For production use, consider using InetAddress.getByName() instead
      * which provides proper validation without ReDoS risk.
-     * 
+     *
      * Matches: Standard IPv6 (2001:0db8:85a3::8a2e:0370:7334)
      * May not catch all edge cases but is safe from ReDoS.
      */
@@ -94,23 +93,26 @@ object ValidationPatterns {
      * - No trailing commas
      * - Valid number formats
      * - Valid escape sequences
-     * 
+     *
      * This is a lightweight implementation without external dependencies.
      */
     fun isValidJson(input: String): Boolean {
         if (input.isBlank()) return false
-        
+
         val trimmed = input.trim()
-        
+
         // Quick sanity check
-        if (!((trimmed.startsWith("{") && trimmed.endsWith("}")) ||
-              (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
-              trimmed.startsWith("\"") || trimmed == "true" || 
-              trimmed == "false" || trimmed == "null" ||
-              trimmed.firstOrNull()?.let { it.isDigit() || it == '-' } == true)) {
+        if (!(
+                (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+                    (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+                    trimmed.startsWith("\"") || trimmed == "true" ||
+                    trimmed == "false" || trimmed == "null" ||
+                    trimmed.firstOrNull()?.let { it.isDigit() || it == '-' } == true
+            )
+        ) {
             return false
         }
-        
+
         return try {
             JsonParser(trimmed).parse()
             true
@@ -118,13 +120,13 @@ object ValidationPatterns {
             false
         }
     }
-    
+
     /**
      * Simple JSON parser for validation.
      */
     private class JsonParser(private val json: String) {
         private var index = 0
-        
+
         fun parse() {
             parseValue()
             skipWhitespace()
@@ -132,17 +134,17 @@ object ValidationPatterns {
                 throw IllegalArgumentException("Extra characters after JSON")
             }
         }
-        
+
         private fun skipWhitespace() {
             while (index < json.length && json[index].isWhitespace()) {
                 index++
             }
         }
-        
+
         private fun parseValue() {
             skipWhitespace()
             if (index >= json.length) throw IllegalArgumentException("Unexpected end")
-            
+
             when (json[index]) {
                 '{' -> parseObject()
                 '[' -> parseArray()
@@ -153,34 +155,34 @@ object ValidationPatterns {
                 else -> throw IllegalArgumentException("Invalid JSON value")
             }
         }
-        
+
         private fun parseObject() {
             index++ // skip '{'
             skipWhitespace()
-            
+
             if (index < json.length && json[index] == '}') {
                 index++
                 return
             }
-            
+
             while (true) {
                 skipWhitespace()
                 if (index >= json.length) throw IllegalArgumentException("Unclosed object")
-                
+
                 if (json[index] != '"') throw IllegalArgumentException("Key must be string")
                 parseString()
-                
+
                 skipWhitespace()
                 if (index >= json.length || json[index] != ':') {
                     throw IllegalArgumentException("Expected ':'")
                 }
                 index++
-                
+
                 parseValue()
-                
+
                 skipWhitespace()
                 if (index >= json.length) throw IllegalArgumentException("Unclosed object")
-                
+
                 when (json[index]) {
                     ',' -> {
                         index++
@@ -197,22 +199,22 @@ object ValidationPatterns {
                 }
             }
         }
-        
+
         private fun parseArray() {
             index++ // skip '['
             skipWhitespace()
-            
+
             if (index < json.length && json[index] == ']') {
                 index++
                 return
             }
-            
+
             while (true) {
                 parseValue()
-                
+
                 skipWhitespace()
                 if (index >= json.length) throw IllegalArgumentException("Unclosed array")
-                
+
                 when (json[index]) {
                     ',' -> {
                         index++
@@ -229,10 +231,10 @@ object ValidationPatterns {
                 }
             }
         }
-        
+
         private fun parseString() {
             index++ // skip '"'
-            
+
             while (index < json.length) {
                 when (val ch = json[index]) {
                     '"' -> {
@@ -256,14 +258,14 @@ object ValidationPatterns {
             }
             throw IllegalArgumentException("Unclosed string")
         }
-        
+
         private fun parseNumber() {
             if (json[index] == '-') index++
-            
+
             if (index >= json.length || !json[index].isDigit()) {
                 throw IllegalArgumentException("Invalid number")
             }
-            
+
             if (json[index] == '0') {
                 index++
             } else {
@@ -271,7 +273,7 @@ object ValidationPatterns {
                     index++
                 }
             }
-            
+
             if (index < json.length && json[index] == '.') {
                 index++
                 if (index >= json.length || !json[index].isDigit()) {
@@ -281,7 +283,7 @@ object ValidationPatterns {
                     index++
                 }
             }
-            
+
             if (index < json.length && (json[index] == 'e' || json[index] == 'E')) {
                 index++
                 if (index < json.length && (json[index] == '+' || json[index] == '-')) {
@@ -295,7 +297,7 @@ object ValidationPatterns {
                 }
             }
         }
-        
+
         private fun parseBoolean() {
             if (json.substring(index).startsWith("true")) {
                 index += 4
@@ -305,7 +307,7 @@ object ValidationPatterns {
                 throw IllegalArgumentException("Invalid boolean")
             }
         }
-        
+
         private fun parseNull() {
             if (json.substring(index).startsWith("null")) {
                 index += 4

@@ -1,33 +1,35 @@
 package com.noovoweb.validator.ksp
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
-import kotlin.test.assertContains
 
 /**
  * Real tests for the FieldValidatorCodeGenerator
- * 
+ *
  * Tests the actual code generation logic for different validator types
  */
 @DisplayName("Field Validator Code Generation Tests")
 class FieldValidatorCodeGeneratorTest {
-
     private val generator = FieldValidatorCodeGenerator()
 
-    private fun createProperty(name: String, type: String): PropertyInfo {
+    private fun createProperty(
+        name: String,
+        type: String,
+    ): PropertyInfo {
         val isNullable = type.endsWith("?")
         return PropertyInfo(
             name = name,
-            type = TypeInfo(
-                qualifiedName = "kotlin.$type".replace("?", ""),
-                simpleName = type.replace("?", ""),
-                isNullable = isNullable
-            ),
+            type =
+                TypeInfo(
+                    qualifiedName = "kotlin.$type".replace("?", ""),
+                    simpleName = type.replace("?", ""),
+                    isNullable = isNullable,
+                ),
             validators = emptyList(),
             isNullable = isNullable,
             failFastPositions = emptyList(),
-            nestedValidation = null
+            nestedValidation = null,
         )
     }
 
@@ -41,8 +43,10 @@ class FieldValidatorCodeGeneratorTest {
 
         val codeString = generatedCode.toString()
         // Should check if field is null or blank
-        assertTrue(codeString.contains("username") || codeString.contains("value"), 
-            "Generated code should reference the field or value")
+        assertTrue(
+            codeString.contains("username") || codeString.contains("value"),
+            "Generated code should reference the field or value",
+        )
     }
 
     @Test
@@ -55,9 +59,11 @@ class FieldValidatorCodeGeneratorTest {
 
         val codeString = generatedCode.toString()
         // Should contain regex or email validation logic
-        assertTrue(codeString.contains("email") || codeString.contains("Regex") || codeString.contains("@") ||
-            codeString.contains("EMAIL"),
-            "Email validator should contain validation logic")
+        assertTrue(
+            codeString.contains("email") || codeString.contains("Regex") || codeString.contains("@") ||
+                codeString.contains("EMAIL"),
+            "Email validator should contain validation logic",
+        )
     }
 
     @Test
@@ -96,8 +102,10 @@ class FieldValidatorCodeGeneratorTest {
 
         val codeString = generatedCode.toString()
         // Should check size
-        assertTrue(codeString.contains("3") || codeString.contains("50"), 
-            "Size validator should contain min or max values")
+        assertTrue(
+            codeString.contains("3") || codeString.contains("50"),
+            "Size validator should contain min or max values",
+        )
     }
 
     @Test
@@ -110,8 +118,10 @@ class FieldValidatorCodeGeneratorTest {
 
         val codeString = generatedCode.toString()
         // Should contain regex pattern
-        assertTrue(codeString.contains("[A-Z]+") || codeString.contains("Regex") || codeString.contains("pattern"), 
-            "Pattern validator should contain the regex pattern or pattern validation")
+        assertTrue(
+            codeString.contains("[A-Z]+") || codeString.contains("Regex") || codeString.contains("pattern"),
+            "Pattern validator should contain the regex pattern or pattern validation",
+        )
     }
 
     @Test
@@ -165,30 +175,33 @@ class FieldValidatorCodeGeneratorTest {
         // Should check if negative
         assertTrue(codeString.isNotEmpty(), "Negative validator should generate code")
     }
-    
+
     @Test
     fun `should generate code for all validator types without errors`() {
         val property = createProperty("testField", "String?")
         val fieldPath = "test.field"
-        
+
         // Test that each validator can generate code without throwing exceptions
-        val validators = listOf(
-            ValidationValidatorInfo.RequiredValidator(null),
-            ValidationValidatorInfo.EmailValidator(null),
-            ValidationValidatorInfo.UrlValidator(null),
-            ValidationValidatorInfo.UuidValidator(null),
-            ValidationValidatorInfo.NotEmptyValidator(null),
-            ValidationValidatorInfo.PatternValidator("[a-z]+", null),
-            ValidationValidatorInfo.AlphaValidator(null),
-            ValidationValidatorInfo.AlphanumericValidator(null),
-            ValidationValidatorInfo.PositiveValidator(null),
-            ValidationValidatorInfo.NegativeValidator(null)
-        )
-        
+        val validators =
+            listOf(
+                ValidationValidatorInfo.RequiredValidator(null),
+                ValidationValidatorInfo.EmailValidator(null),
+                ValidationValidatorInfo.UrlValidator(null),
+                ValidationValidatorInfo.UuidValidator(null),
+                ValidationValidatorInfo.NotEmptyValidator(null),
+                ValidationValidatorInfo.PatternValidator("[a-z]+", null),
+                ValidationValidatorInfo.AlphaValidator(null),
+                ValidationValidatorInfo.AlphanumericValidator(null),
+                ValidationValidatorInfo.PositiveValidator(null),
+                ValidationValidatorInfo.NegativeValidator(null),
+            )
+
         validators.forEach { validator ->
             val code = generator.generateValidatorCode(validator, property, fieldPath)
-            assertTrue(code.toString().isNotEmpty(), 
-                "Validator ${validator::class.simpleName} should generate non-empty code")
+            assertTrue(
+                code.toString().isNotEmpty(),
+                "Validator ${validator::class.simpleName} should generate non-empty code",
+            )
         }
     }
 }

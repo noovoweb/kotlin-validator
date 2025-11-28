@@ -26,3 +26,8 @@ kotlin {
 tasks.test {
     useJUnitPlatform()
 }
+
+// Exclude generated KSP code from ktlint checks
+tasks.matching { it.name.startsWith("ktlint") }.configureEach {
+    enabled = name.contains("KotlinScripts")
+}

@@ -14,7 +14,7 @@ package com.noovoweb.validator
 @Retention(AnnotationRetention.SOURCE)
 annotation class Min(
     val value: Double,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -31,7 +31,7 @@ annotation class Min(
 @Retention(AnnotationRetention.SOURCE)
 annotation class Max(
     val value: Double,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -50,7 +50,7 @@ annotation class Max(
 annotation class Between(
     val min: Double,
     val max: Double,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -65,7 +65,7 @@ annotation class Between(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Positive(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -80,7 +80,7 @@ annotation class Positive(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Negative(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -95,7 +95,7 @@ annotation class Negative(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Zero(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -111,7 +111,7 @@ annotation class Zero(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Integer(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -127,7 +127,7 @@ annotation class Integer(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Decimal(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -144,7 +144,7 @@ annotation class Decimal(
 @Retention(AnnotationRetention.SOURCE)
 annotation class DivisibleBy(
     val value: Int,
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -159,7 +159,7 @@ annotation class DivisibleBy(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Even(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -174,7 +174,7 @@ annotation class Even(
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
 annotation class Odd(
-    val message: String = ""
+    val message: String = "",
 )
 
 /**
@@ -193,5 +193,5 @@ annotation class Odd(
 @Retention(AnnotationRetention.SOURCE)
 annotation class DecimalPlaces(
     val value: Int,
-    val message: String = ""
+    val message: String = "",
 )

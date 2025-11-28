@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class StartsWith(
     @StartsWith("prefix")
-    val name: String?
+    val name: String?,
 )

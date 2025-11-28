@@ -9,7 +9,7 @@ data class NestedObject(
     @Required
     val name: String?,
     @Valid
-    val address: Address?
+    val address: Address?,
 )
 
 @Validated
@@ -17,5 +17,5 @@ data class Address(
     @Required
     val street: String?,
     @Required
-    val city: String?
+    val city: String?,
 )

@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class ContainsValueList(
     @ContainsValue("required")
-    val items: List<String>?
+    val items: List<String>?,
 )

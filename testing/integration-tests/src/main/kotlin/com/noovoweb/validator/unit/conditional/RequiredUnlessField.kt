@@ -7,5 +7,5 @@ import com.noovoweb.validator.Validated
 data class RequiredUnlessField(
     val paymentMethod: String?,
     @RequiredUnless("paymentMethod", "cash")
-    val cardNumber: String?
+    val cardNumber: String?,
 )

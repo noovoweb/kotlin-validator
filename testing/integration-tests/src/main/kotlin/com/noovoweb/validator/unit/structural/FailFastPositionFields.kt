@@ -1,7 +1,7 @@
 package com.noovoweb.validator.unit.structural
 
-import com.noovoweb.validator.FailFast
 import com.noovoweb.validator.Email
+import com.noovoweb.validator.FailFast
 import com.noovoweb.validator.MaxLength
 import com.noovoweb.validator.Required
 import com.noovoweb.validator.Validated
@@ -12,7 +12,7 @@ data class FailFastAtBeginning(
     @Required
     @Email
     @MaxLength(50)
-    val email: String?
+    val email: String?,
 )
 
 @Validated
@@ -21,7 +21,7 @@ data class FailFastAtMiddle(
     @Email
     @FailFast
     @MaxLength(50)
-    val email: String?
+    val email: String?,
 )
 
 @Validated
@@ -30,15 +30,15 @@ data class FailFastAtEnd(
     @Email
     @MaxLength(50)
     @FailFast
-    val email: String?
+    val email: String?,
 )
 
 @Validated
 data class MultipleFailFastCheckpoints(
     @Required
-    @FailFast              // Checkpoint 1: After Required
+    @FailFast // Checkpoint 1: After Required
     @Email
-    @FailFast              // Checkpoint 2: After Email
+    @FailFast // Checkpoint 2: After Email
     @MaxLength(50)
-    val email: String?
+    val email: String?,
 )

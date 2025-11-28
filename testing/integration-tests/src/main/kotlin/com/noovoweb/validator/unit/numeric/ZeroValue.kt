@@ -6,5 +6,5 @@ import com.noovoweb.validator.Zero
 @Validated
 data class ZeroValue(
     @Zero
-    val value: Int?
+    val value: Int?,
 )

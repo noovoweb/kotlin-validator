@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class AcceptedValue(
     @Accepted
-    val value: Boolean?
+    val value: Boolean?,
 )

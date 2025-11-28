@@ -60,16 +60,16 @@ package com.noovoweb.validator
  * object PasswordValidators {
  *     suspend fun validateStrongPassword(value: String?, context: ValidationContext): Boolean {
  *         if (value == null) return true
- *         
+ *
  *         val hasMinLength = value.length >= 8
  *         val hasUppercase = value.any { it.isUpperCase() }
  *         val hasLowercase = value.any { it.isLowerCase() }
  *         val hasDigit = value.any { it.isDigit() }
- *         
+ *
  *         return hasMinLength && hasUppercase && hasLowercase && hasDigit
  *     }
  * }
- * 
+ *
  * // Usage with any field name
  * @Validated
  * data class User(
@@ -186,12 +186,11 @@ annotation class CustomValidator(
      * Where T is the field type or a supertype.
      */
     val validator: String,
-
     /**
      * Optional custom error message.
      * If empty string (default), a generic message is used.
      *
      * Example: "Username must be alphanumeric and 3-20 characters"
      */
-    val message: String = ""
+    val message: String = "",
 )

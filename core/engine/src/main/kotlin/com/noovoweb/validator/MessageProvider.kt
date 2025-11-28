@@ -14,7 +14,6 @@ import java.util.Locale
  * - ApiMessageProvider: Wraps HTTP requests in Dispatchers.IO
  */
 interface MessageProvider {
-
     /**
      * Get localized message for the given key with optional parameters.
      *
@@ -39,5 +38,9 @@ interface MessageProvider {
      * // Returns: "This field must be at least 18"
      * ```
      */
-    suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale): String
+    suspend fun getMessage(
+        key: String,
+        args: Array<Any>?,
+        locale: Locale,
+    ): String
 }

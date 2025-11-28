@@ -24,9 +24,8 @@ data class ValidationContext(
     val messageProvider: MessageProvider = DefaultMessageProvider(),
     val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     val clock: Clock = Clock.systemDefaultZone(),
-    val metadata: Map<String, Any> = emptyMap()
+    val metadata: Map<String, Any> = emptyMap(),
 ) {
-
     /**
      * Create a copy with a different locale.
      */
@@ -57,8 +56,10 @@ data class ValidationContext(
     /**
      * Create a copy with additional metadata.
      */
-    fun withMetadata(key: String, value: Any): ValidationContext =
-        copy(metadata = metadata + (key to value))
+    fun withMetadata(
+        key: String,
+        value: Any,
+    ): ValidationContext = copy(metadata = metadata + (key to value))
 
     /**
      * Create a copy with completely replaced metadata.
@@ -73,14 +74,15 @@ data class ValidationContext(
          */
         fun forIO(
             locale: Locale = Locale.ENGLISH,
-            messageProvider: MessageProvider = DefaultMessageProvider()
-        ): ValidationContext = ValidationContext(
-            locale = locale,
-            messageProvider = messageProvider,
-            dispatcher = Dispatchers.IO,
-            clock = Clock.systemDefaultZone(),
-            metadata = emptyMap()
-        )
+            messageProvider: MessageProvider = DefaultMessageProvider(),
+        ): ValidationContext =
+            ValidationContext(
+                locale = locale,
+                messageProvider = messageProvider,
+                dispatcher = Dispatchers.IO,
+                clock = Clock.systemDefaultZone(),
+                metadata = emptyMap(),
+            )
 
         /**
          * Create a context optimized for testing.
@@ -89,13 +91,14 @@ data class ValidationContext(
          */
         fun forTesting(
             clock: Clock = Clock.systemUTC(),
-            locale: Locale = Locale.ENGLISH
-        ): ValidationContext = ValidationContext(
-            locale = locale,
-            messageProvider = DefaultMessageProvider(),
-            dispatcher = Dispatchers.Default,
-            clock = clock,
-            metadata = emptyMap()
-        )
+            locale: Locale = Locale.ENGLISH,
+        ): ValidationContext =
+            ValidationContext(
+                locale = locale,
+                messageProvider = DefaultMessageProvider(),
+                dispatcher = Dispatchers.Default,
+                clock = clock,
+                metadata = emptyMap(),
+            )
     }
 }

@@ -7,5 +7,5 @@ import java.io.File
 @Validated
 data class MimeTypeFile(
     @MimeType(["image/png", "image/jpeg", "image/gif"])
-    val file: File?
+    val file: File?,
 )

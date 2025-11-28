@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * Unit tests for ValidationContext configuration and builder pattern.
  */
 class ValidationContextTest {
-
     @Test
     fun `ValidationContext creates with default values`() {
         val context = ValidationContext()
@@ -73,10 +72,11 @@ class ValidationContextTest {
 
     @Test
     fun `withMetadata builder can chain multiple additions`() {
-        val context = ValidationContext()
-            .withMetadata("userId", 123)
-            .withMetadata("requestId", "req-456")
-            .withMetadata("timestamp", System.currentTimeMillis())
+        val context =
+            ValidationContext()
+                .withMetadata("userId", 123)
+                .withMetadata("requestId", "req-456")
+                .withMetadata("timestamp", System.currentTimeMillis())
 
         assertEquals(123, context.metadata["userId"])
         assertEquals("req-456", context.metadata["requestId"])
@@ -86,10 +86,11 @@ class ValidationContextTest {
     @Test
     fun `builder chain maintains immutability`() {
         val context1 = ValidationContext()
-        val context2 = context1
-            .withLocale(Locale.FRENCH)
-            .withDispatcher(Dispatchers.IO)
-            .withMetadata("test", "value")
+        val context2 =
+            context1
+                .withLocale(Locale.FRENCH)
+                .withDispatcher(Dispatchers.IO)
+                .withMetadata("test", "value")
 
         assertEquals(Locale.ENGLISH, context1.locale)
         assertEquals(Dispatchers.Default, context1.dispatcher)
@@ -102,10 +103,11 @@ class ValidationContextTest {
 
     @Test
     fun `can create context with custom locale and dispatcher`() {
-        val context = ValidationContext(
-            locale = Locale.FRENCH,
-            dispatcher = Dispatchers.IO
-        )
+        val context =
+            ValidationContext(
+                locale = Locale.FRENCH,
+                dispatcher = Dispatchers.IO,
+            )
 
         assertEquals(Locale.FRENCH, context.locale)
         assertEquals(Dispatchers.IO, context.dispatcher)

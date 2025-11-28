@@ -8,39 +8,44 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AcceptedValueValidatorTest {
-
     @Test
-    fun `accepted validator accepts true value`() = runTest {
-        val validator = AcceptedValueValidator()
+    fun `accepted validator accepts true value`() =
+        runTest {
+            val validator = AcceptedValueValidator()
 
-        validator.validate(AcceptedValue(value = true))
-    }
-
-    @Test
-    fun `accepted validator rejects false value`() = runTest {
-        val validator = AcceptedValueValidator()
-
-        val exception = assertThrows<ValidationException> {
-            validator.validate(AcceptedValue(value = false))
-        }
-        assertTrue(exception.errors.containsKey("value"))
-    }
-
-    @Test
-    fun `accepted validator allows null when not required`() = runTest {
-        val validator = AcceptedValueValidator()
-        validator.validate(AcceptedValue(value = null))
-    }
-
-    @Test
-    fun `accepted validator provides error message`() = runTest {
-        val validator = AcceptedValueValidator()
-
-        val exception = assertThrows<ValidationException> {
-            validator.validate(AcceptedValue(value = false))
+            validator.validate(AcceptedValue(value = true))
         }
 
-        assertTrue(exception.errors.containsKey("value"))
-        assertFalse(exception.errors["value"]!!.isEmpty())
-    }
+    @Test
+    fun `accepted validator rejects false value`() =
+        runTest {
+            val validator = AcceptedValueValidator()
+
+            val exception =
+                assertThrows<ValidationException> {
+                    validator.validate(AcceptedValue(value = false))
+                }
+            assertTrue(exception.errors.containsKey("value"))
+        }
+
+    @Test
+    fun `accepted validator allows null when not required`() =
+        runTest {
+            val validator = AcceptedValueValidator()
+            validator.validate(AcceptedValue(value = null))
+        }
+
+    @Test
+    fun `accepted validator provides error message`() =
+        runTest {
+            val validator = AcceptedValueValidator()
+
+            val exception =
+                assertThrows<ValidationException> {
+                    validator.validate(AcceptedValue(value = false))
+                }
+
+            assertTrue(exception.errors.containsKey("value"))
+            assertFalse(exception.errors["value"]!!.isEmpty())
+        }
 }

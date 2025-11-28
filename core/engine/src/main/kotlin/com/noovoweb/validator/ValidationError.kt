@@ -10,23 +10,27 @@ package com.noovoweb.validator
 data class ValidationError(
     val message: String,
     val code: String? = null,
-    val metadata: Map<String, Any> = emptyMap()
+    val metadata: Map<String, Any> = emptyMap(),
 ) {
     companion object {
         /**
          * Factory method for creating a "required" error.
          */
-        fun required(field: String) = ValidationError(
-            message = "Field '$field' is required",
-            code = "required"
-        )
+        fun required(field: String) =
+            ValidationError(
+                message = "Field '$field' is required",
+                code = "required",
+            )
 
         /**
          * Factory method for creating an "invalid" error.
          */
-        fun invalid(field: String, reason: String) = ValidationError(
+        fun invalid(
+            field: String,
+            reason: String,
+        ) = ValidationError(
             message = "Field '$field' is invalid: $reason",
-            code = "invalid"
+            code = "invalid",
         )
     }
 }
