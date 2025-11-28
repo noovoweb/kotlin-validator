@@ -169,7 +169,7 @@ package com.noovoweb.validator
  * - Support parallel validation when enabled
  * - Integrate with message provider for i18n
  *
- * @see ValidationContext
+ * @see com.sun.org.apache.xerces.internal.impl.dv.ValidationContext
  * @see ValidationException
  * @see Validated
  */
