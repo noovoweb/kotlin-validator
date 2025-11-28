@@ -1178,47 +1178,44 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 
 object AddressValidators {
-    
-    private val httpClient = HttpClient()
-    
+
+    // WebClient for making HTTP requests (non-blocking)
+    private val webClient = WebClient.builder()
+        .baseUrl("https://nominatim.openstreetmap.org")
+        .defaultHeader("User-Agent", "KotlinValidator/1.0")
+        .build()
+
     suspend fun validateAddressExists(
         value: String?,
         context: ValidationContext
     ): Boolean {
+        // Null or empty is valid (use @Required for null checking)
         if (value.isNullOrBlank()) return true
-        
-        // Use Dispatchers.IO for network calls
-        return withContext(Dispatchers.IO) { //*** Set Dispatcher here ***//
+
+        // Use the dispatcher from context for IO operations
+        return withContext(Dispatchers.IO) {
             try {
-                // Call geocoding API
-                val response = httpClient.get(
-                    "https://nominatim.openstreetmap.org/search"
-                ) {
-                    parameter("q", value)
-                    parameter("format", "json")
-                    parameter("limit", "1")
-                }
-                
-                val results = response.bodyAsText()
-                val isValid = results.contains("\"lat\"")
-                
-                if (!isValid) {
-                    // Use context for localized error messages
-                    val message = context.messageProvider.getMessage(
-                        "address.not_found",
-                        null,
-                        context.locale
-                    )
-                    throw ValidationException(mapOf("address" to listOf(message)))
-                }
-                
-                true
-                
-            } catch (e: ValidationException) {
-                throw e
+                // Call OpenStreetMap Nominatim geocoding API
+                val response = webClient.get()
+                    .uri { uriBuilder ->
+                        uriBuilder
+                            .path("/search")
+                            .queryParam("q", value)
+                            .queryParam("format", "json")
+                            .queryParam("limit", "1")
+                            .build()
+                    }
+                    .retrieve()
+                    .awaitBody<List<Map<String, Any>>>()
+
+                // Address is valid if we get at least one result
+                response.isNotEmpty()
+
             } catch (e: Exception) {
-                // Fail open: allow on API error
-                println("Geocoding API error: ${e.message}")
+                // Fail open: On API error, allow the address
+                // This prevents validation from breaking when API is down
+                // For stricter validation, return false here (fail closed)
+                println("Address validation API error: ${e.message}")
                 true
             }
         }
