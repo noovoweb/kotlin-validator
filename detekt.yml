@@ -177,6 +177,8 @@ formatting:
     active: true
   ClassName:
     active: true
+  MatchingDeclarationName:
+    active: true
   CommentSpacing:
     active: true
   ConsecutiveBlankLines:
