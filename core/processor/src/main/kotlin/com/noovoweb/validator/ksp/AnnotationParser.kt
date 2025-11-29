@@ -247,6 +247,13 @@ class AnnotationParser(private val logger: KSPLogger) {
                     values = getAnnotationArrayArgument<String>(annotation, "values"),
                     customMessage = message,
                 )
+            "Enum" -> {
+                val enumClassType = annotation.arguments
+                    .firstOrNull { it.name?.asString() == "value" }
+                    ?.value as? KSType
+                val enumClassName = enumClassType?.declaration?.qualifiedName?.asString() ?: ""
+                ValidationValidatorInfo.EnumValidator(enumClassName, message)
+            }
             "Json" -> ValidationValidatorInfo.JsonValidator(message)
             "Luhn" -> ValidationValidatorInfo.LuhnValidator(message)
 

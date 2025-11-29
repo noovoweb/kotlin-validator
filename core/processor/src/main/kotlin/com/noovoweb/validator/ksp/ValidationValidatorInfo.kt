@@ -130,6 +130,13 @@ sealed class ValidationValidatorInfo {
         override val messageKey = "field.notoneof"
     }
 
+    data class EnumValidator(
+        val enumClass: String,
+        override val customMessage: String?,
+    ) : ValidationValidatorInfo() {
+        override val messageKey = "field.enum"
+    }
+
     data class JsonValidator(
         override val customMessage: String?,
     ) : ValidationValidatorInfo() {

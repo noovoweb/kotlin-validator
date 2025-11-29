@@ -52,6 +52,7 @@ class FieldValidatorCodeGenerator {
             is ValidationValidatorInfo.ContainsValidator -> generateContainsValidator(validator, property, fieldPath)
             is ValidationValidatorInfo.OneOfValidator -> generateOneOfValidator(validator, property, fieldPath)
             is ValidationValidatorInfo.NotOneOfValidator -> generateNotOneOfValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.EnumValidator -> generateEnumValidator(validator, property, fieldPath)
             is ValidationValidatorInfo.JsonValidator -> generateJsonValidator(validator, property, fieldPath)
             is ValidationValidatorInfo.LuhnValidator -> generateLuhnValidator(validator, property, fieldPath)
 
@@ -882,6 +883,35 @@ class FieldValidatorCodeGenerator {
             addStatement("val forbiddenValues = setOf($valuesString)")
             beginControlFlow("if ($valueRef.toString() in forbiddenValues)")
             add(addErrorMessage(validator, "arrayOf<Any>(forbiddenValues.joinToString(\", \"))"))
+            add(addFailFastIfNeeded(property, fieldPath))
+            endControlFlow()
+
+            if (property.isNullable) {
+                endControlFlow()
+            }
+        }.build()
+    }
+
+    private fun generateEnumValidator(
+        validator: ValidationValidatorInfo.EnumValidator,
+        property: PropertyInfo,
+        fieldPath: String,
+    ): CodeBlock {
+        return CodeBlock.builder().apply {
+            addStatement("// @Enum")
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
+            addStatement("val enumEntries = %L.entries", validator.enumClass)
+            addStatement("val allowedValues = enumEntries.map { e -> e.name }")
+            beginControlFlow("if ($valueRef.toString() !in allowedValues)")
+            add(addErrorMessage(validator, "arrayOf<Any>(allowedValues.joinToString(\", \"))"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
 

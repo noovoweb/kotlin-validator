@@ -841,7 +841,7 @@ PARALLEL EXECUTION (across fields):
 
 **Comprehensive built-in validation covering all common use cases.**
 
-### String Validators (20)
+### String Validators (21)
 
 | Validator | Description | Example |
 |-----------|-------------|---------|
@@ -863,6 +863,7 @@ PARALLEL EXECUTION (across fields):
 | `@Contains(substring)` | Contains substring | `@Contains("@") val email: String?` |
 | `@OneOf(values)` | One of specified values | `@OneOf(["active", "inactive"]) val status: String?` |
 | `@NotOneOf(values)` | Not one of specified values | `@NotOneOf(["admin", "root"]) val username: String?` |
+| `@Enum(enumClass)` | Valid enum constant name | `@Enum(Status::class) val status: String?` |
 | `@Json` | Valid JSON string | `@Json val config: String?` |
 | `@Luhn` | Luhn algorithm check | `@Luhn val creditCard: String?` |
 
