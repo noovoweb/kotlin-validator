@@ -5,7 +5,7 @@ package com.noovoweb.validator.ksp
  *
  * All regex patterns and validation helpers used by the code generator.
  */
-object ValidationPatterns {
+internal object ValidationPatterns {
     // === String Patterns ===
 
     /**
@@ -96,7 +96,7 @@ object ValidationPatterns {
      *
      * This is a lightweight implementation without external dependencies.
      */
-    fun isValidJson(input: String): Boolean {
+    internal fun isValidJson(input: String): Boolean {
         if (input.isBlank()) return false
 
         val trimmed = input.trim()
@@ -322,7 +322,7 @@ object ValidationPatterns {
      *
      * Accepts: true, "1", "yes", "true", "on" (case-insensitive), 1
      */
-    fun isAccepted(value: Any?): Boolean {
+    internal fun isAccepted(value: Any?): Boolean {
         return when (value) {
             is Boolean -> value
             is String -> value.lowercase() in setOf("1", "yes", "true", "on")
@@ -334,14 +334,14 @@ object ValidationPatterns {
     /**
      * Validate port number range (1-65535).
      */
-    fun isValidPort(port: Int): Boolean {
+    internal fun isValidPort(port: Int): Boolean {
         return port in 1..65535
     }
 
     /**
      * Check if a number is an integer (whole number).
      */
-    fun isInteger(value: Number): Boolean {
+    internal fun isInteger(value: Number): Boolean {
         return when (value) {
             is Int, is Long, is Short, is Byte -> true
             is Float -> value % 1 == 0f
@@ -353,7 +353,7 @@ object ValidationPatterns {
     /**
      * Check if a number has decimal places.
      */
-    fun isDecimal(value: Number): Boolean {
+    internal fun isDecimal(value: Number): Boolean {
         return when (value) {
             is Int, is Long, is Short, is Byte -> false
             is Float -> value % 1 != 0f

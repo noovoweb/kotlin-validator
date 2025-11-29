@@ -8,6 +8,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.util.*
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.time.Clock
 import java.util.*
@@ -39,22 +40,22 @@ import java.util.*
  * }
  * ```
  */
-class ValidationPlugin(configuration: Configuration) {
+public class ValidationPlugin(configuration: Configuration) {
 
     private val defaultLocale = configuration.defaultLocale
     private val messageProvider = configuration.messageProvider
     private val clock = configuration.clock
     private val dispatcher = configuration.dispatcher
 
-    class Configuration {
-        var defaultLocale: Locale = Locale.getDefault()
-        var messageProvider: MessageProvider = DefaultMessageProvider()
-        var clock: Clock = Clock.systemDefaultZone()
-        var dispatcher = Dispatchers.Default
+    public class Configuration {
+        public var defaultLocale: Locale = Locale.getDefault()
+        public var messageProvider: MessageProvider = DefaultMessageProvider()
+        public var clock: Clock = Clock.systemDefaultZone()
+        public var dispatcher: CoroutineDispatcher = Dispatchers.Default
     }
 
-    companion object Plugin : BaseApplicationPlugin<Application, Configuration, ValidationPlugin> {
-        override val key = AttributeKey<ValidationPlugin>("ValidationPlugin")
+    public companion object Plugin : BaseApplicationPlugin<Application, Configuration, ValidationPlugin> {
+        override val key: AttributeKey<ValidationPlugin> = AttributeKey<ValidationPlugin>("ValidationPlugin")
 
         override fun install(
             pipeline: Application,
@@ -91,7 +92,7 @@ class ValidationPlugin(configuration: Configuration) {
      * Create a ValidationContext for the current request.
      * Extracts locale from Accept-Language header.
      */
-    fun createContext(call: ApplicationCall): ValidationContext {
+    public fun createContext(call: ApplicationCall): ValidationContext {
         val locale = extractLocale(call) ?: defaultLocale
         return ValidationContext(
             locale = locale,
@@ -133,10 +134,10 @@ class ValidationPlugin(configuration: Configuration) {
  * @property errors Map of field names to error messages
  */
 @kotlinx.serialization.Serializable
-data class ValidationErrorResponse(
-    val status: Int,
-    val message: String,
-    val errors: Map<String, List<String>>
+public data class ValidationErrorResponse(
+    public val status: Int,
+    public val message: String,
+    public val errors: Map<String, List<String>>
 )
 
 /**
@@ -148,7 +149,7 @@ private val validationPluginKey = AttributeKey<ValidationPlugin>("ValidationPlug
  * Extension function to get ValidationContext for the current request.
  * Extracts locale from Accept-Language header automatically.
  */
-fun ApplicationCall.validationContext(): ValidationContext {
+public fun ApplicationCall.validationContext(): ValidationContext {
     val plugin = application.attributes.getOrNull(validationPluginKey)
         ?: throw IllegalStateException(
             "ValidationPlugin not installed. Please install it in your Application configuration: install(ValidationPlugin)"

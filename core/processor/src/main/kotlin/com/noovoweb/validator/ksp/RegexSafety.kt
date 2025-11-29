@@ -6,7 +6,7 @@ package com.noovoweb.validator.ksp
  * ReDoS (Regular Expression Denial of Service) occurs when regex engines experience
  * catastrophic backtracking on specially crafted inputs.
  */
-object RegexSafety {
+internal object RegexSafety {
     /**
      * Maximum recommended input length for pattern validation.
      * Inputs longer than this should be rejected before regex matching.
@@ -49,7 +49,7 @@ object RegexSafety {
      * @throws IllegalArgumentException if pattern is dangerous
      * @return Warning message if pattern is potentially slow, null otherwise
      */
-    fun validatePattern(pattern: String): String? {
+    internal fun validatePattern(pattern: String): String? {
         // Check for dangerous patterns
         for (dangerousPattern in DANGEROUS_PATTERNS) {
             if (dangerousPattern.containsMatchIn(pattern)) {
@@ -110,7 +110,7 @@ object RegexSafety {
      * @param pattern The regex pattern to test
      * @throws IllegalArgumentException if pattern doesn't compile
      */
-    fun validatePatternCompiles(pattern: String) {
+    internal fun validatePatternCompiles(pattern: String) {
         try {
             Regex(pattern)
         } catch (e: Exception) {

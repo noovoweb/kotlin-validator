@@ -36,7 +36,7 @@ package com.noovoweb.validator
  * validator.validate(user, ValidationContext())
  * ```
  */
-interface GeneratedValidator<T> {
+public interface GeneratedValidator<T> {
     /**
      * Validate the payload and throw ValidationException on failure.
      *
@@ -75,7 +75,7 @@ interface GeneratedValidator<T> {
      * }
      * ```
      */
-    suspend fun validate(
+    public suspend fun validate(
         payload: T,
         context: ValidationContext = ValidationContext(),
     )
@@ -122,7 +122,7 @@ interface GeneratedValidator<T> {
      *     .onFailure { errors -> logErrors(errors) }
      * ```
      */
-    suspend fun validateResult(
+    public suspend fun validateResult(
         payload: T,
         context: ValidationContext = ValidationContext(),
     ): ValidationResult<T>

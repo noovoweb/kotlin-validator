@@ -7,7 +7,7 @@ package com.noovoweb.validator.ksp
  * @property className Simple class name
  * @property properties List of validated properties
  */
-data class ValidatedClassInfo(
+internal data class ValidatedClassInfo(
     val packageName: String,
     val className: String,
     val properties: List<PropertyInfo>,
@@ -35,7 +35,7 @@ data class ValidatedClassInfo(
  * @property failFastPositions Positions where @FailFast checkpoints are placed (indices in the annotation order)
  * @property nestedValidation Nested validation info if @Valid is present
  */
-data class PropertyInfo(
+internal data class PropertyInfo(
     val name: String,
     val type: TypeInfo,
     val validators: List<ValidationValidatorInfo>,
@@ -46,17 +46,17 @@ data class PropertyInfo(
     /**
      * Check if this property has any validation validators.
      */
-    fun hasValidators(): Boolean = validators.isNotEmpty()
+    internal fun hasValidators(): Boolean = validators.isNotEmpty()
 
     /**
      * Check if this property requires nested validation.
      */
-    fun hasNestedValidation(): Boolean = nestedValidation != null
+    internal fun hasNestedValidation(): Boolean = nestedValidation != null
 
     /**
      * Get the validation method name for this property.
      */
-    fun getValidationMethodName(): String = "validate${name.capitalize()}"
+    internal fun getValidationMethodName(): String = "validate${name.capitalize()}"
 
     /**
      * Check if there's a @FailFast checkpoint after the given validator index.
@@ -67,7 +67,7 @@ data class PropertyInfo(
      * - validatorIndex 1 (@Email): checkpoint at position 2, so shouldFailFastAfter(1) = true
      * - validatorIndex 2 (@MaxLength): no checkpoint after, so shouldFailFastAfter(2) = false
      */
-    fun shouldFailFastAfter(validatorIndex: Int): Boolean {
+    internal fun shouldFailFastAfter(validatorIndex: Int): Boolean {
         return failFastPositions.contains(validatorIndex + 1)
     }
 }
@@ -77,7 +77,7 @@ data class PropertyInfo(
  *
  * @property validateEachElement Whether to validate each element in a collection (@Valid(each = true))
  */
-data class NestedValidationInfo(
+internal data class NestedValidationInfo(
     val validateEachElement: Boolean,
 )
 

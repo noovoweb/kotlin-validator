@@ -17,7 +17,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class IPv4(
+public annotation class IPv4(
     val message: String = "",
 )
 
@@ -38,7 +38,7 @@ annotation class IPv4(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class IPv6(
+public annotation class IPv6(
     val message: String = "",
 )
 
@@ -59,7 +59,7 @@ annotation class IPv6(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class IP(
+public annotation class IP(
     val message: String = "",
 )
 
@@ -80,7 +80,7 @@ annotation class IP(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class MacAddress(
+public annotation class MacAddress(
     val message: String = "",
 )
 
@@ -101,6 +101,6 @@ annotation class MacAddress(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Port(
+public annotation class Port(
     val message: String = "",
 )

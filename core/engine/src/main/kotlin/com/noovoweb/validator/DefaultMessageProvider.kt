@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap
  * - English (en)
  * - French (fr)
  */
-class DefaultMessageProvider(
+public class DefaultMessageProvider(
     supportedLocales: List<Locale> = listOf(Locale.ENGLISH, Locale.FRENCH),
 ) : MessageProvider {
     private val messageCache = ConcurrentHashMap<Pair<Locale, String>, String>()
@@ -86,12 +86,12 @@ class DefaultMessageProvider(
     /**
      * Get the number of cached messages.
      */
-    fun getCacheSize(): Int = messageCache.size
+    public fun getCacheSize(): Int = messageCache.size
 
     /**
      * Check if a locale is loaded.
      */
-    fun isLocaleLoaded(locale: Locale): Boolean {
+    public fun isLocaleLoaded(locale: Locale): Boolean {
         return messageCache.keys.any { it.first == locale }
     }
 }

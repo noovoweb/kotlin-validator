@@ -13,7 +13,7 @@ import java.util.Locale
  * - DatabaseMessageProvider: Wraps database queries in Dispatchers.IO
  * - ApiMessageProvider: Wraps HTTP requests in Dispatchers.IO
  */
-interface MessageProvider {
+public interface MessageProvider {
     /**
      * Get localized message for the given key with optional parameters.
      *
@@ -38,7 +38,7 @@ interface MessageProvider {
      * // Returns: "This field must be at least 18"
      * ```
      */
-    suspend fun getMessage(
+    public suspend fun getMessage(
         key: String,
         args: Array<Any>?,
         locale: Locale,

@@ -31,7 +31,7 @@ import org.springframework.web.servlet.LocaleResolver
  * ```
  */
 @Component
-class ValidationContextProvider(
+public class ValidationContextProvider(
     private val baseContext: ValidationContext,
     private val localeResolver: LocaleResolver,
 ) {
@@ -44,7 +44,7 @@ class ValidationContextProvider(
      * @param request The current HTTP request
      * @return ValidationContext with the request's locale
      */
-    fun get(request: HttpServletRequest): ValidationContext {
+    public fun get(request: HttpServletRequest): ValidationContext {
         val locale = localeResolver.resolveLocale(request)
         return baseContext.withLocale(locale)
     }
@@ -57,5 +57,5 @@ class ValidationContextProvider(
      *
      * @return The base ValidationContext
      */
-    fun getBase(): ValidationContext = baseContext
+    public fun getBase(): ValidationContext = baseContext
 }

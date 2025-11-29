@@ -6,7 +6,7 @@ package com.noovoweb.validator.ksp
  * Each validation annotation is converted to a ValidationValidatorInfo instance
  * during KSP processing.
  */
-sealed class ValidationValidatorInfo {
+internal sealed class ValidationValidatorInfo {
     abstract val customMessage: String?
     abstract val messageKey: String
 

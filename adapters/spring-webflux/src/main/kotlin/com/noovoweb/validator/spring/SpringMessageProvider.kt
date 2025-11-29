@@ -18,7 +18,7 @@ import java.util.Locale
  * **NON-BLOCKING**: MessageSource lookups are wrapped in withContext(Dispatchers.Default)
  * to prevent blocking the event loop, even though MessageSource is typically in-memory.
  */
-class SpringMessageProvider(
+public class SpringMessageProvider(
     private val messageSource: MessageSource,
 ) : MessageProvider {
     private val defaultProvider = DefaultMessageProvider()

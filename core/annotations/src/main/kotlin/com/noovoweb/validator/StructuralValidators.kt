@@ -20,7 +20,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Valid(
+public annotation class Valid(
     val each: Boolean = false,
     val message: String = "",
 )
@@ -110,6 +110,6 @@ annotation class Valid(
 @Repeatable
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class FailFast(
+public annotation class FailFast(
     val message: String = "",
 )

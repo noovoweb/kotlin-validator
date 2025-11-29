@@ -17,8 +17,15 @@ allprojects {
 subprojects {
     apply(plugin = "jacoco")
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
-    // Detekt disabled - using ktlint for code style
-    // apply(plugin = "io.gitlab.arturbosch.detekt")
+
+    // Enable explicit API mode for library modules (not testing/examples)
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        if (name !in listOf("kotlin-validator-testing")) {
+            configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+                explicitApi()
+            }
+        }
+    }
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         // Use editorConfigOverride instead of disabledRules (ktlint 0.48+)

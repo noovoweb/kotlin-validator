@@ -15,7 +15,7 @@ import com.squareup.kotlinpoet.MemberName
  * - Uses injectable Clock from context
  * - Calls suspend getMessage() for error messages
  */
-class FieldValidatorCodeGenerator {
+internal class FieldValidatorCodeGenerator {
     private val withContextIO = MemberName("kotlinx.coroutines", "withContext")
     private val dispatchersIO = MemberName("kotlinx.coroutines", "Dispatchers")
 
@@ -27,7 +27,7 @@ class FieldValidatorCodeGenerator {
      * @param fieldPath Dot-notation path for error messages (e.g., "email", "address.city")
      * @return CodeBlock with validation logic
      */
-    fun generateValidatorCode(
+    internal fun generateValidatorCode(
         validator: ValidationValidatorInfo,
         property: PropertyInfo,
         fieldPath: String,

@@ -16,7 +16,7 @@ import java.util.Locale
  * via the LocaleContext, providing automatic i18n support.
  */
 @Component
-class ValidationContextProvider(
+public class ValidationContextProvider(
     private val baseContext: ValidationContext,
 ) {
     /**
@@ -25,7 +25,7 @@ class ValidationContextProvider(
      * Extracts locale from the Accept-Language header and creates
      * a new context with all other settings preserved.
      */
-    fun get(request: ServerRequest): ValidationContext {
+    public fun get(request: ServerRequest): ValidationContext {
         val locale = request.exchange().localeContext.locale ?: Locale.ENGLISH
         return baseContext.withLocale(locale)
     }
@@ -36,5 +36,5 @@ class ValidationContextProvider(
      * Useful when you want to use a specific locale or when
      * locale doesn't matter for the validation.
      */
-    fun getBase(): ValidationContext = baseContext
+    public fun getBase(): ValidationContext = baseContext
 }

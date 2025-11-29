@@ -8,7 +8,7 @@ package com.noovoweb.validator.ksp
  * @property isNullable Whether the type is nullable
  * @property typeArguments Generic type arguments (e.g., List<String> has ["String"])
  */
-data class TypeInfo(
+internal data class TypeInfo(
     val qualifiedName: String,
     val simpleName: String,
     val isNullable: Boolean,
@@ -17,32 +17,32 @@ data class TypeInfo(
     /**
      * Check if this type is a String.
      */
-    fun isString(): Boolean = qualifiedName == "kotlin.String"
+    internal fun isString(): Boolean = qualifiedName == "kotlin.String"
 
     /**
      * Check if this type is a numeric type.
      */
-    fun isNumeric(): Boolean = qualifiedName in NUMERIC_TYPES
+    internal fun isNumeric(): Boolean = qualifiedName in NUMERIC_TYPES
 
     /**
      * Check if this type is a Boolean.
      */
-    fun isBoolean(): Boolean = qualifiedName == "kotlin.Boolean"
+    internal fun isBoolean(): Boolean = qualifiedName == "kotlin.Boolean"
 
     /**
      * Check if this type is a collection.
      */
-    fun isCollection(): Boolean = qualifiedName in COLLECTION_TYPES
+    internal fun isCollection(): Boolean = qualifiedName in COLLECTION_TYPES
 
     /**
      * Check if this type is a File type.
      */
-    fun isFile(): Boolean = qualifiedName in FILE_TYPES
+    internal fun isFile(): Boolean = qualifiedName in FILE_TYPES
 
     /**
      * Check if this type is a date/time type.
      */
-    fun isDateTime(): Boolean = qualifiedName in DATE_TIME_TYPES
+    internal fun isDateTime(): Boolean = qualifiedName in DATE_TIME_TYPES
 
     companion object {
         private val NUMERIC_TYPES =

@@ -5,41 +5,41 @@ package com.noovoweb.validator
  *
  * All regex patterns and validation helpers used by the code generator.
  */
-object ValidationPatterns {
+public object ValidationPatterns {
     // === String Patterns ===
 
     /**
      * Email validation pattern.
      * Matches standard email format: username@domain.tld
      */
-    const val EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+    public const val EMAIL: String = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
 
     /**
      * URL validation pattern.
      * Matches HTTP/HTTPS URLs.
      */
-    const val URL = "^https?://[^\\s/$.?#].[^\\s]*$"
+    public const val URL: String = "^https?://[^\\s/$.?#].[^\\s]*$"
 
     /**
      * UUID validation pattern.
      * Matches standard UUID format: 8-4-4-4-12 hex digits.
      */
-    const val UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    public const val UUID: String = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
 
     /**
      * Alpha pattern - only letters.
      */
-    const val ALPHA = "^[a-zA-Z]+$"
+    public const val ALPHA: String = "^[a-zA-Z]+$"
 
     /**
      * Alphanumeric pattern - letters and numbers only.
      */
-    const val ALPHANUMERIC = "^[a-zA-Z0-9]+$"
+    public const val ALPHANUMERIC: String = "^[a-zA-Z0-9]+$"
 
     /**
      * ASCII pattern - only ASCII characters.
      */
-    const val ASCII = "^[\\x00-\\x7F]+$"
+    public const val ASCII: String = "^[\\x00-\\x7F]+$"
 
     // === Network Patterns ===
 
@@ -49,7 +49,7 @@ object ValidationPatterns {
      *
      * Simple and safe pattern with no ReDoS risk.
      */
-    const val IPV4 = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$"
+    public const val IPV4: String = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$"
 
     /**
      * IPv6 address pattern - SIMPLIFIED for safety.
@@ -61,26 +61,26 @@ object ValidationPatterns {
      * Matches: Standard IPv6 (2001:0db8:85a3::8a2e:0370:7334)
      * May not catch all edge cases but is safe from ReDoS.
      */
-    const val IPV6 = "^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$"
+    public const val IPV6: String = "^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$"
 
     /**
      * MAC address pattern.
      * Matches MAC addresses with colon or hyphen separators.
      */
-    const val MAC_ADDRESS = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
+    public const val MAC_ADDRESS: String = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$"
 
     // === Date/Time Patterns ===
 
     /**
      * ISO date pattern (YYYY-MM-DD).
      */
-    const val ISO_DATE = "^\\d{4}-\\d{2}-\\d{2}$"
+    public const val ISO_DATE: String = "^\\d{4}-\\d{2}-\\d{2}$"
 
     /**
      * ISO datetime pattern.
      * Matches ISO 8601 datetime format with optional timezone.
      */
-    const val ISO_DATETIME = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+    public const val ISO_DATETIME: String = "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
 
     // === Validation Helpers ===
 
@@ -96,7 +96,7 @@ object ValidationPatterns {
      *
      * This is a lightweight implementation without external dependencies.
      */
-    fun isValidJson(input: String): Boolean {
+    public fun isValidJson(input: String): Boolean {
         if (input.isBlank()) return false
 
         val trimmed = input.trim()
@@ -322,7 +322,7 @@ object ValidationPatterns {
      *
      * Accepts: true, "1", "yes", "true", "on" (case-insensitive), 1
      */
-    fun isAccepted(value: Any?): Boolean {
+    public fun isAccepted(value: Any?): Boolean {
         return when (value) {
             is Boolean -> value
             is String -> value.lowercase() in setOf("1", "yes", "true", "on")
@@ -334,14 +334,14 @@ object ValidationPatterns {
     /**
      * Validate port number range (1-65535).
      */
-    fun isValidPort(port: Int): Boolean {
+    public fun isValidPort(port: Int): Boolean {
         return port in 1..65535
     }
 
     /**
      * Check if a number is an integer (whole number).
      */
-    fun isInteger(value: Number): Boolean {
+    public fun isInteger(value: Number): Boolean {
         return when (value) {
             is Int, is Long, is Short, is Byte -> true
             is Float -> value % 1 == 0f
@@ -353,7 +353,7 @@ object ValidationPatterns {
     /**
      * Check if a number has decimal places.
      */
-    fun isDecimal(value: Number): Boolean {
+    public fun isDecimal(value: Number): Boolean {
         return when (value) {
             is Int, is Long, is Short, is Byte -> false
             is Float -> value % 1 != 0f
@@ -371,7 +371,7 @@ object ValidationPatterns {
      * @param address The IPv4 address string to validate
      * @return true if valid IPv4, false otherwise
      */
-    fun isValidIPv4(address: String): Boolean {
+    public fun isValidIPv4(address: String): Boolean {
         return try {
             val addr = java.net.InetAddress.getByName(address)
             // Check it's IPv4 (not IPv6) and matches the input format
@@ -401,7 +401,7 @@ object ValidationPatterns {
      * @param address The IPv6 address string to validate
      * @return true if valid IPv6, false otherwise
      */
-    fun isValidIPv6(address: String): Boolean {
+    public fun isValidIPv6(address: String): Boolean {
         return try {
             val addr = java.net.InetAddress.getByName(address)
             addr is java.net.Inet6Address
@@ -418,7 +418,7 @@ object ValidationPatterns {
      * @param address The IP address string to validate
      * @return true if valid IPv4 or IPv6, false otherwise
      */
-    fun isValidIP(address: String): Boolean {
+    public fun isValidIP(address: String): Boolean {
         return isValidIPv4(address) || isValidIPv6(address)
     }
 
@@ -443,7 +443,7 @@ object ValidationPatterns {
      * @param urlString The URL string to validate
      * @return true if valid HTTP/HTTPS URL, false otherwise
      */
-    fun isValidURL(urlString: String): Boolean {
+    public fun isValidURL(urlString: String): Boolean {
         // Quick checks for empty or whitespace
         if (urlString.isBlank()) return false
         if (urlString.trim() != urlString) return false // Reject leading/trailing whitespace

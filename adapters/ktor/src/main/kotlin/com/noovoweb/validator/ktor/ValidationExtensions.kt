@@ -20,7 +20,7 @@ import io.ktor.server.request.receive
  *
  * @throws com.noovoweb.validator.ValidationException if validation fails (automatically handled by plugin)
  */
-suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(validator: GeneratedValidator<T>): T {
+public suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(validator: GeneratedValidator<T>): T {
     val payload = receive<T>()
     val context = validationContext()
     validator.validate(payload, context)
@@ -41,7 +41,7 @@ suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(validato
  *
  * @throws com.noovoweb.validator.ValidationException if validation fails (automatically handled by plugin)
  */
-suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
+public suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
     validator: GeneratedValidator<T>,
     context: ValidationContext,
 ): T {
@@ -64,7 +64,7 @@ suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
  *
  * @throws com.noovoweb.validator.ValidationException if validation fails (automatically handled by plugin)
  */
-suspend fun <T : Any> ApplicationCall.validate(
+public suspend fun <T : Any> ApplicationCall.validate(
     payload: T,
     validator: GeneratedValidator<T>,
 ) {

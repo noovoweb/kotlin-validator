@@ -20,7 +20,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class DateFormat(
+public annotation class DateFormat(
     val format: String,
     val message: String = "",
 )
@@ -42,7 +42,7 @@ annotation class DateFormat(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class IsoDate(
+public annotation class IsoDate(
     val message: String = "",
 )
 
@@ -63,7 +63,7 @@ annotation class IsoDate(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class IsoDateTime(
+public annotation class IsoDateTime(
     val message: String = "",
 )
 
@@ -86,7 +86,7 @@ annotation class IsoDateTime(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Future(
+public annotation class Future(
     val message: String = "",
 )
 
@@ -109,7 +109,7 @@ annotation class Future(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Past(
+public annotation class Past(
     val message: String = "",
 )
 
@@ -132,6 +132,6 @@ annotation class Past(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Today(
+public annotation class Today(
     val message: String = "",
 )

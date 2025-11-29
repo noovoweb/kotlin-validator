@@ -46,7 +46,7 @@ import org.springframework.validation.Validator
  * @property context Validation context with configuration
  * @property targetClass The class type this validator handles
  */
-class SpringValidatorAdapter<T : Any>(
+public class SpringValidatorAdapter<T : Any>(
     private val validator: GeneratedValidator<T>,
     private val context: ValidationContext = ValidationContext(),
     private val targetClass: Class<T>,

@@ -10,7 +10,7 @@ import org.springframework.web.servlet.LocaleResolver
  *
  * Requires a LocaleResolver to extract the locale from the request.
  */
-fun ValidationContext.withLocale(
+public fun ValidationContext.withLocale(
     request: HttpServletRequest,
     localeResolver: LocaleResolver,
 ): ValidationContext {
@@ -33,7 +33,7 @@ fun ValidationContext.withLocale(
  * }
  * ```
  */
-suspend fun <T> GeneratedValidator<T>.validate(
+public suspend fun <T> GeneratedValidator<T>.validate(
     payload: T,
     request: HttpServletRequest,
     baseContext: ValidationContext,

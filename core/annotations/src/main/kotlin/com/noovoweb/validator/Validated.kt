@@ -20,4 +20,4 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Validated
+public annotation class Validated

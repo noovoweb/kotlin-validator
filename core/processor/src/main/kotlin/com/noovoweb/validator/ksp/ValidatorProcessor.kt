@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
  * 3. Generate validator code using ValidatorClassGenerator
  * 4. Write generated files
  */
-class ValidatorProcessor(
+internal class ValidatorProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
     private val options: Map<String, String>,
@@ -145,7 +145,7 @@ class ValidatorProcessor(
  * This is discovered by KSP via Java ServiceLoader.
  * Must be registered in META-INF/services.
  */
-class ValidatorProcessorProvider : SymbolProcessorProvider {
+internal class ValidatorProcessorProvider : SymbolProcessorProvider {
     /**
      * Create a new ValidatorProcessor instance.
      */

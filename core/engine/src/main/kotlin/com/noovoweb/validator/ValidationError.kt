@@ -7,30 +7,25 @@ package com.noovoweb.validator
  * @property code Optional error code for programmatic handling
  * @property metadata Optional metadata for additional context
  */
-data class ValidationError(
-    val message: String,
-    val code: String? = null,
-    val metadata: Map<String, Any> = emptyMap(),
+public data class ValidationError(
+    public val message: String,
+    public val code: String? = null,
+    public val metadata: Map<String, Any> = emptyMap(),
 ) {
-    companion object {
-        /**
-         * Factory method for creating a "required" error.
-         */
-        fun required(field: String) =
+    public companion object {
+        public fun required(field: String): ValidationError =
             ValidationError(
                 message = "Field '$field' is required",
                 code = "required",
             )
 
-        /**
-         * Factory method for creating an "invalid" error.
-         */
-        fun invalid(
+        public fun invalid(
             field: String,
             reason: String,
-        ) = ValidationError(
-            message = "Field '$field' is invalid: $reason",
-            code = "invalid",
-        )
+        ): ValidationError =
+            ValidationError(
+                message = "Field '$field' is invalid: $reason",
+                code = "invalid",
+            )
     }
 }

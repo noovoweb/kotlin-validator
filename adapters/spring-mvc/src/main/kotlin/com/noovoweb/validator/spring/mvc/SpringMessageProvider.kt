@@ -13,7 +13,7 @@ import java.util.Locale
  * messages.properties files, while falling back to the default
  * ValidationMessages.properties for built-in validators.
  */
-class SpringMessageProvider(
+public class SpringMessageProvider(
     private val messageSource: MessageSource,
 ) : MessageProvider {
     private val defaultProvider = DefaultMessageProvider()

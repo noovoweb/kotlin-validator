@@ -21,7 +21,7 @@ import java.util.Locale
  * ```
  */
 @ConfigurationProperties(prefix = "kotlin.validator")
-data class ValidatorProperties(
+public data class ValidatorProperties(
     /**
      * Default locale for validation messages.
      *

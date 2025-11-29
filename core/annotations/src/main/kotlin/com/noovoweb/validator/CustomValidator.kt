@@ -175,7 +175,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.SOURCE)
-annotation class CustomValidator(
+public annotation class CustomValidator(
     /**
      * Fully qualified name of validator function.
      * Format: "com.example.package.ClassName::functionName"

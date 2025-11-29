@@ -27,13 +27,13 @@ import java.util.Locale
  */
 @AutoConfiguration
 @EnableConfigurationProperties(ValidatorProperties::class)
-class ValidatorAutoConfiguration {
+public class ValidatorAutoConfiguration {
     /**
      * Provide a Spring-aware MessageProvider that uses MessageSource.
      */
     @Bean
     @ConditionalOnMissingBean
-    fun messageProvider(messageSource: MessageSource): MessageProvider {
+    public fun messageProvider(messageSource: MessageSource): MessageProvider {
         return SpringMessageProvider(messageSource)
     }
 
@@ -42,7 +42,7 @@ class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun clock(): Clock {
+    public fun clock(): Clock {
         return Clock.systemDefaultZone()
     }
 
@@ -51,7 +51,7 @@ class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun validationContext(
+    public fun validationContext(
         properties: ValidatorProperties,
         messageProvider: MessageProvider,
         clock: Clock,
@@ -69,7 +69,7 @@ class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun validationContextProvider(validationContext: ValidationContext): ValidationContextProvider {
+    public fun validationContextProvider(validationContext: ValidationContext): ValidationContextProvider {
         return ValidationContextProvider(validationContext)
     }
 
@@ -78,7 +78,7 @@ class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    fun validationExceptionHandler(): ValidationExceptionHandler {
+    public fun validationExceptionHandler(): ValidationExceptionHandler {
         return ValidationExceptionHandler()
     }
 }

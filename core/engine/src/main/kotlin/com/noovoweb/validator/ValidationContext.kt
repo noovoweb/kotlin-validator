@@ -19,60 +19,30 @@ import java.util.Locale
  * @property clock Clock for date/time validation (default: system clock, injectable for testing)
  * @property metadata Custom metadata for extensibility
  */
-data class ValidationContext(
-    val locale: Locale = Locale.ENGLISH,
-    val messageProvider: MessageProvider = DefaultMessageProvider(),
-    val dispatcher: CoroutineDispatcher = Dispatchers.Default,
-    val clock: Clock = Clock.systemDefaultZone(),
-    val metadata: Map<String, Any> = emptyMap(),
+public data class ValidationContext(
+    public val locale: Locale = Locale.ENGLISH,
+    public val messageProvider: MessageProvider = DefaultMessageProvider(),
+    public val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    public val clock: Clock = Clock.systemDefaultZone(),
+    public val metadata: Map<String, Any> = emptyMap(),
 ) {
-    /**
-     * Create a copy with a different locale.
-     */
-    fun withLocale(locale: Locale): ValidationContext = copy(locale = locale)
+    public fun withLocale(locale: Locale): ValidationContext = copy(locale = locale)
 
-    /**
-     * Create a copy with a different message provider.
-     */
-    fun withMessageProvider(provider: MessageProvider): ValidationContext = copy(messageProvider = provider)
+    public fun withMessageProvider(provider: MessageProvider): ValidationContext = copy(messageProvider = provider)
 
-    /**
-     * Create a copy with a different dispatcher.
-     *
-     * Recommended dispatchers:
-     * - Dispatchers.Default: CPU-bound validations (regex, comparisons)
-     * - Dispatchers.IO: I/O-bound validations (file operations, database, API calls)
-     * - Custom dispatcher: Fine-grained control (e.g., limitedParallelism(4))
-     */
-    fun withDispatcher(dispatcher: CoroutineDispatcher): ValidationContext = copy(dispatcher = dispatcher)
+    public fun withDispatcher(dispatcher: CoroutineDispatcher): ValidationContext = copy(dispatcher = dispatcher)
 
-    /**
-     * Create a copy with a different clock.
-     *
-     * Useful for testing date/time validations (@Future, @Past, @Today).
-     */
-    fun withClock(clock: Clock): ValidationContext = copy(clock = clock)
+    public fun withClock(clock: Clock): ValidationContext = copy(clock = clock)
 
-    /**
-     * Create a copy with additional metadata.
-     */
-    fun withMetadata(
+    public fun withMetadata(
         key: String,
         value: Any,
     ): ValidationContext = copy(metadata = metadata + (key to value))
 
-    /**
-     * Create a copy with completely replaced metadata.
-     */
-    fun withMetadata(metadata: Map<String, Any>): ValidationContext = copy(metadata = metadata)
+    public fun withMetadata(metadata: Map<String, Any>): ValidationContext = copy(metadata = metadata)
 
-    companion object {
-        /**
-         * Create a context optimized for I/O-bound validations.
-         *
-         * Uses Dispatchers.IO for file operations, database queries, API calls.
-         */
-        fun forIO(
+    public companion object {
+        public fun forIO(
             locale: Locale = Locale.ENGLISH,
             messageProvider: MessageProvider = DefaultMessageProvider(),
         ): ValidationContext =
@@ -84,12 +54,7 @@ data class ValidationContext(
                 metadata = emptyMap(),
             )
 
-        /**
-         * Create a context optimized for testing.
-         *
-         * Uses a fixed clock for deterministic date/time validation.
-         */
-        fun forTesting(
+        public fun forTesting(
             clock: Clock = Clock.systemUTC(),
             locale: Locale = Locale.ENGLISH,
         ): ValidationContext =

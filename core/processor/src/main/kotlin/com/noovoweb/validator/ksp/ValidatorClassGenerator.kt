@@ -13,7 +13,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
  * - validateSequential() helper (validates fields sequentially)
  * - validateFieldX() methods for each property
  */
-class ValidatorClassGenerator(
+internal class ValidatorClassGenerator(
     private val fieldValidatorCodeGenerator: FieldValidatorCodeGenerator,
 ) {
     /**
@@ -22,7 +22,7 @@ class ValidatorClassGenerator(
      * @param classInfo Information about the @Validated class
      * @return FileSpec containing the generated validator class
      */
-    fun generate(classInfo: ValidatedClassInfo): FileSpec {
+    internal fun generate(classInfo: ValidatedClassInfo): FileSpec {
         val validatorClassName = ClassName(classInfo.packageName, classInfo.validatorClassName)
         val dataClassName = ClassName(classInfo.packageName, classInfo.className)
 

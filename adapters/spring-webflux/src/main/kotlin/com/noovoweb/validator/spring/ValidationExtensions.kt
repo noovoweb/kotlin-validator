@@ -10,13 +10,13 @@ import java.util.Locale
 /**
  * Extension property to get the locale from the ServerRequest's Accept-Language header.
  */
-val ServerRequest.locale: Locale
+public val ServerRequest.locale: Locale
     get() = this.exchange().localeContext.locale ?: Locale.ENGLISH
 
 /**
  * Extension function to create a localized ValidationContext from the request's locale.
  */
-fun ValidationContext.withLocale(request: ServerRequest): ValidationContext {
+public fun ValidationContext.withLocale(request: ServerRequest): ValidationContext {
     val locale = request.locale
     return this.withLocale(locale)
 }
@@ -75,7 +75,7 @@ private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
  * @param request ServerRequest for automatic locale extraction
  * @param baseContext Base validation context (injected)
  */
-suspend fun <T : Any> T.validate(
+public suspend fun <T : Any> T.validate(
     request: ServerRequest,
     baseContext: ValidationContext,
 ) {
@@ -98,7 +98,7 @@ suspend fun <T : Any> T.validate(
  * }
  * ```
  */
-suspend fun <T : Any> T.validate() {
+public suspend fun <T : Any> T.validate() {
     val validator = getValidatorFor(this)
     validator.validate(this, ValidationContext())
 }
@@ -117,7 +117,7 @@ suspend fun <T : Any> T.validate() {
  * }
  * ```
  */
-fun <T : Any> T.validateMono(
+public fun <T : Any> T.validateMono(
     request: ServerRequest,
     baseContext: ValidationContext,
 ): Mono<Void> =
@@ -137,7 +137,7 @@ fun <T : Any> T.validateMono(
  * }
  * ```
  */
-fun <T : Any> T.validateMono(): Mono<Void> =
+public fun <T : Any> T.validateMono(): Mono<Void> =
     mono {
         validate()
     }.then()
@@ -147,7 +147,7 @@ fun <T : Any> T.validateMono(): Mono<Void> =
  *
  * **NOTE**: Consider using the simplified `payload.validate(request, context)` instead.
  */
-suspend fun <T> GeneratedValidator<T>.validate(
+public suspend fun <T> GeneratedValidator<T>.validate(
     payload: T,
     request: ServerRequest,
     baseContext: ValidationContext,
@@ -176,7 +176,7 @@ suspend fun <T> GeneratedValidator<T>.validate(
  * }
  * ```
  */
-fun <T> GeneratedValidator<T>.validateMono(
+public fun <T> GeneratedValidator<T>.validateMono(
     payload: T,
     context: ValidationContext,
 ): Mono<Void> =
@@ -203,7 +203,7 @@ fun <T> GeneratedValidator<T>.validateMono(
  * }
  * ```
  */
-fun <T> GeneratedValidator<T>.validateMono(
+public fun <T> GeneratedValidator<T>.validateMono(
     payload: T,
     request: ServerRequest,
     baseContext: ValidationContext,

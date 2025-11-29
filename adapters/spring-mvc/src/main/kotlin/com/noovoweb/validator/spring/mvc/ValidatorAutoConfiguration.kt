@@ -59,13 +59,13 @@ import java.util.Locale
 @ComponentScan(basePackageClasses = [ValidatorAutoConfiguration::class])
 @ConditionalOnClass(DispatcherServlet::class)
 @EnableConfigurationProperties(ValidatorProperties::class)
-class ValidatorAutoConfiguration {
+public class ValidatorAutoConfiguration {
     /**
      * Create default MessageProvider that integrates with Spring's MessageSource.
      */
     @Bean
     @ConditionalOnMissingBean(MessageProvider::class)
-    fun messageProvider(messageSource: MessageSource): MessageProvider {
+    public fun messageProvider(messageSource: MessageSource): MessageProvider {
         return SpringMessageProvider(messageSource)
     }
 
@@ -76,7 +76,7 @@ class ValidatorAutoConfiguration {
     @Bean
     @Primary
     @ConditionalOnMissingBean(LocaleResolver::class)
-    fun localeResolver(properties: ValidatorProperties): LocaleResolver {
+    public fun localeResolver(properties: ValidatorProperties): LocaleResolver {
         val resolver = AcceptHeaderLocaleResolver()
         resolver.setDefaultLocale(properties.locale ?: Locale.getDefault())
         return resolver
@@ -87,7 +87,7 @@ class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(ValidationContext::class)
-    fun validationContext(
+    public fun validationContext(
         properties: ValidatorProperties,
         messageProvider: MessageProvider,
     ): ValidationContext {
@@ -102,7 +102,7 @@ class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(ValidationExceptionHandler::class)
-    fun validationExceptionHandler(): ValidationExceptionHandler {
+    public fun validationExceptionHandler(): ValidationExceptionHandler {
         return ValidationExceptionHandler()
     }
 }

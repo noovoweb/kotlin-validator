@@ -17,39 +17,29 @@ package com.noovoweb.validator
  * }
  * ```
  */
-class ValidationException(
-    val errors: Map<String, List<String>>,
+public class ValidationException(
+    public val errors: Map<String, List<String>>,
     message: String = "Validation failed with ${errors.size} field error(s)",
 ) : RuntimeException(message) {
     /**
      * Get errors for a specific field.
-     *
-     * @param field Field name/path
-     * @return List of error messages for the field (empty if no errors)
      */
-    fun getFieldErrors(field: String): List<String> = errors[field] ?: emptyList()
+    public fun getFieldErrors(field: String): List<String> = errors[field] ?: emptyList()
 
     /**
      * Check if a specific field has errors.
-     *
-     * @param field Field name/path
-     * @return true if the field has errors
      */
-    fun hasFieldError(field: String): Boolean = errors.containsKey(field)
+    public fun hasFieldError(field: String): Boolean = errors.containsKey(field)
 
     /**
      * Get all error messages as a flat list.
-     *
-     * @return All error messages across all fields
      */
-    fun getAllMessages(): List<String> = errors.values.flatten()
+    public fun getAllMessages(): List<String> = errors.values.flatten()
 
     /**
      * Format errors as JSON string.
-     *
-     * @return JSON representation of errors
      */
-    fun toJson(): String {
+    public fun toJson(): String {
         return buildString {
             append("{")
             errors.entries.joinTo(this, ",") { (field, messages) ->
@@ -62,13 +52,13 @@ class ValidationException(
     /**
      * Get the total number of error messages across all fields.
      */
-    val errorCount: Int
+    public val errorCount: Int
         get() = errors.values.sumOf { it.size }
 
     /**
      * Get the number of fields with errors.
      */
-    val fieldCount: Int
+    public val fieldCount: Int
         get() = errors.size
 
     override fun toString(): String {

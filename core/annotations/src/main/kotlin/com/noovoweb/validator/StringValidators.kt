@@ -12,7 +12,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Required(
+public annotation class Required(
     val message: String = "",
 )
 
@@ -27,7 +27,7 @@ annotation class Required(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Email(
+public annotation class Email(
     val message: String = "",
 )
 
@@ -42,7 +42,7 @@ annotation class Email(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Url(
+public annotation class Url(
     val message: String = "",
 )
 
@@ -57,7 +57,7 @@ annotation class Url(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Uuid(
+public annotation class Uuid(
     val message: String = "",
 )
 
@@ -72,7 +72,7 @@ annotation class Uuid(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Length(
+public annotation class Length(
     val min: Int,
     val max: Int,
     val message: String = "",
@@ -88,7 +88,7 @@ annotation class Length(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class MinLength(
+public annotation class MinLength(
     val value: Int,
     val message: String = "",
 )
@@ -103,7 +103,7 @@ annotation class MinLength(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class MaxLength(
+public annotation class MaxLength(
     val value: Int,
     val message: String = "",
 )
@@ -141,7 +141,7 @@ annotation class MaxLength(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Pattern(
+public annotation class Pattern(
     val value: String,
     val message: String = "",
 )
@@ -155,7 +155,7 @@ annotation class Pattern(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Alpha(
+public annotation class Alpha(
     val message: String = "",
 )
 
@@ -168,7 +168,7 @@ annotation class Alpha(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Alphanumeric(
+public annotation class Alphanumeric(
     val message: String = "",
 )
 
@@ -181,7 +181,7 @@ annotation class Alphanumeric(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Ascii(
+public annotation class Ascii(
     val message: String = "",
 )
 
@@ -194,7 +194,7 @@ annotation class Ascii(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Lowercase(
+public annotation class Lowercase(
     val message: String = "",
 )
 
@@ -207,7 +207,7 @@ annotation class Lowercase(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Uppercase(
+public annotation class Uppercase(
     val message: String = "",
 )
 
@@ -221,7 +221,7 @@ annotation class Uppercase(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class StartsWith(
+public annotation class StartsWith(
     val value: String,
     val message: String = "",
 )
@@ -236,7 +236,7 @@ annotation class StartsWith(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class EndsWith(
+public annotation class EndsWith(
     val value: String,
     val message: String = "",
 )
@@ -251,7 +251,7 @@ annotation class EndsWith(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Contains(
+public annotation class Contains(
     val value: String,
     val message: String = "",
 )
@@ -266,7 +266,7 @@ annotation class Contains(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class OneOf(
+public annotation class OneOf(
     val values: Array<String>,
     val message: String = "",
 )
@@ -281,7 +281,7 @@ annotation class OneOf(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class NotOneOf(
+public annotation class NotOneOf(
     val values: Array<String>,
     val message: String = "",
 )
@@ -297,7 +297,7 @@ annotation class NotOneOf(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Json(
+public annotation class Json(
     val message: String = "",
 )
 
@@ -317,7 +317,7 @@ annotation class Json(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class Luhn(
+public annotation class Luhn(
     val message: String = "",
 )
 
@@ -356,6 +356,6 @@ annotation class Luhn(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-annotation class CreditCard(
+public annotation class CreditCard(
     val message: String = "",
 )

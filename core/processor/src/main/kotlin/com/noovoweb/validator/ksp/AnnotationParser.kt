@@ -13,14 +13,14 @@ import com.google.devtools.ksp.symbol.KSValueArgument
  *
  * Converts KSP declarations into our internal representation (ValidatedClassInfo).
  */
-class AnnotationParser(private val logger: KSPLogger) {
+internal class AnnotationParser(private val logger: KSPLogger) {
     /**
      * Parse a class annotated with @Validated.
      *
      * @param classDeclaration The class declaration to parse
      * @return ValidatedClassInfo with all properties and validators, or null if invalid
      */
-    fun parse(classDeclaration: KSClassDeclaration): ValidatedClassInfo? {
+    internal fun parse(classDeclaration: KSClassDeclaration): ValidatedClassInfo? {
         val packageName = classDeclaration.packageName.asString()
         val className = classDeclaration.simpleName.asString()
 
