@@ -320,3 +320,42 @@ annotation class Json(
 annotation class Luhn(
     val message: String = "",
 )
+
+/**
+ * Validates that a string is a valid credit card number.
+ *
+ * Performs comprehensive credit card validation:
+ * - Luhn algorithm check (checksum validation)
+ * - Card type detection and length validation
+ * - Prefix validation for known card types
+ *
+ * **Supported card types:**
+ * - Visa (starts with 4, 13 or 16 digits)
+ * - MasterCard (starts with 51-55 or 2221-2720, 16 digits)
+ * - American Express (starts with 34 or 37, 15 digits)
+ * - Discover (starts with 6011, 622126-622925, 644-649, or 65, 16 digits)
+ * - Diners Club (starts with 300-305, 36, or 38, 14 digits)
+ * - JCB (starts with 3528-3589, 16 digits)
+ *
+ * Spaces and hyphens are automatically removed before validation.
+ *
+ * **Usage:**
+ * ```kotlin
+ * @Validated
+ * data class PaymentRequest(
+ *     @CreditCard
+ *     val cardNumber: String?
+ * )
+ * ```
+ *
+ * @param message Custom error message (optional)
+ *
+ * Message key: `field.creditcard`
+ *
+ * @see Luhn For basic Luhn-only validation
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.SOURCE)
+annotation class CreditCard(
+    val message: String = "",
+)

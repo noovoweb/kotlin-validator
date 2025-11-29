@@ -149,6 +149,12 @@ sealed class ValidationValidatorInfo {
         override val messageKey = "field.luhn"
     }
 
+    data class CreditCardValidator(
+        override val customMessage: String?,
+    ) : ValidationValidatorInfo() {
+        override val messageKey = "field.creditcard"
+    }
+
     // === Numeric Validators ===
 
     data class MinValidator(

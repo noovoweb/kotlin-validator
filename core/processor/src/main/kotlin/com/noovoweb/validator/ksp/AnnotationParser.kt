@@ -256,6 +256,7 @@ class AnnotationParser(private val logger: KSPLogger) {
             }
             "Json" -> ValidationValidatorInfo.JsonValidator(message)
             "Luhn" -> ValidationValidatorInfo.LuhnValidator(message)
+            "CreditCard" -> ValidationValidatorInfo.CreditCardValidator(message)
 
             // Numeric validators
             "Min" ->

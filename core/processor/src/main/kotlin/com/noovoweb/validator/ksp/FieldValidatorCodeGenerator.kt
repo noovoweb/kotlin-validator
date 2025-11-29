@@ -55,6 +55,7 @@ class FieldValidatorCodeGenerator {
             is ValidationValidatorInfo.EnumValidator -> generateEnumValidator(validator, property, fieldPath)
             is ValidationValidatorInfo.JsonValidator -> generateJsonValidator(validator, property, fieldPath)
             is ValidationValidatorInfo.LuhnValidator -> generateLuhnValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.CreditCardValidator -> generateCreditCardValidator(validator, property, fieldPath)
 
             // Numeric validators
             is ValidationValidatorInfo.MinValidator -> generateMinValidator(validator, property, fieldPath)
@@ -1001,6 +1002,80 @@ class FieldValidatorCodeGenerator {
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
             nextControlFlow("else")
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            endControlFlow()
+
+            if (!property.type.isString()) {
+                endControlFlow()
+            }
+
+            if (property.isNullable) {
+                endControlFlow()
+            }
+        }.build()
+    }
+
+    private fun generateCreditCardValidator(
+        validator: ValidationValidatorInfo.CreditCardValidator,
+        property: PropertyInfo,
+        fieldPath: String,
+    ): CodeBlock {
+        return CodeBlock.builder().apply {
+            addStatement("// @CreditCard - Credit card validation (format + Luhn)")
+
+            val valueRef =
+                if (property.isNullable) {
+                    beginControlFlow("value?.let")
+                    "it"
+                } else {
+                    "value"
+                }
+
+            if (!property.type.isString()) {
+                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                beginControlFlow("if ($valueRef is String)")
+            }
+
+            addStatement("val digits = $valueRef.replace(\" \", \"\").replace(\"-\", \"\")")
+            addStatement("var isValid = digits.all { c -> c.isDigit() } && digits.length >= 13 && digits.length <= 19")
+            
+            // Luhn check
+            beginControlFlow("if (isValid)")
+            addStatement("var sum = 0")
+            addStatement("var alternate = false")
+            beginControlFlow("for (i in digits.length - 1 downTo 0)")
+            addStatement("var n = digits[i].digitToInt()")
+            beginControlFlow("if (alternate)")
+            addStatement("n *= 2")
+            beginControlFlow("if (n > 9)")
+            addStatement("n -= 9")
+            endControlFlow()
+            endControlFlow()
+            addStatement("sum += n")
+            addStatement("alternate = !alternate")
+            endControlFlow()
+            addStatement("isValid = sum %% 10 == 0")
+            endControlFlow()
+
+            // Card type validation
+            beginControlFlow("if (isValid)")
+            addStatement("val len = digits.length")
+            addStatement("""isValid = when {
+                digits.startsWith("4") && (len == 13 || len == 16) -> true
+                digits.take(2).toIntOrNull() in 51..55 && len == 16 -> true
+                digits.take(4).toIntOrNull() in 2221..2720 && len == 16 -> true
+                (digits.startsWith("34") || digits.startsWith("37")) && len == 15 -> true
+                (digits.startsWith("6011") || digits.startsWith("65") || digits.take(3).toIntOrNull() in 644..649) && len == 16 -> true
+                digits.take(6).toIntOrNull() in 622126..622925 && len == 16 -> true
+                digits.take(3).toIntOrNull() in 300..305 && len == 14 -> true
+                (digits.startsWith("36") || digits.startsWith("38")) && len == 14 -> true
+                digits.take(4).toIntOrNull() in 3528..3589 && len == 16 -> true
+                else -> false
+            }""")
+            endControlFlow()
+
+            beginControlFlow("if (!isValid)")
             add(addErrorMessage(validator))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
