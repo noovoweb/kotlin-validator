@@ -141,6 +141,7 @@ class FieldValidatorCodeGenerator {
     /**
      * Helper to add type check for String validators.
      * Only adds the check if property type is not guaranteed to be String.
+     * No @Suppress needed when we skip the check for known String types.
      */
     private fun addStringTypeCheckIfNeeded(
         property: PropertyInfo,
@@ -152,10 +153,35 @@ class FieldValidatorCodeGenerator {
                 // Property is guaranteed to be String, no type check needed
                 validationLogic()
             } else {
-                // Property might not be String, add type check with suppression
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
+                // Property might not be String, add type check
                 beginControlFlow("if ($valueRef is String)")
                 validationLogic()
+                endControlFlow()
+            }
+        }.build()
+    }
+
+    /**
+     * Helper to add type check for numeric validators.
+     * Only adds the check if property type is not guaranteed to be numeric.
+     */
+    private fun addNumericTypeCheckIfNeeded(
+        property: PropertyInfo,
+        valueRef: String,
+        validationLogic: CodeBlock.Builder.() -> Unit,
+    ): CodeBlock {
+        return CodeBlock.builder().apply {
+            if (property.type.isNumeric()) {
+                // Property is guaranteed to be numeric, no type check needed
+                validationLogic()
+            } else {
+                // Property might not be numeric, add type check
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Number -> {")
+                indent()
+                validationLogic()
+                unindent()
+                addStatement("}")
                 endControlFlow()
             }
         }.build()
@@ -207,8 +233,7 @@ class FieldValidatorCodeGenerator {
             if (property.isNullable) {
                 // Nullable property - check both null and blank (for Strings)
                 if (property.type.isString()) {
-                    addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
-                    beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+                    beginControlFlow("if (value == null || value.isBlank())")
                 } else {
                     // Nullable non-String - only check null
                     beginControlFlow("if (value == null)")
@@ -219,9 +244,10 @@ class FieldValidatorCodeGenerator {
                     // Non-nullable String - only check blank
                     beginControlFlow("if (value.isBlank())")
                 } else {
-                    // Non-nullable non-String type - only check null (should never be null, but for safety)
-                    addStatement("@Suppress(%S)", "SENSELESS_COMPARISON")
-                    beginControlFlow("if (value == null)")
+                    // Non-nullable non-String type - should never be null at runtime
+                    // Skip validation as Kotlin's type system guarantees non-null
+                    addStatement("// Non-nullable non-String type - Kotlin guarantees non-null")
+                    return@apply
                 }
             }
 
@@ -282,7 +308,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -320,7 +345,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -367,7 +391,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -403,7 +426,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -439,7 +461,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -483,7 +504,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -531,7 +551,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -578,7 +597,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -625,7 +643,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -672,7 +689,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -708,7 +724,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -744,7 +759,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -780,7 +794,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -816,7 +829,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -939,7 +951,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -977,7 +988,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -1033,7 +1043,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -1108,17 +1117,25 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Number -> {")
-            indent()
-            beginControlFlow("if ($valueRef.toDouble() < %L)", validator.value)
-            add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
+            if (property.type.isNumeric()) {
+                // Type is known to be numeric, direct check
+                beginControlFlow("if ($valueRef.toDouble() < %L)", validator.value)
+                add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            } else {
+                // Type unknown, need runtime check
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Number -> {")
+                indent()
+                beginControlFlow("if ($valueRef.toDouble() < %L)", validator.value)
+                add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
 
             if (property.isNullable) {
                 endControlFlow()
@@ -1142,17 +1159,23 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Number -> {")
-            indent()
-            beginControlFlow("if ($valueRef.toDouble() > %L)", validator.value)
-            add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
+            if (property.type.isNumeric()) {
+                beginControlFlow("if ($valueRef.toDouble() > %L)", validator.value)
+                add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            } else {
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Number -> {")
+                indent()
+                beginControlFlow("if ($valueRef.toDouble() > %L)", validator.value)
+                add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
 
             if (property.isNullable) {
                 endControlFlow()
@@ -1176,18 +1199,25 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Number -> {")
-            indent()
-            addStatement("val numValue = $valueRef.toDouble()")
-            beginControlFlow("if (numValue !in %L..%L)", validator.min, validator.max)
-            add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
+            if (property.type.isNumeric()) {
+                addStatement("val numValue = $valueRef.toDouble()")
+                beginControlFlow("if (numValue !in %L..%L)", validator.min, validator.max)
+                add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            } else {
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Number -> {")
+                indent()
+                addStatement("val numValue = $valueRef.toDouble()")
+                beginControlFlow("if (numValue !in %L..%L)", validator.min, validator.max)
+                add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
 
             if (property.isNullable) {
                 endControlFlow()
@@ -1211,17 +1241,23 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Number -> {")
-            indent()
-            beginControlFlow("if ($valueRef.toDouble() <= 0)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
+            if (property.type.isNumeric()) {
+                beginControlFlow("if ($valueRef.toDouble() <= 0)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            } else {
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Number -> {")
+                indent()
+                beginControlFlow("if ($valueRef.toDouble() <= 0)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
 
             if (property.isNullable) {
                 endControlFlow()
@@ -1245,17 +1281,23 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Number -> {")
-            indent()
-            beginControlFlow("if ($valueRef.toDouble() >= 0)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
+            if (property.type.isNumeric()) {
+                beginControlFlow("if ($valueRef.toDouble() >= 0)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            } else {
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Number -> {")
+                indent()
+                beginControlFlow("if ($valueRef.toDouble() >= 0)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
 
             if (property.isNullable) {
                 endControlFlow()
@@ -1279,7 +1321,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
             indent()
@@ -1313,7 +1355,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
             addStatement("is Float -> {")
@@ -1356,7 +1398,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Int, is Long, is Short, is Byte -> {")
             indent()
@@ -1404,7 +1446,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
             indent()
@@ -1438,7 +1480,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
             indent()
@@ -1472,7 +1514,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Number -> {")
             indent()
@@ -1506,7 +1548,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is String -> {")
             indent()
@@ -1595,7 +1637,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             addStatement("val size = when ($valueRef) {")
             indent()
             addStatement("is Collection<*> -> $valueRef.size")
@@ -1631,7 +1673,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             addStatement("val size = when ($valueRef) {")
             indent()
             addStatement("is Collection<*> -> $valueRef.size")
@@ -1667,7 +1709,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             addStatement("val size = when ($valueRef) {")
             indent()
             addStatement("is Collection<*> -> $valueRef.size")
@@ -1703,7 +1745,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             addStatement("val isEmpty = when ($valueRef) {")
             indent()
             addStatement("is Collection<*> -> $valueRef.isEmpty()")
@@ -1740,7 +1782,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is List<*> -> {")
             indent()
@@ -1784,7 +1826,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Collection<*> -> {")
             indent()
@@ -1829,7 +1871,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is Collection<*> -> {")
             indent()
@@ -1877,7 +1919,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -1915,7 +1956,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -1962,7 +2002,6 @@ class FieldValidatorCodeGenerator {
                 }
 
             if (!property.type.isString()) {
-                addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
                 beginControlFlow("if ($valueRef is String)")
             }
 
@@ -2008,7 +2047,7 @@ class FieldValidatorCodeGenerator {
                     "value"
                 }
 
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when ($valueRef)")
             addStatement("is java.time.LocalDate -> {")
             indent()
@@ -2053,7 +2092,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Past - uses injectable Clock from context")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when (it)")
             addStatement("is java.time.LocalDate -> {")
             indent()
@@ -2095,7 +2134,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Today - uses injectable Clock from context")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when (it)")
             addStatement("is java.time.LocalDate -> {")
             indent()
@@ -2130,7 +2169,6 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IPv4 - Uses InetAddress validation (safe and reliable)")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidIPv4 for safe validation")
             addStatement("val isValid = %T.isValidIPv4(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -2151,7 +2189,6 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IPv6 - Uses InetAddress validation (no ReDoS risk)")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidIPv6 for safe validation")
             addStatement("val isValid = %T.isValidIPv6(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -2172,7 +2209,6 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @IP (IPv4 or IPv6) - Uses InetAddress validation (safe)")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             addStatement("// Use ValidationPatterns.isValidIP for safe validation")
             addStatement("val isValid = %T.isValidIP(it)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
@@ -2193,7 +2229,6 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MacAddress")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (it is String)")
             // SECURITY: Length check to prevent ReDoS on very long inputs
             addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
@@ -2223,7 +2258,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @Port")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when (it)")
             addStatement("is Int -> {")
             indent()
@@ -2258,7 +2293,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MimeType - NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()
@@ -2311,7 +2346,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @FileExtension - Pure string check, non-blocking")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()
@@ -2356,7 +2391,7 @@ class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MaxFileSize - NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
-            addStatement("@Suppress(%S, %S)", "USELESS_IS_CHECK", "USELESS_CAST")
+            
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()
@@ -2422,7 +2457,6 @@ class FieldValidatorCodeGenerator {
             addStatement("// @RequiredIf")
             addStatement("val otherValue = payload.%L", validator.field)
             beginControlFlow("if (otherValue?.toString() == %S)", validator.value)
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
@@ -2440,7 +2474,6 @@ class FieldValidatorCodeGenerator {
             addStatement("// @RequiredUnless")
             addStatement("val otherValue = payload.%L", validator.field)
             beginControlFlow("if (otherValue?.toString() != %S)", validator.value)
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
             add(addFailFastIfNeeded(property, fieldPath))
@@ -2459,7 +2492,6 @@ class FieldValidatorCodeGenerator {
             val fieldsCheck = validator.fields.joinToString(" || ") { "payload.$it != null" }
             val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
             beginControlFlow("if ($fieldsCheck)")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             addStatement("val requiredFields = arrayOf($fieldsArray)")
             add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
@@ -2479,7 +2511,6 @@ class FieldValidatorCodeGenerator {
             val fieldsCheck = validator.fields.joinToString(" && ") { "payload.$it == null" }
             val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
             beginControlFlow("if ($fieldsCheck)")
-            addStatement("@Suppress(%S)", "USELESS_IS_CHECK")
             beginControlFlow("if (value == null || (value is String && value.isBlank()))")
             addStatement("val requiredFields = arrayOf($fieldsArray)")
             add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
