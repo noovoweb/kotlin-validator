@@ -756,91 +756,49 @@ class FieldValidatorCodeGenerator {
         validator: ValidationValidatorInfo.IntegerValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @Integer")
-
-            val valueRef =
-                if (property.isNullable) {
-                    beginControlFlow("value?.let")
-                    "it"
-                } else {
-                    "value"
-                }
-
-            
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
-            addStatement("is Float -> {")
-            indent()
-            beginControlFlow("if ($valueRef %% 1 != 0f)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is Double -> {")
-            indent()
-            beginControlFlow("if ($valueRef %% 1 != 0.0)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
-
-            if (property.isNullable) {
-                endControlFlow()
-            }
-        }.build()
+    ): CodeBlock = generateAnyValidator(property, fieldPath, "@Integer") { valueRef ->
+        beginControlFlow("when ($valueRef)")
+        addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
+        addStatement("is Float -> if ($valueRef %% 1 != 0f) {")
+        indent()
+        add(addErrorMessage(validator))
+        add(addFailFastIfNeeded(property, fieldPath))
+        unindent()
+        addStatement("}")
+        addStatement("is Double -> if ($valueRef %% 1 != 0.0) {")
+        indent()
+        add(addErrorMessage(validator))
+        add(addFailFastIfNeeded(property, fieldPath))
+        unindent()
+        addStatement("}")
+        endControlFlow()
     }
 
     private fun generateDecimalValidator(
         validator: ValidationValidatorInfo.DecimalValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @Decimal")
-
-            val valueRef =
-                if (property.isNullable) {
-                    beginControlFlow("value?.let")
-                    "it"
-                } else {
-                    "value"
-                }
-
-            
-            beginControlFlow("when ($valueRef)")
-            addStatement("is Int, is Long, is Short, is Byte -> {")
-            indent()
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            unindent()
-            addStatement("}")
-            addStatement("is Float -> {")
-            indent()
-            beginControlFlow("if ($valueRef %% 1 == 0f)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is Double -> {")
-            indent()
-            beginControlFlow("if ($valueRef %% 1 == 0.0)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
-
-            if (property.isNullable) {
-                endControlFlow()
-            }
-        }.build()
+    ): CodeBlock = generateAnyValidator(property, fieldPath, "@Decimal") { valueRef ->
+        beginControlFlow("when ($valueRef)")
+        addStatement("is Int, is Long, is Short, is Byte -> {")
+        indent()
+        add(addErrorMessage(validator))
+        add(addFailFastIfNeeded(property, fieldPath))
+        unindent()
+        addStatement("}")
+        addStatement("is Float -> if ($valueRef %% 1 == 0f) {")
+        indent()
+        add(addErrorMessage(validator))
+        add(addFailFastIfNeeded(property, fieldPath))
+        unindent()
+        addStatement("}")
+        addStatement("is Double -> if ($valueRef %% 1 == 0.0) {")
+        indent()
+        add(addErrorMessage(validator))
+        add(addFailFastIfNeeded(property, fieldPath))
+        unindent()
+        addStatement("}")
+        endControlFlow()
     }
 
     private fun generateDivisibleByValidator(
@@ -880,35 +838,12 @@ class FieldValidatorCodeGenerator {
         validator: ValidationValidatorInfo.DecimalPlacesValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @DecimalPlaces - validates string representation has exact decimal places")
-
-            val valueRef =
-                if (property.isNullable) {
-                    beginControlFlow("value?.let")
-                    "it"
-                } else {
-                    "value"
-                }
-
-            
-            beginControlFlow("when ($valueRef)")
-            addStatement("is String -> {")
-            indent()
-            addStatement("val decimalIndex = $valueRef.indexOf('.')")
-            beginControlFlow("if (decimalIndex == -1 || $valueRef.length - decimalIndex - 1 != %L)", validator.value)
-            add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
-
-            if (property.isNullable) {
-                endControlFlow()
-            }
-        }.build()
+    ): CodeBlock = generateStringValidator(property, fieldPath, "@DecimalPlaces(${validator.value})") { valueRef ->
+        addStatement("val decimalIndex = $valueRef.indexOf('.')")
+        beginControlFlow("if (decimalIndex == -1 || $valueRef.length - decimalIndex - 1 != %L)", validator.value)
+        add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
     }
 
     // === Boolean Validator ===
@@ -917,50 +852,19 @@ class FieldValidatorCodeGenerator {
         validator: ValidationValidatorInfo.AcceptedValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @Accepted")
-
-            val valueRef =
-                if (property.isNullable) {
-                    beginControlFlow("value?.let { v ->")
-                    "v"
-                } else {
-                    "value"
-                }
-
-            // Generate type-specific check based on property type
-            when {
-                property.type.qualifiedName == "kotlin.Boolean" -> {
-                    addStatement("val isAccepted = $valueRef")
-                }
-                property.type.qualifiedName == "kotlin.String" -> {
-                    addStatement("val isAccepted = $valueRef.lowercase() in setOf(\"1\", \"yes\", \"true\", \"on\")")
-                }
-                property.type.qualifiedName == "kotlin.Int" -> {
-                    addStatement("val isAccepted = $valueRef == 1")
-                }
-                else -> {
-                    // For Any type, use when expression
-                    addStatement("val isAccepted = when ($valueRef) {")
-                    indent()
-                    addStatement("is Boolean -> $valueRef")
-                    addStatement("is String -> $valueRef.lowercase() in setOf(\"1\", \"yes\", \"true\", \"on\")")
-                    addStatement("is Int -> $valueRef == 1")
-                    addStatement("else -> false")
-                    unindent()
-                    addStatement("}")
-                }
-            }
-            beginControlFlow("if (!isAccepted)")
-            add(addErrorMessage(validator))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-
-            if (property.isNullable) {
-                endControlFlow()
-            }
-        }.build()
+    ): CodeBlock = generateAnyValidator(property, fieldPath, "@Accepted") { valueRef ->
+        addStatement("val isAccepted = when ($valueRef) {")
+        indent()
+        addStatement("is Boolean -> $valueRef as Boolean")
+        addStatement("is String -> ($valueRef as String).lowercase() in setOf(\"1\", \"yes\", \"true\", \"on\")")
+        addStatement("is Int -> ($valueRef as Int) == 1")
+        addStatement("else -> false")
+        unindent()
+        addStatement("}")
+        beginControlFlow("if (!isAccepted)")
+        add(addErrorMessage(validator))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
     }
 
     // === Collection Validators ===
@@ -1306,77 +1210,39 @@ class FieldValidatorCodeGenerator {
         fieldPath: String,
     ): CodeBlock {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
-        return CodeBlock.builder().apply {
-            addStatement("// @FileExtension - Pure string check, non-blocking")
-            beginControlFlow("value?.let")
-            
-            beginControlFlow("when (it)")
-            addStatement("is java.io.File -> {")
+        return generateAnyValidator(property, fieldPath, "@FileExtension") { valueRef ->
+            addStatement("val allowedExtensions = setOf($valuesString)")
+            addStatement("val extension = when ($valueRef) {")
             indent()
-            addStatement("val extension = it.extension")
-            addStatement("val allowedExtensions = arrayOf($valuesString)")
+            addStatement("is java.io.File -> $valueRef.extension")
+            addStatement("is java.nio.file.Path -> $valueRef.fileName.toString().substringAfterLast('.', \"\")")
+            addStatement("is String -> $valueRef.substringAfterLast('.', \"\")")
+            addStatement("else -> \"\"")
+            unindent()
+            addStatement("}")
             beginControlFlow("if (extension !in allowedExtensions)")
             add(addErrorMessage(validator, "arrayOf<Any>(allowedExtensions.joinToString(\", \"))"))
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is java.nio.file.Path -> {")
-            indent()
-            addStatement("val extension = it.fileName.toString().substringAfterLast('.', \"\")")
-            addStatement("val allowedExtensions = arrayOf($valuesString)")
-            beginControlFlow("if (extension !in allowedExtensions)")
-            add(addErrorMessage(validator, "arrayOf<Any>(allowedExtensions.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is String -> {")
-            indent()
-            addStatement("val extension = it.substringAfterLast('.', \"\")")
-            addStatement("val allowedExtensions = arrayOf($valuesString)")
-            beginControlFlow("if (extension !in allowedExtensions)")
-            add(addErrorMessage(validator, "arrayOf<Any>(allowedExtensions.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
-            endControlFlow()
-        }.build()
+        }
     }
 
     private fun generateMaxFileSizeValidator(
         validator: ValidationValidatorInfo.MaxFileSizeValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @MaxFileSize - NON-BLOCKING with IO dispatcher")
-            beginControlFlow("value?.let")
-            
-            beginControlFlow("when (it)")
-            addStatement("is java.io.File -> {")
-            indent()
-            addStatement("val fileSize = %M(%M.IO) { it.length() }", withContextIO, dispatchersIO)
-            beginControlFlow("if (fileSize > %LL)", validator.bytes)
-            add(addErrorMessage(validator, "arrayOf<Any>(${validator.bytes}L)"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is java.nio.file.Path -> {")
-            indent()
-            addStatement("val fileSize = %M(%M.IO) { java.nio.file.Files.size(it) }", withContextIO, dispatchersIO)
-            beginControlFlow("if (fileSize > %LL)", validator.bytes)
-            add(addErrorMessage(validator, "arrayOf<Any>(${validator.bytes}L)"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
-            endControlFlow()
-        }.build()
+    ): CodeBlock = generateAnyValidator(property, fieldPath, "@MaxFileSize - NON-BLOCKING with IO dispatcher") { valueRef ->
+        addStatement("val fileSize = when ($valueRef) {")
+        indent()
+        addStatement("is java.io.File -> %M(%M.IO) { $valueRef.length() }", withContextIO, dispatchersIO)
+        addStatement("is java.nio.file.Path -> %M(%M.IO) { java.nio.file.Files.size($valueRef) }", withContextIO, dispatchersIO)
+        addStatement("else -> 0L")
+        unindent()
+        addStatement("}")
+        beginControlFlow("if (fileSize > %LL)", validator.bytes)
+        add(addErrorMessage(validator, "arrayOf<Any>(${validator.bytes}L)"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
     }
 
     // === Conditional Validators ===
@@ -1385,103 +1251,91 @@ class FieldValidatorCodeGenerator {
         validator: ValidationValidatorInfo.SameValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @Same - Compare with another field")
-            addStatement("val otherValue = payload.%L", validator.field)
-            beginControlFlow("if (value != otherValue)")
-            add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\")"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-        }.build()
-    }
+    ): CodeBlock = CodeBlock.builder().apply {
+        addStatement("// @Same - Compare with another field")
+        addStatement("val otherValue = payload.%L", validator.field)
+        beginControlFlow("if (value != otherValue)")
+        add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\")"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
+    }.build()
 
     private fun generateDifferentValidator(
         validator: ValidationValidatorInfo.DifferentValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @Different - Must differ from another field")
-            addStatement("val otherValue = payload.%L", validator.field)
-            beginControlFlow("if (value == otherValue)")
-            add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\")"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-        }.build()
-    }
+    ): CodeBlock = CodeBlock.builder().apply {
+        addStatement("// @Different - Must differ from another field")
+        addStatement("val otherValue = payload.%L", validator.field)
+        beginControlFlow("if (value == otherValue)")
+        add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\")"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
+    }.build()
 
     private fun generateRequiredIfValidator(
         validator: ValidationValidatorInfo.RequiredIfValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @RequiredIf")
-            addStatement("val otherValue = payload.%L", validator.field)
-            beginControlFlow("if (otherValue?.toString() == %S)", validator.value)
-            beginControlFlow("if (value == null || (value is String && value.isBlank()))")
-            add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            endControlFlow()
-        }.build()
-    }
+    ): CodeBlock = CodeBlock.builder().apply {
+        addStatement("// @RequiredIf")
+        addStatement("val otherValue = payload.%L", validator.field)
+        beginControlFlow("if (otherValue?.toString() == %S)", validator.value)
+        beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+        add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
+        endControlFlow()
+    }.build()
 
     private fun generateRequiredUnlessValidator(
         validator: ValidationValidatorInfo.RequiredUnlessValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @RequiredUnless")
-            addStatement("val otherValue = payload.%L", validator.field)
-            beginControlFlow("if (otherValue?.toString() != %S)", validator.value)
-            beginControlFlow("if (value == null || (value is String && value.isBlank()))")
-            add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            endControlFlow()
-        }.build()
-    }
+    ): CodeBlock = CodeBlock.builder().apply {
+        addStatement("// @RequiredUnless")
+        addStatement("val otherValue = payload.%L", validator.field)
+        beginControlFlow("if (otherValue?.toString() != %S)", validator.value)
+        beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+        add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.field}\", \"${validator.value}\")"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
+        endControlFlow()
+    }.build()
 
     private fun generateRequiredWithValidator(
         validator: ValidationValidatorInfo.RequiredWithValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @RequiredWith")
-            val fieldsCheck = validator.fields.joinToString(" || ") { "payload.$it != null" }
-            val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
-            beginControlFlow("if ($fieldsCheck)")
-            beginControlFlow("if (value == null || (value is String && value.isBlank()))")
-            addStatement("val requiredFields = arrayOf($fieldsArray)")
-            add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            endControlFlow()
-        }.build()
-    }
+    ): CodeBlock = CodeBlock.builder().apply {
+        addStatement("// @RequiredWith")
+        val fieldsCheck = validator.fields.joinToString(" || ") { "payload.$it != null" }
+        val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
+        beginControlFlow("if ($fieldsCheck)")
+        beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+        addStatement("val requiredFields = arrayOf($fieldsArray)")
+        add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
+        endControlFlow()
+    }.build()
 
     private fun generateRequiredWithoutValidator(
         validator: ValidationValidatorInfo.RequiredWithoutValidator,
         property: PropertyInfo,
         fieldPath: String,
-    ): CodeBlock {
-        return CodeBlock.builder().apply {
-            addStatement("// @RequiredWithout")
-            val fieldsCheck = validator.fields.joinToString(" && ") { "payload.$it == null" }
-            val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
-            beginControlFlow("if ($fieldsCheck)")
-            beginControlFlow("if (value == null || (value is String && value.isBlank()))")
-            addStatement("val requiredFields = arrayOf($fieldsArray)")
-            add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            endControlFlow()
-        }.build()
-    }
+    ): CodeBlock = CodeBlock.builder().apply {
+        addStatement("// @RequiredWithout")
+        val fieldsCheck = validator.fields.joinToString(" && ") { "payload.$it == null" }
+        val fieldsArray = validator.fields.joinToString(", ") { "\"$it\"" }
+        beginControlFlow("if ($fieldsCheck)")
+        beginControlFlow("if (value == null || (value is String && value.isBlank()))")
+        addStatement("val requiredFields = arrayOf($fieldsArray)")
+        add(addErrorMessage(validator, "arrayOf<Any>(requiredFields.joinToString(\", \"))"))
+        add(addFailFastIfNeeded(property, fieldPath))
+        endControlFlow()
+        endControlFlow()
+    }.build()
 
     private fun generateCustomValidator(
         validator: ValidationValidatorInfo.CustomValidatorInfo,
