@@ -1,3 +1,4 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
@@ -28,7 +29,7 @@ subprojects {
         }
     }
 
-    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    configure<SpotlessExtension> {
         kotlin {
             target("src/**/*.kt")
             ktlint("1.0.1")

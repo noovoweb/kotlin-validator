@@ -14,8 +14,6 @@ ktlint_standard_filename = disabled
 [core/annotations/src/main/kotlin/com/noovoweb/validator/BooleanValidators.kt]
 ktlint_filename = disabled
 
-# Test files - disable magic number and unused parameter checks
+# Test files - disable wildcard imports check
 [{**/test/**/*.kt,**/integration-tests/src/main/**/*.kt}]
 ktlint_standard_no-wildcard-imports = disabled
-detekt.MagicNumber = false
-detekt.UnusedParameter = false
