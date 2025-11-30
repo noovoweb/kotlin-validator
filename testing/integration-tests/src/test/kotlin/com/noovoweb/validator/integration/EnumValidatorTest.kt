@@ -2,9 +2,9 @@ package com.noovoweb.validator.integration
 
 import com.noovoweb.validator.Enum
 import com.noovoweb.validator.Required
+import com.noovoweb.validator.Validated
 import com.noovoweb.validator.ValidationContext
 import com.noovoweb.validator.ValidationException
-import com.noovoweb.validator.Validated
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -140,14 +140,14 @@ class EnumValidatorTest {
         runTest {
             val validator = EnumTestDataValidator()
             val context = ValidationContext(locale = Locale.FRENCH)
-            
+
             val exception =
                 assertThrows<ValidationException> {
                     validator.validate(EnumTestData(status = "INVALID"), context)
                 }
-            
+
             val errorMessage = exception.errors["status"]?.firstOrNull() ?: ""
-            
+
             // Verify the message contains actual enum values, not {0} placeholder
             assertFalse(
                 errorMessage.contains("{0}"),
@@ -164,14 +164,14 @@ class EnumValidatorTest {
         runTest {
             val validator = EnumTestDataValidator()
             val context = ValidationContext(locale = Locale.ENGLISH)
-            
+
             val exception =
                 assertThrows<ValidationException> {
                     validator.validate(EnumTestData(status = "INVALID"), context)
                 }
-            
+
             val errorMessage = exception.errors["status"]?.firstOrNull() ?: ""
-            
+
             // Verify the message contains actual enum values, not {0} placeholder
             assertFalse(
                 errorMessage.contains("{0}"),

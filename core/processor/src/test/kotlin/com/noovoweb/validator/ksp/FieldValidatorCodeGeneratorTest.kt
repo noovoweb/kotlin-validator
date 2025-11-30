@@ -21,11 +21,11 @@ class FieldValidatorCodeGeneratorTest {
         return PropertyInfo(
             name = name,
             type =
-                TypeInfo(
-                    qualifiedName = "kotlin.$type".replace("?", ""),
-                    simpleName = type.replace("?", ""),
-                    isNullable = isNullable,
-                ),
+            TypeInfo(
+                qualifiedName = "kotlin.$type".replace("?", ""),
+                simpleName = type.replace("?", ""),
+                isNullable = isNullable,
+            ),
             validators = emptyList(),
             isNullable = isNullable,
             failFastPositions = emptyList(),

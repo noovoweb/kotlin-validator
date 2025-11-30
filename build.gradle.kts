@@ -1,11 +1,8 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
-import org.jlleitschuh.gradle.ktlint.KtlintExtension
-import org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask
 
 plugins {
     kotlin("jvm") version "2.0.21" apply false
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1" apply false
+    id("com.diffplug.spotless") version "6.25.0" apply false
     jacoco
 }
 
@@ -20,7 +17,7 @@ allprojects {
 
 subprojects {
     apply(plugin = "jacoco")
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    apply(plugin = "com.diffplug.spotless")
 
     // Enable explicit API mode for library modules (not testing/examples)
     plugins.withId("org.jetbrains.kotlin.jvm") {
@@ -31,18 +28,36 @@ subprojects {
         }
     }
 
-    configure<KtlintExtension> {
-        // Use editorConfigOverride instead of disabledRules (ktlint 0.48+)
-        filter {
-            exclude("**/build/**")
-            exclude("**/generated/**")
+    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+        kotlin {
+            target("src/**/*.kt")
+            ktlint("1.0.1")
+                .editorConfigOverride(
+                    mapOf(
+                        "ktlint_standard_no-wildcard-imports" to "disabled",
+                        "ktlint_standard_trailing-comma-on-call-site" to "disabled",
+                        "ktlint_standard_trailing-comma-on-declaration-site" to "disabled",
+                        "ktlint_standard_filename" to "disabled",
+                        "ktlint_standard_comment-wrapping" to "disabled",
+                        "ktlint_standard_value-argument-comment" to "disabled",
+                        "ktlint_standard_value-parameter-comment" to "disabled",
+                        "ktlint_standard_discouraged-comment-location" to "disabled",
+                    ),
+                )
+            trimTrailingWhitespace()
+            endWithNewline()
         }
-    }
 
-    // Disable specific ktlint rules via .editorconfig overrides
-    tasks.withType<BaseKtLintCheckTask>().configureEach {
-        exclude("**/build/**")
-        exclude("**/generated/**")
+        kotlinGradle {
+            target("*.gradle.kts")
+            ktlint("1.0.1")
+        }
+
+        format("misc") {
+            target("*.md", ".gitignore")
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
     }
 }
 

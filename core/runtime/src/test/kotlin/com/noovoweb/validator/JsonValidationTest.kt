@@ -101,11 +101,11 @@ class JsonValidationTest {
             "[",
             "]",
             "{{}",
-            "{key: value}",  // Unquoted key
-            "{'key': 'value'}",  // Single quotes
-            """{"key": }""",  // Missing value
-            """{"key"}""",  // Missing colon and value
-            """{: "value"}""",  // Missing key
+            "{key: value}", // Unquoted key
+            "{'key': 'value'}", // Single quotes
+            """{"key": }""", // Missing value
+            """{"key"}""", // Missing colon and value
+            """{: "value"}""", // Missing key
         )
 
         invalidJson.forEach { json ->

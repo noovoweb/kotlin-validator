@@ -63,7 +63,7 @@ internal object RegexSafety {
                     |
                     |Common dangerous patterns:
                     |  - (a+)+    nested quantifiers
-                    |  - (a*)*    nested quantifiers  
+                    |  - (a*)*    nested quantifiers
                     |  - (a|b)+   alternation with quantifiers
                     |  - .*.*     multiple .* patterns
                     |
@@ -88,7 +88,7 @@ internal object RegexSafety {
                     |
                     |Consider using @MaxLength annotation before @Pattern to limit input size.
                     |Recommended: @MaxLength(1000) @Pattern("$pattern")
-                    """.trimMargin()
+                """.trimMargin()
             }
         }
 
@@ -98,7 +98,7 @@ internal object RegexSafety {
                 |WARNING: Very long regex pattern (${pattern.length} characters).
                 |Long patterns can be slow to compile and execute.
                 |Consider simplifying or breaking into multiple validations.
-                """.trimMargin()
+            """.trimMargin()
         }
 
         return null

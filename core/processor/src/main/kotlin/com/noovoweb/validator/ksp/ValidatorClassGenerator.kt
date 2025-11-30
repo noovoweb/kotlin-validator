@@ -446,10 +446,10 @@ internal class ValidatorClassGenerator(
             .addKdoc(
                 """
                 Cached regex patterns for performance and ReDoS protection.
-                
+
                 Patterns are compiled once at class initialization instead of on every validation.
                 All patterns are validated at compile-time for safety.
-                
+
                 PERFORMANCE: Built-in patterns (Email, UUID, etc.) are cached here for 10-100x speedup.
                 """.trimIndent(),
             )

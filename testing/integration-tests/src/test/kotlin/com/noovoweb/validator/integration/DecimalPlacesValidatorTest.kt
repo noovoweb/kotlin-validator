@@ -1,9 +1,8 @@
 package com.noovoweb.validator.integration
 
 import com.noovoweb.validator.DecimalPlaces
-import com.noovoweb.validator.ValidationContext
-import com.noovoweb.validator.ValidationException
 import com.noovoweb.validator.Validated
+import com.noovoweb.validator.ValidationException
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

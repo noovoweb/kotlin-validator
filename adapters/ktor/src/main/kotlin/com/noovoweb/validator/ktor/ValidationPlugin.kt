@@ -1,7 +1,7 @@
 package com.noovoweb.validator.ktor
 
-import com.noovoweb.validator.MessageProvider
 import com.noovoweb.validator.DefaultMessageProvider
+import com.noovoweb.validator.MessageProvider
 import com.noovoweb.validator.ValidationContext
 import com.noovoweb.validator.ValidationException
 import io.ktor.http.*

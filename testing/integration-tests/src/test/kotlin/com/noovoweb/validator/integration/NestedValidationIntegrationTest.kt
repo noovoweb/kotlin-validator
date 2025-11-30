@@ -37,10 +37,10 @@ class NestedValidationIntegrationTest {
             val order =
                 Order(
                     items =
-                        listOf(
-                            OrderItem(name = "Item1"),
-                            OrderItem(name = "Item2"),
-                        ),
+                    listOf(
+                        OrderItem(name = "Item1"),
+                        OrderItem(name = "Item2"),
+                    ),
                 )
             validator.validate(order)
         }
@@ -68,10 +68,10 @@ class NestedValidationIntegrationTest {
             val order =
                 Order(
                     items =
-                        listOf(
-                            OrderItem(name = "ValidItem"),
-                            OrderItem(name = "AnotherValidItem"),
-                        ),
+                    listOf(
+                        OrderItem(name = "ValidItem"),
+                        OrderItem(name = "AnotherValidItem"),
+                    ),
                 )
             validator.validate(order)
         }

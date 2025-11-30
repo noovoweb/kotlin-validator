@@ -108,7 +108,7 @@ internal object ValidationPatterns {
                     trimmed.startsWith("\"") || trimmed == "true" ||
                     trimmed == "false" || trimmed == "null" ||
                     trimmed.firstOrNull()?.let { it.isDigit() || it == '-' } == true
-            )
+                )
         ) {
             return false
         }

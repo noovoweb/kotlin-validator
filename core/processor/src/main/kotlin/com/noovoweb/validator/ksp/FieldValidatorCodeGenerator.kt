@@ -173,15 +173,17 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// $comment")
-            add(wrapInNullabilityCheck(property) { valueRef ->
-                if (property.type.isString()) {
-                    validation(valueRef)
-                } else {
-                    beginControlFlow("if ($valueRef is String)")
-                    validation(valueRef)
-                    endControlFlow()
+            add(
+                wrapInNullabilityCheck(property) { valueRef ->
+                    if (property.type.isString()) {
+                        validation(valueRef)
+                    } else {
+                        beginControlFlow("if ($valueRef is String)")
+                        validation(valueRef)
+                        endControlFlow()
+                    }
                 }
-            })
+            )
         }.build()
     }
 
@@ -224,9 +226,11 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// $comment")
-            add(wrapInNullabilityCheck(property) { valueRef ->
-                validation(valueRef)
-            })
+            add(
+                wrapInNullabilityCheck(property) { valueRef ->
+                    validation(valueRef)
+                }
+            )
         }.build()
     }
 
@@ -241,19 +245,21 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// $comment")
-            add(wrapInNullabilityCheck(property) { valueRef ->
-                if (property.type.isNumeric()) {
-                    validation(valueRef)
-                } else {
-                    beginControlFlow("when ($valueRef)")
-                    addStatement("is Number -> {")
-                    indent()
-                    validation(valueRef)
-                    unindent()
-                    addStatement("}")
-                    endControlFlow()
+            add(
+                wrapInNullabilityCheck(property) { valueRef ->
+                    if (property.type.isNumeric()) {
+                        validation(valueRef)
+                    } else {
+                        beginControlFlow("when ($valueRef)")
+                        addStatement("is Number -> {")
+                        indent()
+                        validation(valueRef)
+                        unindent()
+                        addStatement("}")
+                        endControlFlow()
+                    }
                 }
-            })
+            )
         }.build()
     }
 
@@ -268,17 +274,19 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// $comment")
-            add(wrapInNullabilityCheck(property) { valueRef ->
-                addStatement("val size = when ($valueRef) {")
-                indent()
-                addStatement("is Collection<*> -> $valueRef.size")
-                addStatement("is Array<*> -> $valueRef.size")
-                addStatement("is Map<*, *> -> $valueRef.size")
-                addStatement("else -> 0")
-                unindent()
-                addStatement("}")
-                validation(valueRef)
-            })
+            add(
+                wrapInNullabilityCheck(property) { valueRef ->
+                    addStatement("val size = when ($valueRef) {")
+                    indent()
+                    addStatement("is Collection<*> -> $valueRef.size")
+                    addStatement("is Array<*> -> $valueRef.size")
+                    addStatement("is Map<*, *> -> $valueRef.size")
+                    addStatement("else -> 0")
+                    unindent()
+                    addStatement("}")
+                    validation(valueRef)
+                }
+            )
         }.build()
     }
 
@@ -632,7 +640,7 @@ internal class FieldValidatorCodeGenerator {
 
             addStatement("val digits = $valueRef.replace(\" \", \"\").replace(\"-\", \"\")")
             addStatement("var isValid = digits.all { c -> c.isDigit() } && digits.length >= 13 && digits.length <= 19")
-            
+
             // Luhn check
             beginControlFlow("if (isValid)")
             addStatement("var sum = 0")
@@ -654,7 +662,8 @@ internal class FieldValidatorCodeGenerator {
             // Card type validation
             beginControlFlow("if (isValid)")
             addStatement("val len = digits.length")
-            addStatement("""isValid = when {
+            addStatement(
+                """isValid = when {
                 digits.startsWith("4") && (len == 13 || len == 16) -> true
                 digits.take(2).toIntOrNull() in 51..55 && len == 16 -> true
                 digits.take(4).toIntOrNull() in 2221..2720 && len == 16 -> true
@@ -665,7 +674,8 @@ internal class FieldValidatorCodeGenerator {
                 (digits.startsWith("36") || digits.startsWith("38")) && len == 14 -> true
                 digits.take(4).toIntOrNull() in 3528..3589 && len == 16 -> true
                 else -> false
-            }""")
+            }"""
+            )
             endControlFlow()
 
             beginControlFlow("if (!isValid)")
@@ -1160,7 +1170,7 @@ internal class FieldValidatorCodeGenerator {
         return CodeBlock.builder().apply {
             addStatement("// @MimeType - NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
-            
+
             beginControlFlow("when (it)")
             addStatement("is java.io.File -> {")
             indent()

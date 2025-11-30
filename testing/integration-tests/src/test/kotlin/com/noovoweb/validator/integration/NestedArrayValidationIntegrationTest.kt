@@ -59,44 +59,44 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams =
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "Backend",
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "Backend",
-                                            members =
-                                                listOf(
-                                                    Member(name = "Alice", email = "invalid-email"), // Invalid email
-                                                    Member(name = "Bob", email = "bob@example.com"),
-                                                ),
-                                        ),
-                                        Team(
-                                            teamName = "UI", // Too short (min 3)
-                                            members =
-                                                listOf(
-                                                    Member(name = "Charlie", email = "charlie@example.com"),
-                                                ),
-                                        ),
+                                        Member(name = "Alice", email = "invalid-email"), // Invalid email
+                                        Member(name = "Bob", email = "bob@example.com"),
                                     ),
-                            ),
-                            Department(
-                                departmentName = "Sales",
-                                teams =
+                                ),
+                                Team(
+                                    teamName = "UI", // Too short (min 3)
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "North",
-                                            members =
-                                                listOf(
-                                                    Member(name = "David", email = "david@example.com"),
-                                                    Member(name = "Eve", email = "eve@example.com"),
-                                                    Member(name = "Frank123", email = "frank@example.com"), // Invalid name (not alpha)
-                                                ),
-                                        ),
+                                        Member(name = "Charlie", email = "charlie@example.com"),
                                     ),
+                                ),
                             ),
                         ),
+                        Department(
+                            departmentName = "Sales",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "North",
+                                    members =
+                                    listOf(
+                                        Member(name = "David", email = "david@example.com"),
+                                        Member(name = "Eve", email = "eve@example.com"),
+                                        Member(name = "Frank123", email = "frank@example.com"), // Invalid name (not alpha)
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 )
 
             val exception =
@@ -124,22 +124,22 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams =
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "Backend",
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "Backend",
-                                            members =
-                                                listOf(
-                                                    Member(name = "Alice", email = "alice@example.com"),
-                                                    Member(name = "Bob", email = "bob@example.com"),
-                                                ),
-                                        ),
+                                        Member(name = "Alice", email = "alice@example.com"),
+                                        Member(name = "Bob", email = "bob@example.com"),
                                     ),
+                                ),
                             ),
                         ),
+                    ),
                 )
 
             validator.validate(organization)
@@ -154,43 +154,43 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams =
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "AB", // Too short
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "AB", // Too short
-                                            members =
-                                                listOf(
-                                                    Member(name = "Alice123", email = "invalid"), // Both invalid
-                                                    Member(name = "Bob", email = "also-invalid"), // Invalid email
-                                                ),
-                                        ),
-                                        Team(
-                                            teamName = "XY", // Too short
-                                            members =
-                                                listOf(
-                                                    Member(name = "Charlie@", email = "charlie@example.com"), // Invalid name
-                                                ),
-                                        ),
+                                        Member(name = "Alice123", email = "invalid"), // Both invalid
+                                        Member(name = "Bob", email = "also-invalid"), // Invalid email
                                     ),
-                            ),
-                            Department(
-                                departmentName = "HR",
-                                teams =
+                                ),
+                                Team(
+                                    teamName = "XY", // Too short
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "Recruitment",
-                                            members =
-                                                listOf(
-                                                    Member(name = "David", email = "not-an-email"), // Invalid email
-                                                    Member(name = "123Eve", email = "eve@example.com"), // Invalid name
-                                                ),
-                                        ),
+                                        Member(name = "Charlie@", email = "charlie@example.com"), // Invalid name
                                     ),
+                                ),
                             ),
                         ),
+                        Department(
+                            departmentName = "HR",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "Recruitment",
+                                    members =
+                                    listOf(
+                                        Member(name = "David", email = "not-an-email"), // Invalid email
+                                        Member(name = "123Eve", email = "eve@example.com"), // Invalid name
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 )
 
             val exception =
@@ -221,12 +221,12 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams = emptyList(),
-                            ),
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams = emptyList(),
                         ),
+                    ),
                 )
 
             validator.validate(organization)
@@ -241,12 +241,12 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams = null,
-                            ),
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams = null,
                         ),
+                    ),
                 )
 
             validator.validate(organization)
@@ -261,24 +261,24 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams =
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "Backend",
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "Backend",
-                                            members =
-                                                listOf(
-                                                    Member(name = "Alice", email = "alice@example.com"),
-                                                    Member(name = "Bob", email = "bob@example.com"),
-                                                    Member(name = "Charlie123", email = "charlie@example.com"), // Index 2, invalid name
-                                                    Member(name = "David", email = "david@example.com"),
-                                                ),
-                                        ),
+                                        Member(name = "Alice", email = "alice@example.com"),
+                                        Member(name = "Bob", email = "bob@example.com"),
+                                        Member(name = "Charlie123", email = "charlie@example.com"), // Index 2, invalid name
+                                        Member(name = "David", email = "david@example.com"),
                                     ),
+                                ),
                             ),
                         ),
+                    ),
                 )
 
             val exception =
@@ -299,34 +299,34 @@ class NestedArrayValidationIntegrationTest {
                 Organization(
                     organizationName = "TechCorp",
                     departments =
-                        listOf(
-                            Department(
-                                departmentName = "Engineering",
-                                teams =
+                    listOf(
+                        Department(
+                            departmentName = "Engineering",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "Backend",
+                                    members =
                                     listOf(
-                                        Team(
-                                            teamName = "Backend",
-                                            members =
-                                                listOf(
-                                                    Member(name = "Alice", email = "alice@example.com"), // Valid
-                                                ),
-                                        ),
+                                        Member(name = "Alice", email = "alice@example.com"), // Valid
                                     ),
-                            ),
-                            Department(
-                                departmentName = "Sales",
-                                teams =
-                                    listOf(
-                                        Team(
-                                            teamName = "North",
-                                            members =
-                                                listOf(
-                                                    Member(name = "Bob", email = "invalid-email"), // Invalid at index [1]
-                                                ),
-                                        ),
-                                    ),
+                                ),
                             ),
                         ),
+                        Department(
+                            departmentName = "Sales",
+                            teams =
+                            listOf(
+                                Team(
+                                    teamName = "North",
+                                    members =
+                                    listOf(
+                                        Member(name = "Bob", email = "invalid-email"), // Invalid at index [1]
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
                 )
 
             val exception =

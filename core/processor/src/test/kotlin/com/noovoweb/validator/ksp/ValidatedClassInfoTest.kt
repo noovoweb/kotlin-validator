@@ -15,10 +15,10 @@ class ValidatedClassInfoTest {
                 name = "email",
                 type = TypeInfo("kotlin.String", "String", true),
                 validators =
-                    listOf(
-                        ValidationValidatorInfo.RequiredValidator(null),
-                        ValidationValidatorInfo.EmailValidator(null),
-                    ),
+                listOf(
+                    ValidationValidatorInfo.RequiredValidator(null),
+                    ValidationValidatorInfo.EmailValidator(null),
+                ),
                 isNullable = true,
                 failFastPositions = emptyList(),
                 nestedValidation = null,
@@ -44,10 +44,10 @@ class ValidatedClassInfoTest {
                 name = "age",
                 type = TypeInfo("kotlin.Int", "Int", true),
                 validators =
-                    listOf(
-                        ValidationValidatorInfo.RequiredValidator(null),
-                        ValidationValidatorInfo.MinValidator(18.0, null),
-                    ),
+                listOf(
+                    ValidationValidatorInfo.RequiredValidator(null),
+                    ValidationValidatorInfo.MinValidator(18.0, null),
+                ),
                 isNullable = true,
                 failFastPositions = emptyList(),
                 nestedValidation = null,
@@ -67,10 +67,10 @@ class ValidatedClassInfoTest {
                 name = "email",
                 type = TypeInfo("kotlin.String", "String", true),
                 validators =
-                    listOf(
-                        ValidationValidatorInfo.RequiredValidator(null),
-                        ValidationValidatorInfo.EmailValidator(null),
-                    ),
+                listOf(
+                    ValidationValidatorInfo.RequiredValidator(null),
+                    ValidationValidatorInfo.EmailValidator(null),
+                ),
                 isNullable = true,
                 failFastPositions = listOf(2),
                 nestedValidation = null,

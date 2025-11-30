@@ -32,12 +32,12 @@ data class UserRegistration(
     @Required
     @Email
     val email: String?,
-    
+
     @Required
     @MinLength(8)
     @CustomValidator("com.example.validators.PasswordValidator::validateStrength")
     val password: String?,
-    
+
     @Required
     @Min(18.0)
     val age: Int?
@@ -84,7 +84,7 @@ Validators can use suspend functions for async I/O operations:
 object UserValidators {
     suspend fun checkEmailUnique(email: String?, context: ValidationContext): Boolean {
         if (email == null) return true
-        
+
         // Async database check
         return withContext(Dispatchers.IO) {
             !userRepository.existsByEmail(email)
@@ -126,7 +126,7 @@ Override defaults by defining your own beans:
 ```kotlin
 @Configuration
 class ValidatorConfig {
-    
+
     @Bean
     fun validationContext(): ValidationContext {
         return ValidationContext(
@@ -135,7 +135,7 @@ class ValidatorConfig {
             dispatcher = Dispatchers.IO
         )
     }
-    
+
     @Bean
     fun userValidator(context: ValidationContext): Validator {
         return SpringValidatorAdapter(
@@ -202,13 +202,13 @@ fun main(args: Array<String>) {
 @RestController
 @RequestMapping("/api")
 class ApiController {
-    
+
     @PostMapping("/register")
     fun register(@Valid @RequestBody user: UserRegistration): User {
         // Validation with suspend functions happens here
         return userService.register(user)
     }
-    
+
     @GetMapping("/validate")
     fun validate(@Valid @ModelAttribute query: SearchQuery): List<Result> {
         // Works with @ModelAttribute, @RequestParam, etc.
