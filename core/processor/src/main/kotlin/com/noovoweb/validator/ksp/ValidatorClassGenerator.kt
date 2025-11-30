@@ -28,6 +28,11 @@ internal class ValidatorClassGenerator(
 
         val validatorClass =
             TypeSpec.classBuilder(validatorClassName)
+                .addAnnotation(
+                    AnnotationSpec.builder(Suppress::class)
+                        .addMember("%S, %S", "USELESS_IS_CHECK", "REDUNDANT_ELSE_IN_WHEN")
+                        .build(),
+                )
                 .addSuperinterface(
                     ClassName("com.noovoweb.validator", "GeneratedValidator")
                         .parameterizedBy(dataClassName),

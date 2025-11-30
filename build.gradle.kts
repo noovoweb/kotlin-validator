@@ -1,3 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
+import org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask
+
 plugins {
     kotlin("jvm") version "2.0.21" apply false
     id("io.gitlab.arturbosch.detekt") version "1.23.6"
@@ -21,13 +25,13 @@ subprojects {
     // Enable explicit API mode for library modules (not testing/examples)
     plugins.withId("org.jetbrains.kotlin.jvm") {
         if (name !in listOf("kotlin-validator-testing")) {
-            configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
+            configure<KotlinJvmProjectExtension> {
                 explicitApi()
             }
         }
     }
 
-    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    configure<KtlintExtension> {
         // Use editorConfigOverride instead of disabledRules (ktlint 0.48+)
         filter {
             exclude("**/build/**")
@@ -36,7 +40,7 @@ subprojects {
     }
 
     // Disable specific ktlint rules via .editorconfig overrides
-    tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask>().configureEach {
+    tasks.withType<BaseKtLintCheckTask>().configureEach {
         exclude("**/build/**")
         exclude("**/generated/**")
     }
