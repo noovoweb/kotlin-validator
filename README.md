@@ -14,9 +14,11 @@ data class CreateUserRequest(
     @Required @Min(18.0) @Max(120.0) val age: Int?,
 )
 
-// Generated for you at build time:
-suspend fun handle(req: CreateUserRequest) {
+// In a Spring WebFlux handler (with the kotlin-validator-spring-webflux adapter):
+suspend fun register(request: ServerRequest): ServerResponse {
+    val req = request.awaitBody<CreateUserRequest>()
     req.validate()  // throws ValidationException with structured errors
+    return ServerResponse.ok().bodyValueAndAwait(req)
 }
 ```
 
