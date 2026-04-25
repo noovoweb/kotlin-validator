@@ -502,7 +502,7 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Lowercase") { valueRef ->
-        beginControlFlow("if ($valueRef != $valueRef.lowercase())")
+        beginControlFlow("if ($valueRef != $valueRef.lowercase(java.util.Locale.ROOT))")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -513,7 +513,7 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Uppercase") { valueRef ->
-        beginControlFlow("if ($valueRef != $valueRef.uppercase())")
+        beginControlFlow("if ($valueRef != $valueRef.uppercase(java.util.Locale.ROOT))")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -973,10 +973,14 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Distinct") { valueRef ->
+        // Use HashSet-based duplicate detection with early exit instead of building a full
+        // distinct list, so malicious oversized inputs cannot trigger a quadratic slowdown.
         beginControlFlow("when ($valueRef)")
         addStatement("is List<*> -> {")
         indent()
-        beginControlFlow("if ($valueRef.size != $valueRef.distinct().size)")
+        addStatement("val seen = HashSet<Any?>($valueRef.size.coerceAtMost(1024))")
+        addStatement("val hasDuplicate = $valueRef.any { !seen.add(it) }")
+        beginControlFlow("if (hasDuplicate)")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -985,7 +989,9 @@ internal class FieldValidatorCodeGenerator {
         addStatement("is Array<*> -> {")
         indent()
         addStatement("val arr = $valueRef as Array<*>")
-        beginControlFlow("if (arr.size != arr.distinct().size)")
+        addStatement("val seen = HashSet<Any?>(arr.size.coerceAtMost(1024))")
+        addStatement("val hasDuplicate = arr.any { !seen.add(it) }")
+        beginControlFlow("if (hasDuplicate)")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()

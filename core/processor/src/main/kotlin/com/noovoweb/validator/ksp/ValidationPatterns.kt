@@ -18,7 +18,7 @@ internal object ValidationPatterns {
      * URL validation pattern.
      * Matches HTTP/HTTPS URLs.
      */
-    const val URL = "^https?://[^\\s/$.?#].[^\\s]*$"
+    const val URL = "^https?://[^\\s/$.?#].[^\\s]{0,2000}$"
 
     /**
      * UUID validation pattern.

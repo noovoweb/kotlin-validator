@@ -1,5 +1,7 @@
 package com.noovoweb.validator
 
+import java.util.Locale
+
 /**
  * Centralized repository of validation patterns and utilities.
  *
@@ -17,8 +19,12 @@ public object ValidationPatterns {
     /**
      * URL validation pattern.
      * Matches HTTP/HTTPS URLs.
+     *
+     * NOTE: This regex is exposed for convenience but [isValidURL] should be preferred
+     * for actual URL validation as it uses [java.net.URL] and avoids any ReDoS concerns.
+     * The trailing quantifier is bounded ({0,2000}) here to prevent catastrophic backtracking.
      */
-    public const val URL: String = "^https?://[^\\s/$.?#].[^\\s]*$"
+    public const val URL: String = "^https?://[^\\s/$.?#].[^\\s]{0,2000}$"
 
     /**
      * UUID validation pattern.
@@ -125,9 +131,17 @@ public object ValidationPatterns {
 
     /**
      * Simple JSON parser for validation.
+     *
+     * Tracks recursion depth to prevent stack overflow from maliciously deep payloads.
      */
     private class JsonParser(private val json: String) {
         private var index = 0
+        private var depth = 0
+
+        companion object {
+            /** Maximum nesting depth to prevent StackOverflowError on deeply nested JSON. */
+            private const val MAX_DEPTH = 100
+        }
 
         fun parse() {
             parseValue()
@@ -144,17 +158,25 @@ public object ValidationPatterns {
         }
 
         private fun parseValue() {
-            skipWhitespace()
-            if (index >= json.length) throw IllegalArgumentException("Unexpected end")
+            depth++
+            if (depth > MAX_DEPTH) {
+                throw IllegalArgumentException("JSON nesting too deep (max: $MAX_DEPTH)")
+            }
+            try {
+                skipWhitespace()
+                if (index >= json.length) throw IllegalArgumentException("Unexpected end")
 
-            when (json[index]) {
-                '{' -> parseObject()
-                '[' -> parseArray()
-                '"' -> parseString()
-                't', 'f' -> parseBoolean()
-                'n' -> parseNull()
-                '-', in '0'..'9' -> parseNumber()
-                else -> throw IllegalArgumentException("Invalid JSON value")
+                when (json[index]) {
+                    '{' -> parseObject()
+                    '[' -> parseArray()
+                    '"' -> parseString()
+                    't', 'f' -> parseBoolean()
+                    'n' -> parseNull()
+                    '-', in '0'..'9' -> parseNumber()
+                    else -> throw IllegalArgumentException("Invalid JSON value")
+                }
+            } finally {
+                depth--
             }
         }
 
@@ -333,7 +355,7 @@ public object ValidationPatterns {
      */
     public fun isAccepted(value: Any?): Boolean = when (value) {
         is Boolean -> value
-        is String -> value.lowercase() in setOf("1", "yes", "true", "on")
+        is String -> value.lowercase(Locale.ROOT) in setOf("1", "yes", "true", "on")
         is Int -> value == 1
         else -> false
     }

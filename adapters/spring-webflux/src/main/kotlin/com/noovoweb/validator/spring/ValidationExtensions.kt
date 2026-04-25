@@ -41,30 +41,31 @@ private val validatorCache = ConcurrentHashMap<String, GeneratedValidator<*>>()
 /**
  * Get validator instance for a payload using reflection.
  * Uses the payload's classloader to handle Spring DevTools restarts properly.
+ *
+ * Uses [ConcurrentHashMap.computeIfAbsent] to ensure the validator is constructed at most
+ * once per class name, even under concurrent first-request load.
  */
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
     val validatorClassName = getValidatorClassName(payload)
-    val cached = validatorCache[validatorClassName]
-    if (cached != null) {
-        return cached as GeneratedValidator<T>
-    }
-
     val payloadClassLoader = payload::class.java.classLoader
 
-    // Use payload's classloader to load validator (handles DevTools restarts)
-    try {
-        val validatorClass = Class.forName(validatorClassName, true, payloadClassLoader)
-        val instance = validatorClass.getDeclaredConstructor().newInstance() as GeneratedValidator<T>
-        validatorCache[validatorClassName] = instance
-        return instance
-    } catch (e: ClassNotFoundException) {
-        throw IllegalStateException(
-            "Validator not found: $validatorClassName. " +
-                "Make sure your class is annotated with @Validated and that at least one field has a validation annotation (e.g. @Required, @MinLength). " +
-                "If no fields are annotated, KSP will skip validator generation.",
-            e,
-        )
+    return try {
+        validatorCache.computeIfAbsent(validatorClassName) { name ->
+            val validatorClass = Class.forName(name, true, payloadClassLoader)
+            validatorClass.getDeclaredConstructor().newInstance() as GeneratedValidator<*>
+        } as GeneratedValidator<T>
+    } catch (e: Exception) {
+        val cause = (e as? RuntimeException)?.cause ?: e
+        if (cause is ClassNotFoundException) {
+            throw IllegalStateException(
+                "Validator not found: $validatorClassName. " +
+                    "Make sure your class is annotated with @Validated and that at least one field has a validation annotation (e.g. @Required, @MinLength). " +
+                    "If no fields are annotated, KSP will skip validator generation.",
+                cause,
+            )
+        }
+        throw e
     }
 }
 

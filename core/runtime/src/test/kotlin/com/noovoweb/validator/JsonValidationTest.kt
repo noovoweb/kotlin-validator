@@ -191,4 +191,21 @@ class JsonValidationTest {
             assertTrue(duration < 500, "Should complete quickly, took ${duration}ms")
         }
     }
+
+    @Test
+    fun `test security - rejects deeply nested JSON without stack overflow`() {
+        // 10,000 levels would blow the stack without depth tracking.
+        val deepObject = "{\"a\":".repeat(10_000) + "1" + "}".repeat(10_000)
+        val deepArray = "[".repeat(10_000) + "1" + "]".repeat(10_000)
+
+        assertFalse(ValidationPatterns.isValidJson(deepObject), "Deeply nested object should be rejected")
+        assertFalse(ValidationPatterns.isValidJson(deepArray), "Deeply nested array should be rejected")
+    }
+
+    @Test
+    fun `test moderately nested JSON within depth limit is accepted`() {
+        // 50 levels is well within the 100-level limit.
+        val nested = "{\"a\":".repeat(50) + "1" + "}".repeat(50)
+        assertTrue(ValidationPatterns.isValidJson(nested), "JSON within depth limit should be valid")
+    }
 }
