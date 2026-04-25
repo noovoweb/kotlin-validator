@@ -77,6 +77,8 @@ class ValidationExtensionsTest {
 
     @Test
     fun `receiveAndValidate should throw ValidationException with failing validator`() = testApplication {
+        var capturedException: ValidationException? = null
+
         application {
             install(ValidationPlugin)
             install(ContentNegotiation) {
@@ -86,19 +88,23 @@ class ValidationExtensionsTest {
 
         routing {
             post("/test") {
-                val request = call.receiveAndValidate(FailingValidator())
-                call.respond(HttpStatusCode.OK, "Name: ${request.name}")
+                try {
+                    val request = call.receiveAndValidate(FailingValidator())
+                    call.respond(HttpStatusCode.OK, "Name: ${request.name}")
+                } catch (e: ValidationException) {
+                    capturedException = e
+                    call.respond(HttpStatusCode.UnprocessableEntity)
+                }
             }
         }
 
-        val exception =
-            org.junit.jupiter.api.assertThrows<ValidationException> {
-                client.post("/test") {
-                    contentType(ContentType.Application.Json)
-                    setBody("""{"name":"John","age":30}""")
-                }
-            }
-        assertTrue(exception.errors.containsKey("name"))
+        client.post("/test") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"John","age":30}""")
+        }
+
+        assertTrue(capturedException != null, "Expected ValidationException to be thrown")
+        assertTrue(capturedException!!.errors.containsKey("name"))
     }
 
     @Test
@@ -177,6 +183,8 @@ class ValidationExtensionsTest {
 
     @Test
     fun `validate extension should throw ValidationException with failing validator`() = testApplication {
+        var capturedException: ValidationException? = null
+
         application {
             install(ValidationPlugin)
             install(ContentNegotiation) {
@@ -186,20 +194,24 @@ class ValidationExtensionsTest {
 
         routing {
             post("/test") {
-                val request = TestRequest("Jane", 25)
-                call.validate(request, FailingValidator())
-                call.respond(HttpStatusCode.OK, "OK")
+                try {
+                    val request = TestRequest("Jane", 25)
+                    call.validate(request, FailingValidator())
+                    call.respond(HttpStatusCode.OK, "OK")
+                } catch (e: ValidationException) {
+                    capturedException = e
+                    call.respond(HttpStatusCode.UnprocessableEntity)
+                }
             }
         }
 
-        val exception =
-            org.junit.jupiter.api.assertThrows<ValidationException> {
-                client.post("/test") {
-                    contentType(ContentType.Application.Json)
-                    setBody("""{"name":"Jane","age":25}""")
-                }
-            }
-        assertTrue(exception.errors.containsKey("name"))
+        client.post("/test") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"name":"Jane","age":25}""")
+        }
+
+        assertTrue(capturedException != null, "Expected ValidationException to be thrown")
+        assertTrue(capturedException!!.errors.containsKey("name"))
     }
 
     @Test
