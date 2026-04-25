@@ -1,0 +1,38 @@
+# Gradle
+.gradle/
+build/
+out/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# MacOS
+.DS_Store
+
+# Generated files
+generated/
+**/build/generated/
+
+# Logs
+*.log
+
+# KSP generated sources
+**/generated/ksp/
+
+# Credentials and sensitive files
+gradle.properties
+local.properties
+secrets.properties
+
+# Publishing
+*.asc
+*.gpg
