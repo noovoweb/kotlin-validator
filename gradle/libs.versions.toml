@@ -4,12 +4,12 @@ ksp = "2.3.7"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.11.0"
 spring-boot = "4.0.6"
-ktor = "2.3.12"
+ktor = "3.4.3"
 kotlinpoet = "1.18.1"
 junit-jupiter = "6.0.3"
 mockk = "1.13.9"
 compile-testing = "1.6.0"
-spotless = "8.2.1"
+spotless = "8.3.0"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
