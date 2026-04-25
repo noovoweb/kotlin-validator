@@ -306,14 +306,13 @@ internal class FieldValidatorCodeGenerator {
         addStatement("// $comment")
         add(
             wrapInNullabilityCheck(property) { valueRef ->
-                addStatement("val size = when ($valueRef) {")
-                indent()
-                addStatement("is Collection<*> -> $valueRef.size")
-                addStatement("is Array<*> -> $valueRef.size")
-                addStatement("is Map<*, *> -> $valueRef.size")
-                addStatement("else -> 0")
-                unindent()
-                addStatement("}")
+                // Emit only the size accessor matching the static property type — Collection,
+                // Array, Map, and String all have `.size` so a single statement suffices.
+                val sizeExpr = when {
+                    property.type.isString() -> "$valueRef.length"
+                    else -> "$valueRef.size"
+                }
+                addStatement("val size = $sizeExpr")
                 validation(valueRef)
             }
         )
@@ -548,7 +547,8 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@OneOf") { valueRef ->
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         addStatement("val allowedValues = setOf($valuesString)")
-        beginControlFlow("if ($valueRef.toString() !in allowedValues)")
+        val checkExpr = if (property.type.isString()) valueRef else "$valueRef.toString()"
+        beginControlFlow("if ($checkExpr !in allowedValues)")
         add(addErrorMessage(validator, "arrayOf<Any>(allowedValues.joinToString(\", \"))"))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -561,7 +561,8 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@NotOneOf") { valueRef ->
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         addStatement("val forbiddenValues = setOf($valuesString)")
-        beginControlFlow("if ($valueRef.toString() in forbiddenValues)")
+        val checkExpr = if (property.type.isString()) valueRef else "$valueRef.toString()"
+        beginControlFlow("if ($checkExpr in forbiddenValues)")
         add(addErrorMessage(validator, "arrayOf<Any>(forbiddenValues.joinToString(\", \"))"))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -574,7 +575,8 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Enum") { valueRef ->
         addStatement("val enumEntries = %L.entries", validator.enumClass)
         addStatement("val allowedValues = enumEntries.map { e -> e.name }")
-        beginControlFlow("if ($valueRef.toString() !in allowedValues)")
+        val checkExpr = if (property.type.isString()) valueRef else "$valueRef.toString()"
+        beginControlFlow("if ($checkExpr !in allowedValues)")
         add(addErrorMessage(validator, "arrayOf<Any>(allowedValues.joinToString(\", \"))"))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -792,21 +794,45 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Integer") { valueRef ->
-        beginControlFlow("when ($valueRef)")
-        addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
-        addStatement("is Float -> if ($valueRef %% 1 != 0f) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is Double -> if ($valueRef %% 1 != 0.0) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        endControlFlow()
+        // Emit only the branch matching the static property type — avoids dead `is X` branches
+        // that become compile errors in Kotlin 2.4 (KTLC-365).
+        when (property.type.qualifiedName) {
+            "kotlin.Int", "kotlin.Long", "kotlin.Short", "kotlin.Byte" -> {
+                addStatement("// Always valid (statically integer type)")
+            }
+
+            "kotlin.Float" -> {
+                beginControlFlow("if ($valueRef %% 1 != 0f)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            }
+
+            "kotlin.Double" -> {
+                beginControlFlow("if ($valueRef %% 1 != 0.0)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            }
+
+            else -> {
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Int, is Long, is Short, is Byte -> { /* Always valid */ }")
+                addStatement("is Float -> if ($valueRef %% 1 != 0f) {")
+                indent()
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                unindent()
+                addStatement("}")
+                addStatement("is Double -> if ($valueRef %% 1 != 0.0) {")
+                indent()
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
+        }
     }
 
     private fun generateDecimalValidator(
@@ -814,26 +840,49 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Decimal") { valueRef ->
-        beginControlFlow("when ($valueRef)")
-        addStatement("is Int, is Long, is Short, is Byte -> {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is Float -> if ($valueRef %% 1 == 0f) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is Double -> if ($valueRef %% 1 == 0.0) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        endControlFlow()
+        when (property.type.qualifiedName) {
+            "kotlin.Int", "kotlin.Long", "kotlin.Short", "kotlin.Byte" -> {
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+            }
+
+            "kotlin.Float" -> {
+                beginControlFlow("if ($valueRef %% 1 == 0f)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            }
+
+            "kotlin.Double" -> {
+                beginControlFlow("if ($valueRef %% 1 == 0.0)")
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                endControlFlow()
+            }
+
+            else -> {
+                beginControlFlow("when ($valueRef)")
+                addStatement("is Int, is Long, is Short, is Byte -> {")
+                indent()
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                unindent()
+                addStatement("}")
+                addStatement("is Float -> if ($valueRef %% 1 == 0f) {")
+                indent()
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                unindent()
+                addStatement("}")
+                addStatement("is Double -> if ($valueRef %% 1 == 0.0) {")
+                indent()
+                add(addErrorMessage(validator))
+                add(addFailFastIfNeeded(property, fieldPath))
+                unindent()
+                addStatement("}")
+                endControlFlow()
+            }
+        }
     }
 
     private fun generateDivisibleByValidator(
@@ -888,14 +937,25 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Accepted") { valueRef ->
-        addStatement("val isAccepted = when ($valueRef) {")
-        indent()
-        addStatement("is Boolean -> $valueRef as Boolean")
-        addStatement("is String -> ($valueRef as String).lowercase() in setOf(\"1\", \"yes\", \"true\", \"on\")")
-        addStatement("is Int -> ($valueRef as Int) == 1")
-        addStatement("else -> false")
-        unindent()
-        addStatement("}")
+        // Emit only the branch matching the static property type.
+        val isAcceptedExpr = when (property.type.qualifiedName) {
+            "kotlin.Boolean" -> valueRef
+            "kotlin.String" -> "$valueRef.lowercase() in setOf(\"1\", \"yes\", \"true\", \"on\")"
+            "kotlin.Int" -> "$valueRef == 1"
+            else -> null
+        }
+        if (isAcceptedExpr != null) {
+            addStatement("val isAccepted = $isAcceptedExpr")
+        } else {
+            addStatement("val isAccepted = when ($valueRef) {")
+            indent()
+            addStatement("is Boolean -> $valueRef")
+            addStatement("is String -> $valueRef.lowercase() in setOf(\"1\", \"yes\", \"true\", \"on\")")
+            addStatement("is Int -> $valueRef == 1")
+            addStatement("else -> false")
+            unindent()
+            addStatement("}")
+        }
         beginControlFlow("if (!isAccepted)")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
@@ -942,15 +1002,8 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@NotEmpty") { valueRef ->
-        addStatement("val isEmpty = when ($valueRef) {")
-        indent()
-        addStatement("is Collection<*> -> $valueRef.isEmpty()")
-        addStatement("is Array<*> -> $valueRef.isEmpty()")
-        addStatement("is Map<*, *> -> $valueRef.isEmpty()")
-        addStatement("is String -> $valueRef.isEmpty()")
-        addStatement("else -> true")
-        unindent()
-        addStatement("}")
+        // Collection, Array, Map, and String all have `.isEmpty()` — call directly.
+        addStatement("val isEmpty = $valueRef.isEmpty()")
         beginControlFlow("if (isEmpty)")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
@@ -964,28 +1017,12 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Distinct") { valueRef ->
         // Use HashSet-based duplicate detection with early exit instead of building a full
         // distinct list, so malicious oversized inputs cannot trigger a quadratic slowdown.
-        beginControlFlow("when ($valueRef)")
-        addStatement("is List<*> -> {")
-        indent()
+        // `size` and `any { ... }` work on both List and Array so we can iterate directly.
         addStatement("val seen = HashSet<Any?>($valueRef.size.coerceAtMost(1024))")
         addStatement("val hasDuplicate = $valueRef.any { !seen.add(it) }")
         beginControlFlow("if (hasDuplicate)")
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
-        endControlFlow()
-        unindent()
-        addStatement("}")
-        addStatement("is Array<*> -> {")
-        indent()
-        addStatement("val arr = $valueRef as Array<*>")
-        addStatement("val seen = HashSet<Any?>(arr.size.coerceAtMost(1024))")
-        addStatement("val hasDuplicate = arr.any { !seen.add(it) }")
-        beginControlFlow("if (hasDuplicate)")
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        endControlFlow()
-        unindent()
-        addStatement("}")
         endControlFlow()
     }
 
@@ -994,13 +1031,11 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@ContainsValue") { valueRef ->
-        addStatement("val stringValues = when ($valueRef) {")
-        indent()
-        addStatement("is Collection<*> -> $valueRef.map { it.toString() }")
-        addStatement("is Array<*> -> ($valueRef as Array<*>).map { it.toString() }")
-        addStatement("else -> emptyList()")
-        unindent()
-        addStatement("}")
+        // Iterate directly — Collection and Array both have a `map` extension. Avoids dead
+        // `is Array<*>` / `is Collection<*>` branches that fail to compile in Kotlin 2.4.
+        val elementType = property.type.typeArguments.firstOrNull()
+        val mapped = if (elementType?.isString() == true) valueRef else "$valueRef.map { it.toString() }"
+        addStatement("val stringValues = $mapped")
         beginControlFlow("if (%S !in stringValues)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
         add(addFailFastIfNeeded(property, fieldPath))
@@ -1012,13 +1047,9 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@NotContains") { valueRef ->
-        addStatement("val stringValues = when ($valueRef) {")
-        indent()
-        addStatement("is Collection<*> -> $valueRef.map { it.toString() }")
-        addStatement("is Array<*> -> ($valueRef as Array<*>).map { it.toString() }")
-        addStatement("else -> emptyList()")
-        unindent()
-        addStatement("}")
+        val elementType = property.type.typeArguments.firstOrNull()
+        val mapped = if (elementType?.isString() == true) valueRef else "$valueRef.map { it.toString() }"
+        addStatement("val stringValues = $mapped")
         beginControlFlow("if (%S in stringValues)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
         add(addFailFastIfNeeded(property, fieldPath))
@@ -1057,26 +1088,39 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Future - uses injectable Clock from context") { valueRef ->
-        beginControlFlow("when ($valueRef)")
-        addStatement("is java.time.LocalDate -> if (!$valueRef.isAfter(java.time.LocalDate.now(context.clock))) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is java.time.LocalDateTime -> if (!$valueRef.isAfter(java.time.LocalDateTime.now(context.clock))) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is java.time.Instant -> if (!$valueRef.isAfter(java.time.Instant.now(context.clock))) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        endControlFlow()
+        val condition = when (property.type.qualifiedName) {
+            "java.time.LocalDate" -> "!$valueRef.isAfter(java.time.LocalDate.now(context.clock))"
+            "java.time.LocalDateTime" -> "!$valueRef.isAfter(java.time.LocalDateTime.now(context.clock))"
+            "java.time.Instant" -> "!$valueRef.isAfter(java.time.Instant.now(context.clock))"
+            else -> null
+        }
+        if (condition != null) {
+            beginControlFlow("if ($condition)")
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            endControlFlow()
+        } else {
+            beginControlFlow("when ($valueRef)")
+            addStatement("is java.time.LocalDate -> if (!$valueRef.isAfter(java.time.LocalDate.now(context.clock))) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            addStatement("is java.time.LocalDateTime -> if (!$valueRef.isAfter(java.time.LocalDateTime.now(context.clock))) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            addStatement("is java.time.Instant -> if (!$valueRef.isAfter(java.time.Instant.now(context.clock))) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            endControlFlow()
+        }
     }
 
     private fun generatePastValidator(
@@ -1084,26 +1128,39 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Past - uses injectable Clock from context") { valueRef ->
-        beginControlFlow("when ($valueRef)")
-        addStatement("is java.time.LocalDate -> if (!$valueRef.isBefore(java.time.LocalDate.now(context.clock))) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is java.time.LocalDateTime -> if (!$valueRef.isBefore(java.time.LocalDateTime.now(context.clock))) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is java.time.Instant -> if (!$valueRef.isBefore(java.time.Instant.now(context.clock))) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        endControlFlow()
+        val condition = when (property.type.qualifiedName) {
+            "java.time.LocalDate" -> "!$valueRef.isBefore(java.time.LocalDate.now(context.clock))"
+            "java.time.LocalDateTime" -> "!$valueRef.isBefore(java.time.LocalDateTime.now(context.clock))"
+            "java.time.Instant" -> "!$valueRef.isBefore(java.time.Instant.now(context.clock))"
+            else -> null
+        }
+        if (condition != null) {
+            beginControlFlow("if ($condition)")
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            endControlFlow()
+        } else {
+            beginControlFlow("when ($valueRef)")
+            addStatement("is java.time.LocalDate -> if (!$valueRef.isBefore(java.time.LocalDate.now(context.clock))) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            addStatement("is java.time.LocalDateTime -> if (!$valueRef.isBefore(java.time.LocalDateTime.now(context.clock))) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            addStatement("is java.time.Instant -> if (!$valueRef.isBefore(java.time.Instant.now(context.clock))) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            endControlFlow()
+        }
     }
 
     private fun generateTodayValidator(
@@ -1112,20 +1169,32 @@ internal class FieldValidatorCodeGenerator {
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Today - uses injectable Clock from context") { valueRef ->
         addStatement("val today = java.time.LocalDate.now(context.clock)")
-        beginControlFlow("when ($valueRef)")
-        addStatement("is java.time.LocalDate -> if (!$valueRef.isEqual(today)) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        addStatement("is java.time.LocalDateTime -> if (!$valueRef.toLocalDate().isEqual(today)) {")
-        indent()
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        unindent()
-        addStatement("}")
-        endControlFlow()
+        val condition = when (property.type.qualifiedName) {
+            "java.time.LocalDate" -> "!$valueRef.isEqual(today)"
+            "java.time.LocalDateTime" -> "!$valueRef.toLocalDate().isEqual(today)"
+            else -> null
+        }
+        if (condition != null) {
+            beginControlFlow("if ($condition)")
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            endControlFlow()
+        } else {
+            beginControlFlow("when ($valueRef)")
+            addStatement("is java.time.LocalDate -> if (!$valueRef.isEqual(today)) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            addStatement("is java.time.LocalDateTime -> if (!$valueRef.toLocalDate().isEqual(today)) {")
+            indent()
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            unindent()
+            addStatement("}")
+            endControlFlow()
+        }
     }
 
     // === Network Validators ===
@@ -1174,14 +1243,27 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Port") { valueRef ->
-        addStatement("val port = when ($valueRef) {")
-        indent()
-        addStatement("is Int -> $valueRef")
-        addStatement("is String -> $valueRef.toIntOrNull()")
-        addStatement("else -> null")
-        unindent()
-        addStatement("}")
-        beginControlFlow("if (port == null || port !in 1..65535)")
+        when (property.type.qualifiedName) {
+            "kotlin.Int" -> {
+                beginControlFlow("if ($valueRef !in 1..65535)")
+            }
+
+            "kotlin.String" -> {
+                addStatement("val port = $valueRef.toIntOrNull()")
+                beginControlFlow("if (port == null || port !in 1..65535)")
+            }
+
+            else -> {
+                addStatement("val port = when ($valueRef) {")
+                indent()
+                addStatement("is Int -> $valueRef")
+                addStatement("is String -> $valueRef.toIntOrNull()")
+                addStatement("else -> null")
+                unindent()
+                addStatement("}")
+                beginControlFlow("if (port == null || port !in 1..65535)")
+            }
+        }
         add(addErrorMessage(validator))
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -1199,45 +1281,84 @@ internal class FieldValidatorCodeGenerator {
             addStatement("// @MimeType - NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
 
-            beginControlFlow("when (it)")
-            addStatement("is java.io.File -> {")
-            indent()
-            addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
-            indent()
-            addStatement("java.nio.file.Files.probeContentType(it.toPath()) ?: \"application/octet-stream\"")
-            unindent()
-            addStatement("}")
-            addStatement("val allowedTypes = arrayOf($valuesString)")
-            beginControlFlow("if (mimeType !in allowedTypes)")
-            add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is java.nio.file.Path -> {")
-            indent()
-            addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
-            indent()
-            addStatement("java.nio.file.Files.probeContentType(it) ?: \"application/octet-stream\"")
-            unindent()
-            addStatement("}")
-            addStatement("val allowedTypes = arrayOf($valuesString)")
-            beginControlFlow("if (mimeType !in allowedTypes)")
-            add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            addStatement("is String -> {")
-            indent()
-            addStatement("val allowedTypes = arrayOf($valuesString)")
-            beginControlFlow("if (it !in allowedTypes)")
-            add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
-            add(addFailFastIfNeeded(property, fieldPath))
-            endControlFlow()
-            unindent()
-            addStatement("}")
-            endControlFlow()
+            // Emit only the branch matching the static property type.
+            when (property.type.qualifiedName) {
+                "java.io.File" -> {
+                    addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
+                    indent()
+                    addStatement("java.nio.file.Files.probeContentType(it.toPath()) ?: \"application/octet-stream\"")
+                    unindent()
+                    addStatement("}")
+                    addStatement("val allowedTypes = arrayOf($valuesString)")
+                    beginControlFlow("if (mimeType !in allowedTypes)")
+                    add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                }
+
+                "java.nio.file.Path" -> {
+                    addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
+                    indent()
+                    addStatement("java.nio.file.Files.probeContentType(it) ?: \"application/octet-stream\"")
+                    unindent()
+                    addStatement("}")
+                    addStatement("val allowedTypes = arrayOf($valuesString)")
+                    beginControlFlow("if (mimeType !in allowedTypes)")
+                    add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                }
+
+                "kotlin.String" -> {
+                    addStatement("val allowedTypes = arrayOf($valuesString)")
+                    beginControlFlow("if (it !in allowedTypes)")
+                    add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                }
+
+                else -> {
+                    beginControlFlow("when (it)")
+                    addStatement("is java.io.File -> {")
+                    indent()
+                    addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
+                    indent()
+                    addStatement("java.nio.file.Files.probeContentType(it.toPath()) ?: \"application/octet-stream\"")
+                    unindent()
+                    addStatement("}")
+                    addStatement("val allowedTypes = arrayOf($valuesString)")
+                    beginControlFlow("if (mimeType !in allowedTypes)")
+                    add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                    unindent()
+                    addStatement("}")
+                    addStatement("is java.nio.file.Path -> {")
+                    indent()
+                    addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
+                    indent()
+                    addStatement("java.nio.file.Files.probeContentType(it) ?: \"application/octet-stream\"")
+                    unindent()
+                    addStatement("}")
+                    addStatement("val allowedTypes = arrayOf($valuesString)")
+                    beginControlFlow("if (mimeType !in allowedTypes)")
+                    add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                    unindent()
+                    addStatement("}")
+                    addStatement("is String -> {")
+                    indent()
+                    addStatement("val allowedTypes = arrayOf($valuesString)")
+                    beginControlFlow("if (it !in allowedTypes)")
+                    add(addErrorMessage(validator, "arrayOf<Any>(allowedTypes.joinToString(\", \"))"))
+                    add(addFailFastIfNeeded(property, fieldPath))
+                    endControlFlow()
+                    unindent()
+                    addStatement("}")
+                    endControlFlow()
+                }
+            }
             endControlFlow()
         }.build()
     }
@@ -1250,14 +1371,24 @@ internal class FieldValidatorCodeGenerator {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         return generateAnyValidator(property, fieldPath, "@FileExtension") { valueRef ->
             addStatement("val allowedExtensions = setOf($valuesString)")
-            addStatement("val extension = when ($valueRef) {")
-            indent()
-            addStatement("is java.io.File -> $valueRef.extension")
-            addStatement("is java.nio.file.Path -> $valueRef.fileName.toString().substringAfterLast('.', \"\")")
-            addStatement("is String -> $valueRef.substringAfterLast('.', \"\")")
-            addStatement("else -> \"\"")
-            unindent()
-            addStatement("}")
+            val extensionExpr = when (property.type.qualifiedName) {
+                "java.io.File" -> "$valueRef.extension"
+                "java.nio.file.Path" -> "$valueRef.fileName.toString().substringAfterLast('.', \"\")"
+                "kotlin.String" -> "$valueRef.substringAfterLast('.', \"\")"
+                else -> null
+            }
+            if (extensionExpr != null) {
+                addStatement("val extension = $extensionExpr")
+            } else {
+                addStatement("val extension = when ($valueRef) {")
+                indent()
+                addStatement("is java.io.File -> $valueRef.extension")
+                addStatement("is java.nio.file.Path -> $valueRef.fileName.toString().substringAfterLast('.', \"\")")
+                addStatement("is String -> $valueRef.substringAfterLast('.', \"\")")
+                addStatement("else -> \"\"")
+                unindent()
+                addStatement("}")
+            }
             beginControlFlow("if (extension !in allowedExtensions)")
             add(addErrorMessage(validator, "arrayOf<Any>(allowedExtensions.joinToString(\", \"))"))
             add(addFailFastIfNeeded(property, fieldPath))
@@ -1270,13 +1401,25 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@MaxFileSize - NON-BLOCKING with IO dispatcher") { valueRef ->
-        addStatement("val fileSize = when ($valueRef) {")
-        indent()
-        addStatement("is java.io.File -> %M(%M.IO) { $valueRef.length() }", withContextIO, dispatchersIO)
-        addStatement("is java.nio.file.Path -> %M(%M.IO) { java.nio.file.Files.size($valueRef) }", withContextIO, dispatchersIO)
-        addStatement("else -> 0L")
-        unindent()
-        addStatement("}")
+        when (property.type.qualifiedName) {
+            "java.io.File" -> {
+                addStatement("val fileSize = %M(%M.IO) { $valueRef.length() }", withContextIO, dispatchersIO)
+            }
+
+            "java.nio.file.Path" -> {
+                addStatement("val fileSize = %M(%M.IO) { java.nio.file.Files.size($valueRef) }", withContextIO, dispatchersIO)
+            }
+
+            else -> {
+                addStatement("val fileSize = when ($valueRef) {")
+                indent()
+                addStatement("is java.io.File -> %M(%M.IO) { $valueRef.length() }", withContextIO, dispatchersIO)
+                addStatement("is java.nio.file.Path -> %M(%M.IO) { java.nio.file.Files.size($valueRef) }", withContextIO, dispatchersIO)
+                addStatement("else -> 0L")
+                unindent()
+                addStatement("}")
+            }
+        }
         beginControlFlow("if (fileSize > %LL)", validator.bytes)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.bytes}L)"))
         add(addFailFastIfNeeded(property, fieldPath))

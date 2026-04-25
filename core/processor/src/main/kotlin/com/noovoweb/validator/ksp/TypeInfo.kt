@@ -35,6 +35,21 @@ internal data class TypeInfo(
     internal fun isCollection(): Boolean = qualifiedName in COLLECTION_TYPES
 
     /**
+     * Check if this type is a Kotlin Array.
+     */
+    internal fun isArray(): Boolean = qualifiedName == "kotlin.Array"
+
+    /**
+     * Check if this type is a Map.
+     */
+    internal fun isMap(): Boolean = qualifiedName in MAP_TYPES
+
+    /**
+     * Check if this type is a List.
+     */
+    internal fun isList(): Boolean = qualifiedName == "kotlin.collections.List"
+
+    /**
      * Check if this type is a File type.
      */
     internal fun isFile(): Boolean = qualifiedName in FILE_TYPES
@@ -76,6 +91,14 @@ internal data class TypeInfo(
                 "java.time.Instant",
                 "java.time.ZonedDateTime",
                 "java.time.OffsetDateTime",
+            )
+
+        private val MAP_TYPES =
+            setOf(
+                "kotlin.collections.Map",
+                "kotlin.collections.MutableMap",
+                "kotlin.collections.HashMap",
+                "kotlin.collections.LinkedHashMap",
             )
     }
 }
