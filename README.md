@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.1-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
 
-A high-performance, type-safe validation library for Kotlin. Validators are generated at compile time via KSP — no reflection at runtime, no annotation scanning, no surprises.
+A high-performance, type-safe, coroutine-native validation library for Kotlin. Validators are generated at compile time via KSP — no reflection at runtime, no annotation scanning, no surprises. Every validator is a `suspend` function: fields validate in parallel, I/O-bound custom validators run without blocking threads, and the whole thing integrates naturally into any coroutine-based stack (Spring WebFlux, Ktor, or plain `runTest`).
 
 ```kotlin
 @Validated
@@ -27,6 +27,8 @@ suspend fun register(request: ServerRequest): ServerResponse {
 | | Kotlin Validator | Reflection-based libs |
 |---|---|---|
 | Validator code | Generated at compile time (KSP) | Built at runtime via reflection |
+| Execution model | Non-blocking (`suspend`), coroutine-native | Blocking or reactive wrappers |
+| Field validation | Parallel via coroutines | Sequential |
 | Throughput | ~1.5–2× faster | Baseline |
 | Memory | ~60% lower | Baseline |
 | Type safety | Statically checked | Runtime errors |
