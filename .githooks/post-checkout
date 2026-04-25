@@ -1,0 +1,18 @@
+#!/bin/sh
+# Only run on branch checkout (not file checkout)
+[ "$3" = "1" ] || exit 0
+
+echo ""
+echo "=== Branch: $(git branch --show-current) ==="
+echo ""
+CHANGES=$(git status --short)
+if [ -z "$CHANGES" ]; then
+  echo "Working tree clean ✅"
+else
+  echo "Uncommitted changes:"
+  echo "$CHANGES"
+fi
+echo ""
+echo "Last 3 commits:"
+git log --oneline -3
+echo ""

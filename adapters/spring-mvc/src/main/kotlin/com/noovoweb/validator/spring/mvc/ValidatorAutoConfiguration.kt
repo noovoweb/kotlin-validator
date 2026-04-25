@@ -82,10 +82,7 @@ public class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(ValidationContext::class)
-    public fun validationContext(
-        properties: ValidatorProperties,
-        messageProvider: MessageProvider,
-    ): ValidationContext = ValidationContext(
+    public fun validationContext(properties: ValidatorProperties, messageProvider: MessageProvider,): ValidationContext = ValidationContext(
         locale = properties.locale ?: Locale.getDefault(),
         messageProvider = messageProvider,
     )

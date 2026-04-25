@@ -1,0 +1,6 @@
+#!/bin/sh
+echo "Running Spotless formatting..."
+./gradlew spotlessApply --quiet
+# Re-stage any files that Spotless reformatted
+git diff --name-only | xargs -r git add
+echo "Spotless done ✅"

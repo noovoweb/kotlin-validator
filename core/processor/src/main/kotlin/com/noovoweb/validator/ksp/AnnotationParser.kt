@@ -494,10 +494,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
      * Get a single annotation argument value.
      */
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T> getAnnotationArgument(
-        annotation: KSAnnotation,
-        argName: String,
-    ): T? = annotation.arguments
+    private inline fun <reified T> getAnnotationArgument(annotation: KSAnnotation, argName: String,): T? = annotation.arguments
         .find { it.name?.asString() == argName }
         ?.value as? T
 
@@ -505,10 +502,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
      * Get an array annotation argument value.
      */
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T> getAnnotationArrayArgument(
-        annotation: KSAnnotation,
-        argName: String,
-    ): List<T> {
+    private inline fun <reified T> getAnnotationArrayArgument(annotation: KSAnnotation, argName: String,): List<T> {
         val value =
             annotation.arguments
                 .find { it.name?.asString() == argName }

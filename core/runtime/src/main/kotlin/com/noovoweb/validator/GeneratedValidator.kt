@@ -75,10 +75,7 @@ public interface GeneratedValidator<T> {
      * }
      * ```
      */
-    public suspend fun validate(
-        payload: T,
-        context: ValidationContext = ValidationContext(),
-    )
+    public suspend fun validate(payload: T, context: ValidationContext = ValidationContext(),)
 
     /**
      * Validate the payload and return a Result.
@@ -122,8 +119,5 @@ public interface GeneratedValidator<T> {
      *     .onFailure { errors -> logErrors(errors) }
      * ```
      */
-    public suspend fun validateResult(
-        payload: T,
-        context: ValidationContext = ValidationContext(),
-    ): ValidationResult<T>
+    public suspend fun validateResult(payload: T, context: ValidationContext = ValidationContext(),): ValidationResult<T>
 }

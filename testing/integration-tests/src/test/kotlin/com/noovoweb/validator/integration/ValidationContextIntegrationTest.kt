@@ -8,10 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
 object ContextValidators {
-    suspend fun validateWithContext(
-        value: String?,
-        context: ValidationContext,
-    ): Boolean {
+    suspend fun validateWithContext(value: String?, context: ValidationContext,): Boolean {
         if (value == null) return true
         // Use context information for validation
         return when (context.locale.language) {

@@ -23,16 +23,10 @@ import kotlin.test.assertTrue
 
 class ValidationPluginTest {
     @Serializable
-    data class TestUser(
-        val username: String,
-        val email: String,
-    )
+    data class TestUser(val username: String, val email: String,)
 
     class PassingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(
-            target: TestUser,
-            context: ValidationContext,
-        ) {
+        override suspend fun validate(target: TestUser, context: ValidationContext,) {
             // Always passes
         }
 
@@ -43,10 +37,7 @@ class ValidationPluginTest {
     }
 
     class FailingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(
-            target: TestUser,
-            context: ValidationContext,
-        ): Unit = throw ValidationException(
+        override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(
             mapOf(
                 "username" to listOf("Username is required"),
                 "email" to listOf("Email must be valid"),

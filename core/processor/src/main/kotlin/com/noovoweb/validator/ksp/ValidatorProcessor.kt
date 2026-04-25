@@ -157,9 +157,7 @@ internal class ValidatorProcessor(
      *
      * @return true if any cycle was detected
      */
-    private fun detectValidationCycles(
-        parsedClasses: List<Pair<KSClassDeclaration, ValidatedClassInfo>>,
-    ): Boolean {
+    private fun detectValidationCycles(parsedClasses: List<Pair<KSClassDeclaration, ValidatedClassInfo>>,): Boolean {
         // Build adjacency list: className -> list of nested @Valid type names
         val graph = mutableMapOf<String, MutableList<String>>()
         parsedClasses.forEach { (_, classInfo) ->

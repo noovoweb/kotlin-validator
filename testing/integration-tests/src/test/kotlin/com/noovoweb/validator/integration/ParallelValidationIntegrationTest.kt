@@ -8,19 +8,13 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
 object ParallelValidators {
-    suspend fun validateParallel1(
-        value: String?,
-        context: ValidationContext,
-    ): Boolean {
+    suspend fun validateParallel1(value: String?, context: ValidationContext,): Boolean {
         if (value == null) return true
         kotlinx.coroutines.delay(5)
         return value.length >= 1
     }
 
-    suspend fun validateParallel2(
-        value: String?,
-        context: ValidationContext,
-    ): Boolean {
+    suspend fun validateParallel2(value: String?, context: ValidationContext,): Boolean {
         if (value == null) return true
         kotlinx.coroutines.delay(5)
         return value.contains("valid")

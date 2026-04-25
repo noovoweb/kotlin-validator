@@ -11,9 +11,7 @@ import kotlin.test.assertTrue
 
 class MimeTypeFileValidatorTest {
     @Test
-    fun `mime type validator accepts valid mime types`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `mime type validator accepts valid mime types`(@TempDir tempDir: File,) = runTest {
         val validator = MimeTypeFileValidator()
 
         val pngFile =
@@ -39,9 +37,7 @@ class MimeTypeFileValidatorTest {
     }
 
     @Test
-    fun `mime type validator rejects invalid mime types`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `mime type validator rejects invalid mime types`(@TempDir tempDir: File,) = runTest {
         val validator = MimeTypeFileValidator()
 
         val pdfFile =
@@ -63,9 +59,7 @@ class MimeTypeFileValidatorTest {
     }
 
     @Test
-    fun `mime type validator provides error message`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `mime type validator provides error message`(@TempDir tempDir: File,) = runTest {
         val validator = MimeTypeFileValidator()
 
         val txtFile =

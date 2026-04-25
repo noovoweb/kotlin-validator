@@ -16,9 +16,7 @@ import java.util.Locale
  * via the LocaleContext, providing automatic i18n support.
  */
 @Component
-public class ValidationContextProvider(
-    private val baseContext: ValidationContext,
-) {
+public class ValidationContextProvider(private val baseContext: ValidationContext,) {
     /**
      * Get a ValidationContext with locale from the ServerRequest.
      *

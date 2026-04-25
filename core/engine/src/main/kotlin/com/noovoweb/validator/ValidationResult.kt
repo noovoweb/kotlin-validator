@@ -62,10 +62,7 @@ public sealed class ValidationResult<out T> {
         is Failure -> Failure(transform(errors))
     }
 
-    public inline fun <R> fold(
-        onSuccess: (T) -> R,
-        onFailure: (Map<String, List<ValidationError>>) -> R,
-    ): R = when (this) {
+    public inline fun <R> fold(onSuccess: (T) -> R, onFailure: (Map<String, List<ValidationError>>) -> R,): R = when (this) {
         is Success -> onSuccess(value)
         is Failure -> onFailure(errors)
     }

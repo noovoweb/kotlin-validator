@@ -23,16 +23,10 @@ import kotlin.test.assertTrue
 
 class ValidationExtensionsTest {
     @Serializable
-    data class TestRequest(
-        val name: String,
-        val age: Int,
-    )
+    data class TestRequest(val name: String, val age: Int,)
 
     class PassingValidator : GeneratedValidator<TestRequest> {
-        override suspend fun validate(
-            target: TestRequest,
-            context: ValidationContext,
-        ) {
+        override suspend fun validate(target: TestRequest, context: ValidationContext,) {
             // Always passes
         }
 
@@ -43,10 +37,7 @@ class ValidationExtensionsTest {
     }
 
     class FailingValidator : GeneratedValidator<TestRequest> {
-        override suspend fun validate(
-            target: TestRequest,
-            context: ValidationContext,
-        ): Unit = throw ValidationException(
+        override suspend fun validate(target: TestRequest, context: ValidationContext,): Unit = throw ValidationException(
             mapOf("name" to listOf("Name is required")),
         )
 
@@ -115,10 +106,7 @@ class ValidationExtensionsTest {
         var capturedLocale: Locale? = null
 
         class LocaleCapturingValidator : GeneratedValidator<TestRequest> {
-            override suspend fun validate(
-                target: TestRequest,
-                context: ValidationContext,
-            ) {
+            override suspend fun validate(target: TestRequest, context: ValidationContext,) {
                 capturedLocale = context.locale
             }
 
@@ -219,10 +207,7 @@ class ValidationExtensionsTest {
         var capturedLocale: Locale? = null
 
         class LocaleCapturingValidator : GeneratedValidator<TestRequest> {
-            override suspend fun validate(
-                target: TestRequest,
-                context: ValidationContext,
-            ) {
+            override suspend fun validate(target: TestRequest, context: ValidationContext,) {
                 capturedLocale = context.locale
             }
 

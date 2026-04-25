@@ -1,12 +1,19 @@
 root = true
 
-[*.kt]
-indent_size = 4
-tab_width = 4
+[*]
 charset = utf-8
+end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
-end_of_line = lf
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+indent_size = 4
+tab_width = 4
+max_line_length = 140
+ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
 
 # Disable specific ktlint rules globally
 ktlint_standard_filename = disabled
@@ -17,3 +24,13 @@ ktlint_filename = disabled
 # Test files - disable wildcard imports check
 [{**/test/**/*.kt,**/integration-tests/src/main/**/*.kt}]
 ktlint_standard_no-wildcard-imports = disabled
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.{json,xml}]
+indent_size = 2

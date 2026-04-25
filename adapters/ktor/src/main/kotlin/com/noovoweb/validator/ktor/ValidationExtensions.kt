@@ -42,7 +42,8 @@ internal fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
         if (cause is ClassNotFoundException) {
             throw IllegalStateException(
                 "Validator not found: $validatorClassName. " +
-                    "Make sure your class is annotated with @Validated and that at least one field has a validation annotation (e.g. @Required, @MinLength). " +
+                    "Make sure your class is annotated with @Validated and that at least one field has a validation " +
+                    "annotation (e.g. @Required, @MinLength). " +
                     "If no fields are annotated, KSP will skip validator generation.",
                 cause,
             )
@@ -156,10 +157,7 @@ public suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
  *
  * @throws com.noovoweb.validator.ValidationException if validation fails (automatically handled by plugin)
  */
-public suspend fun <T : Any> ApplicationCall.validate(
-    payload: T,
-    validator: GeneratedValidator<T>,
-) {
+public suspend fun <T : Any> ApplicationCall.validate(payload: T, validator: GeneratedValidator<T>,) {
     val context = validationContext()
     validator.validate(payload, context)
 }

@@ -13,16 +13,10 @@ import java.util.Locale
  * messages.properties files, while falling back to the default
  * ValidationMessages.properties for built-in validators.
  */
-public class SpringMessageProvider(
-    private val messageSource: MessageSource,
-) : MessageProvider {
+public class SpringMessageProvider(private val messageSource: MessageSource,) : MessageProvider {
     private val defaultProvider = DefaultMessageProvider()
 
-    override suspend fun getMessage(
-        key: String,
-        args: Array<Any>?,
-        locale: Locale,
-    ): String = try {
+    override suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale,): String = try {
         // First try Spring's MessageSource (for custom messages)
         messageSource.getMessage(key, args, locale)
     } catch (e: NoSuchMessageException) {

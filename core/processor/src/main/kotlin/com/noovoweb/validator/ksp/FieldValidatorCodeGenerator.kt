@@ -27,156 +27,150 @@ internal class FieldValidatorCodeGenerator {
      * @param fieldPath Dot-notation path for error messages (e.g., "email", "address.city")
      * @return CodeBlock with validation logic
      */
-    internal fun generateValidatorCode(
-        validator: ValidationValidatorInfo,
-        property: PropertyInfo,
-        fieldPath: String,
-    ): CodeBlock = when (validator) {
-        // String validators
-        is ValidationValidatorInfo.RequiredValidator -> generateRequiredValidator(validator, property, fieldPath)
+    internal fun generateValidatorCode(validator: ValidationValidatorInfo, property: PropertyInfo, fieldPath: String,): CodeBlock =
+        when (validator) {
+            // String validators
+            is ValidationValidatorInfo.RequiredValidator -> generateRequiredValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.EmailValidator -> generateEmailValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.EmailValidator -> generateEmailValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.UrlValidator -> generateUrlValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.UrlValidator -> generateUrlValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.UuidValidator -> generateUuidValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.UuidValidator -> generateUuidValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.LengthValidator -> generateLengthValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.LengthValidator -> generateLengthValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MinLengthValidator -> generateMinLengthValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MinLengthValidator -> generateMinLengthValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MaxLengthValidator -> generateMaxLengthValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MaxLengthValidator -> generateMaxLengthValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.PatternValidator -> generatePatternValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.PatternValidator -> generatePatternValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.AlphaValidator -> generateAlphaValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.AlphaValidator -> generateAlphaValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.AlphanumericValidator -> generateAlphanumericValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.AlphanumericValidator -> generateAlphanumericValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.AsciiValidator -> generateAsciiValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.AsciiValidator -> generateAsciiValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.LowercaseValidator -> generateLowercaseValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.LowercaseValidator -> generateLowercaseValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.UppercaseValidator -> generateUppercaseValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.UppercaseValidator -> generateUppercaseValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.StartsWithValidator -> generateStartsWithValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.StartsWithValidator -> generateStartsWithValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.EndsWithValidator -> generateEndsWithValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.EndsWithValidator -> generateEndsWithValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.ContainsValidator -> generateContainsValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.ContainsValidator -> generateContainsValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.OneOfValidator -> generateOneOfValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.OneOfValidator -> generateOneOfValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.NotOneOfValidator -> generateNotOneOfValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.NotOneOfValidator -> generateNotOneOfValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.EnumValidator -> generateEnumValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.EnumValidator -> generateEnumValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.JsonValidator -> generateJsonValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.JsonValidator -> generateJsonValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.LuhnValidator -> generateLuhnValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.LuhnValidator -> generateLuhnValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.CreditCardValidator -> generateCreditCardValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.CreditCardValidator -> generateCreditCardValidator(validator, property, fieldPath)
 
-        // Numeric validators
-        is ValidationValidatorInfo.MinValidator -> generateMinValidator(validator, property, fieldPath)
+            // Numeric validators
+            is ValidationValidatorInfo.MinValidator -> generateMinValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MaxValidator -> generateMaxValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MaxValidator -> generateMaxValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.BetweenValidator -> generateBetweenValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.BetweenValidator -> generateBetweenValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.PositiveValidator -> generatePositiveValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.PositiveValidator -> generatePositiveValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.NegativeValidator -> generateNegativeValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.NegativeValidator -> generateNegativeValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.ZeroValidator -> generateZeroValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.ZeroValidator -> generateZeroValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.IntegerValidator -> generateIntegerValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.IntegerValidator -> generateIntegerValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.DecimalValidator -> generateDecimalValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.DecimalValidator -> generateDecimalValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.DivisibleByValidator -> generateDivisibleByValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.DivisibleByValidator -> generateDivisibleByValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.EvenValidator -> generateEvenValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.EvenValidator -> generateEvenValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.OddValidator -> generateOddValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.OddValidator -> generateOddValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.DecimalPlacesValidator -> generateDecimalPlacesValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.DecimalPlacesValidator -> generateDecimalPlacesValidator(validator, property, fieldPath)
 
-        // Boolean validator
-        is ValidationValidatorInfo.AcceptedValidator -> generateAcceptedValidator(validator, property, fieldPath)
+            // Boolean validator
+            is ValidationValidatorInfo.AcceptedValidator -> generateAcceptedValidator(validator, property, fieldPath)
 
-        // Collection validators
-        is ValidationValidatorInfo.SizeValidator -> generateSizeValidator(validator, property, fieldPath)
+            // Collection validators
+            is ValidationValidatorInfo.SizeValidator -> generateSizeValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MinSizeValidator -> generateMinSizeValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MinSizeValidator -> generateMinSizeValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MaxSizeValidator -> generateMaxSizeValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MaxSizeValidator -> generateMaxSizeValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.NotEmptyValidator -> generateNotEmptyValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.NotEmptyValidator -> generateNotEmptyValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.DistinctValidator -> generateDistinctValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.DistinctValidator -> generateDistinctValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.ContainsValueValidator -> generateContainsValueValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.ContainsValueValidator -> generateContainsValueValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.NotContainsValidator -> generateNotContainsValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.NotContainsValidator -> generateNotContainsValidator(validator, property, fieldPath)
 
-        // Date/Time validators
-        is ValidationValidatorInfo.DateFormatValidator -> generateDateFormatValidator(validator, property, fieldPath)
+            // Date/Time validators
+            is ValidationValidatorInfo.DateFormatValidator -> generateDateFormatValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.IsoDateValidator -> generateIsoDateValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.IsoDateValidator -> generateIsoDateValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.IsoDateTimeValidator -> generateIsoDateTimeValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.IsoDateTimeValidator -> generateIsoDateTimeValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.FutureValidator -> generateFutureValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.FutureValidator -> generateFutureValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.PastValidator -> generatePastValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.PastValidator -> generatePastValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.TodayValidator -> generateTodayValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.TodayValidator -> generateTodayValidator(validator, property, fieldPath)
 
-        // Network validators
-        is ValidationValidatorInfo.IPv4Validator -> generateIPv4Validator(validator, property, fieldPath)
+            // Network validators
+            is ValidationValidatorInfo.IPv4Validator -> generateIPv4Validator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.IPv6Validator -> generateIPv6Validator(validator, property, fieldPath)
+            is ValidationValidatorInfo.IPv6Validator -> generateIPv6Validator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.IPValidator -> generateIPValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.IPValidator -> generateIPValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MacAddressValidator -> generateMacAddressValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MacAddressValidator -> generateMacAddressValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.PortValidator -> generatePortValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.PortValidator -> generatePortValidator(validator, property, fieldPath)
 
-        // File validators
-        is ValidationValidatorInfo.MimeTypeValidator -> generateMimeTypeValidator(validator, property, fieldPath)
+            // File validators
+            is ValidationValidatorInfo.MimeTypeValidator -> generateMimeTypeValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.FileExtensionValidator -> generateFileExtensionValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.FileExtensionValidator -> generateFileExtensionValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.MaxFileSizeValidator -> generateMaxFileSizeValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.MaxFileSizeValidator -> generateMaxFileSizeValidator(validator, property, fieldPath)
 
-        // Conditional validators
-        is ValidationValidatorInfo.SameValidator -> generateSameValidator(validator, property, fieldPath)
+            // Conditional validators
+            is ValidationValidatorInfo.SameValidator -> generateSameValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.DifferentValidator -> generateDifferentValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.DifferentValidator -> generateDifferentValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.RequiredIfValidator -> generateRequiredIfValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.RequiredIfValidator -> generateRequiredIfValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.RequiredUnlessValidator -> generateRequiredUnlessValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.RequiredUnlessValidator -> generateRequiredUnlessValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.RequiredWithValidator -> generateRequiredWithValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.RequiredWithValidator -> generateRequiredWithValidator(validator, property, fieldPath)
 
-        is ValidationValidatorInfo.RequiredWithoutValidator -> generateRequiredWithoutValidator(validator, property, fieldPath)
+            is ValidationValidatorInfo.RequiredWithoutValidator -> generateRequiredWithoutValidator(validator, property, fieldPath)
 
-        // Custom validators
-        is ValidationValidatorInfo.CustomValidatorInfo -> generateCustomValidator(validator, property, fieldPath)
-    }
+            // Custom validators
+            is ValidationValidatorInfo.CustomValidatorInfo -> generateCustomValidator(validator, property, fieldPath)
+        }
 
     // === Helper Methods ===
 
     /**
      * Generate code to add an error message.
      */
-    private fun addErrorMessage(
-        validator: ValidationValidatorInfo,
-        args: String? = null,
-    ): CodeBlock {
+    private fun addErrorMessage(validator: ValidationValidatorInfo, args: String? = null,): CodeBlock {
         val argsCode = args ?: "null"
         val messageKey = validator.customMessage ?: validator.messageKey
         return CodeBlock.of(
@@ -190,26 +184,21 @@ internal class FieldValidatorCodeGenerator {
      * Add fail-fast logic if @FailFast is present.
      * NOTE: Returns empty - checkpoints handled by ValidatorClassGenerator.
      */
-    private fun addFailFastIfNeeded(
-        property: PropertyInfo,
-        fieldPath: String,
-    ): CodeBlock = CodeBlock.of("")
+    private fun addFailFastIfNeeded(property: PropertyInfo, fieldPath: String,): CodeBlock = CodeBlock.of("")
 
     /**
      * Helper to wrap validation logic based on property nullability.
      */
-    private fun wrapInNullabilityCheck(
-        property: PropertyInfo,
-        validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit,
-    ): CodeBlock = CodeBlock.builder().apply {
-        if (property.isNullable) {
-            beginControlFlow("value?.let")
-            validationLogic("it")
-            endControlFlow()
-        } else {
-            validationLogic("value")
-        }
-    }.build()
+    private fun wrapInNullabilityCheck(property: PropertyInfo, validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit,): CodeBlock =
+        CodeBlock.builder().apply {
+            if (property.isNullable) {
+                beginControlFlow("value?.let")
+                validationLogic("it")
+                endControlFlow()
+            } else {
+                validationLogic("value")
+            }
+        }.build()
 
     /**
      * Generate a string validator with nullability and type checking handled automatically.
@@ -1165,17 +1154,14 @@ internal class FieldValidatorCodeGenerator {
         endControlFlow()
     }
 
-    private fun generateIPValidator(
-        validator: ValidationValidatorInfo.IPValidator,
-        property: PropertyInfo,
-        fieldPath: String,
-    ): CodeBlock = generateStringValidator(property, fieldPath, "@IP (IPv4 or IPv6) - Uses InetAddress validation (safe)") { valueRef ->
-        addStatement("val isValid = %T.isValidIP($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
-        beginControlFlow("if (!isValid)")
-        add(addErrorMessage(validator))
-        add(addFailFastIfNeeded(property, fieldPath))
-        endControlFlow()
-    }
+    private fun generateIPValidator(validator: ValidationValidatorInfo.IPValidator, property: PropertyInfo, fieldPath: String,): CodeBlock =
+        generateStringValidator(property, fieldPath, "@IP (IPv4 or IPv6) - Uses InetAddress validation (safe)") { valueRef ->
+            addStatement("val isValid = %T.isValidIP($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
+            beginControlFlow("if (!isValid)")
+            add(addErrorMessage(validator))
+            add(addFailFastIfNeeded(property, fieldPath))
+            endControlFlow()
+        }
 
     private fun generateMacAddressValidator(
         validator: ValidationValidatorInfo.MacAddressValidator,

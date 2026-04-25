@@ -11,9 +11,7 @@ import kotlin.test.assertTrue
 
 class FileExtensionDataValidatorTest {
     @Test
-    fun `file extension validator accepts valid extensions`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `file extension validator accepts valid extensions`(@TempDir tempDir: File,) = runTest {
         val validator = FileExtensionDataValidator()
 
         val jpgFile = File(tempDir, "image.jpg").apply { createNewFile() }
@@ -27,9 +25,7 @@ class FileExtensionDataValidatorTest {
     }
 
     @Test
-    fun `file extension validator rejects invalid extensions`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `file extension validator rejects invalid extensions`(@TempDir tempDir: File,) = runTest {
         val validator = FileExtensionDataValidator()
 
         val pdfFile = File(tempDir, "document.pdf").apply { createNewFile() }
@@ -47,9 +43,7 @@ class FileExtensionDataValidatorTest {
     }
 
     @Test
-    fun `file extension validator provides error message`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `file extension validator provides error message`(@TempDir tempDir: File,) = runTest {
         val validator = FileExtensionDataValidator()
 
         val txtFile = File(tempDir, "file.txt").apply { createNewFile() }

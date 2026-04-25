@@ -31,10 +31,7 @@ import org.springframework.web.servlet.LocaleResolver
  * ```
  */
 @Component
-public class ValidationContextProvider(
-    private val baseContext: ValidationContext,
-    private val localeResolver: LocaleResolver,
-) {
+public class ValidationContextProvider(private val baseContext: ValidationContext, private val localeResolver: LocaleResolver,) {
     /**
      * Get a ValidationContext with locale from the HttpServletRequest.
      *

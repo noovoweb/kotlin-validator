@@ -12,9 +12,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
  * - validateParallel() helper (validates fields in parallel)
  * - validateFieldX() methods for each property
  */
-internal class ValidatorClassGenerator(
-    private val fieldValidatorCodeGenerator: FieldValidatorCodeGenerator,
-) {
+internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: FieldValidatorCodeGenerator,) {
     /**
      * Generate a complete validator class for the given validated class.
      *
@@ -77,10 +75,7 @@ internal class ValidatorClassGenerator(
     /**
      * Generate the validate() method (exception-based API).
      */
-    private fun generateValidateMethod(
-        classInfo: ValidatedClassInfo,
-        dataClassName: ClassName,
-    ): FunSpec = FunSpec.builder("validate")
+    private fun generateValidateMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec = FunSpec.builder("validate")
         .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
         .addParameter("payload", dataClassName)
         .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
@@ -103,116 +98,106 @@ internal class ValidatorClassGenerator(
     /**
      * Generate the validateResult() method (result-based API).
      */
-    private fun generateValidateResultMethod(
-        classInfo: ValidatedClassInfo,
-        dataClassName: ClassName,
-    ): FunSpec = FunSpec.builder("validateResult")
-        .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
-        .addParameter("payload", dataClassName)
-        .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
-        .returns(
-            ClassName("com.noovoweb.validator", "ValidationResult")
-                .parameterizedBy(dataClassName),
-        )
-        .addCode(
-            CodeBlock.builder()
-                .addStatement("// Validate all fields in parallel")
-                .addStatement("val errors = validateParallel(payload, context)")
-                .addStatement("")
-                .addStatement("// Return Result based on validation outcome")
-                .beginControlFlow("return if (errors.isEmpty())")
-                .addStatement(
-                    "%T.Success(payload)",
-                    ClassName("com.noovoweb.validator", "ValidationResult"),
-                )
-                .nextControlFlow("else")
-                .addStatement("// Convert string errors to ValidationError objects")
-                .addStatement("val errorObjects = errors.mapValues { (_, messages) ->")
-                .indent()
-                .addStatement(
-                    "messages.map { %T(it) }",
-                    ClassName("com.noovoweb.validator", "ValidationError"),
-                )
-                .unindent()
-                .addStatement("}")
-                .addStatement(
-                    "%T.Failure(errorObjects)",
-                    ClassName("com.noovoweb.validator", "ValidationResult"),
-                )
-                .endControlFlow()
-                .build(),
-        )
-        .build()
+    private fun generateValidateResultMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec =
+        FunSpec.builder("validateResult")
+            .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
+            .addParameter("payload", dataClassName)
+            .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
+            .returns(
+                ClassName("com.noovoweb.validator", "ValidationResult")
+                    .parameterizedBy(dataClassName),
+            )
+            .addCode(
+                CodeBlock.builder()
+                    .addStatement("// Validate all fields in parallel")
+                    .addStatement("val errors = validateParallel(payload, context)")
+                    .addStatement("")
+                    .addStatement("// Return Result based on validation outcome")
+                    .beginControlFlow("return if (errors.isEmpty())")
+                    .addStatement(
+                        "%T.Success(payload)",
+                        ClassName("com.noovoweb.validator", "ValidationResult"),
+                    )
+                    .nextControlFlow("else")
+                    .addStatement("// Convert string errors to ValidationError objects")
+                    .addStatement("val errorObjects = errors.mapValues { (_, messages) ->")
+                    .indent()
+                    .addStatement(
+                        "messages.map { %T(it) }",
+                        ClassName("com.noovoweb.validator", "ValidationError"),
+                    )
+                    .unindent()
+                    .addStatement("}")
+                    .addStatement(
+                        "%T.Failure(errorObjects)",
+                        ClassName("com.noovoweb.validator", "ValidationResult"),
+                    )
+                    .endControlFlow()
+                    .build(),
+            )
+            .build()
 
     /**
      * Generate the validateParallel() helper method.
      */
-    private fun generateValidateParallelMethod(
-        classInfo: ValidatedClassInfo,
-        dataClassName: ClassName,
-    ): FunSpec = FunSpec.builder("validateParallel")
-        .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
-        .addParameter("payload", dataClassName)
-        .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
-        .returns(MAP.parameterizedBy(STRING, LIST.parameterizedBy(STRING)))
-        .addCode(
-            CodeBlock.builder()
-                .addStatement("// Validate all fields in parallel using async")
-                .addStatement("return coroutineScope {")
-                .indent()
-                .addStatement("val validations = listOf(")
-                .indent()
-                .apply {
-                    classInfo.properties.forEach { property ->
-                        if (property.hasValidators() || property.hasNestedValidation()) {
-                            addStatement(
-                                "async(context.dispatcher) { validate%L(payload, context) },",
-                                property.name.capitalize(),
-                            )
+    private fun generateValidateParallelMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec =
+        FunSpec.builder("validateParallel")
+            .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
+            .addParameter("payload", dataClassName)
+            .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
+            .returns(MAP.parameterizedBy(STRING, LIST.parameterizedBy(STRING)))
+            .addCode(
+                CodeBlock.builder()
+                    .addStatement("// Validate all fields in parallel using async")
+                    .addStatement("return coroutineScope {")
+                    .indent()
+                    .addStatement("val validations = listOf(")
+                    .indent()
+                    .apply {
+                        classInfo.properties.forEach { property ->
+                            if (property.hasValidators() || property.hasNestedValidation()) {
+                                addStatement(
+                                    "async(context.dispatcher) { validate%L(payload, context) },",
+                                    property.name.capitalize(),
+                                )
+                            }
                         }
                     }
-                }
-                .unindent()
-                .addStatement(")")
-                .addStatement("")
-                .addStatement("// Wait for all validations to complete")
-                .addStatement("val allErrors = validations.awaitAll()")
-                .addStatement("")
-                .addStatement("// Merge all error maps")
-                .addStatement("allErrors.fold(mutableMapOf<String, List<String>>()) { acc, errors ->")
-                .indent()
-                .addStatement("acc.putAll(errors)")
-                .addStatement("acc")
-                .unindent()
-                .addStatement("}")
-                .unindent()
-                .addStatement("}")
-                .build(),
-        )
-        .build()
+                    .unindent()
+                    .addStatement(")")
+                    .addStatement("")
+                    .addStatement("// Wait for all validations to complete")
+                    .addStatement("val allErrors = validations.awaitAll()")
+                    .addStatement("")
+                    .addStatement("// Merge all error maps")
+                    .addStatement("allErrors.fold(mutableMapOf<String, List<String>>()) { acc, errors ->")
+                    .indent()
+                    .addStatement("acc.putAll(errors)")
+                    .addStatement("acc")
+                    .unindent()
+                    .addStatement("}")
+                    .unindent()
+                    .addStatement("}")
+                    .build(),
+            )
+            .build()
 
     /**
      * Generate a field validation method for a single property.
      */
-    private fun generateFieldValidationMethod(
-        property: PropertyInfo,
-        classInfo: ValidatedClassInfo,
-        dataClassName: ClassName,
-    ): FunSpec = FunSpec.builder("validate${property.name.capitalize()}")
-        .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
-        .addParameter("payload", dataClassName)
-        .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
-        .returns(MAP.parameterizedBy(STRING, LIST.parameterizedBy(STRING)))
-        .addCode(generateFieldValidationCode(property, classInfo))
-        .build()
+    private fun generateFieldValidationMethod(property: PropertyInfo, classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec =
+        FunSpec.builder("validate${property.name.capitalize()}")
+            .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
+            .addParameter("payload", dataClassName)
+            .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
+            .returns(MAP.parameterizedBy(STRING, LIST.parameterizedBy(STRING)))
+            .addCode(generateFieldValidationCode(property, classInfo))
+            .build()
 
     /**
      * Generate the validation code for a single field.
      */
-    private fun generateFieldValidationCode(
-        property: PropertyInfo,
-        classInfo: ValidatedClassInfo,
-    ): CodeBlock = CodeBlock.builder().apply {
+    private fun generateFieldValidationCode(property: PropertyInfo, classInfo: ValidatedClassInfo,): CodeBlock = CodeBlock.builder().apply {
         addStatement("val errors = mutableListOf<String>()")
         addStatement("val value = payload.%L", property.name)
         addStatement("")

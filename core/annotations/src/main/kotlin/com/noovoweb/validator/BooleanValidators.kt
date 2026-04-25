@@ -27,6 +27,4 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Accepted(
-    val message: String = "",
-)
+public annotation class Accepted(val message: String = "",)

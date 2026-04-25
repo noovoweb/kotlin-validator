@@ -54,10 +54,7 @@ public class ValidationPlugin(configuration: Configuration) {
     public companion object Plugin : BaseApplicationPlugin<Application, Configuration, ValidationPlugin> {
         override val key: AttributeKey<ValidationPlugin> = AttributeKey<ValidationPlugin>("ValidationPlugin")
 
-        override fun install(
-            pipeline: Application,
-            configure: Configuration.() -> Unit
-        ): ValidationPlugin {
+        override fun install(pipeline: Application, configure: Configuration.() -> Unit): ValidationPlugin {
             val configuration = Configuration().apply(configure)
             val plugin = ValidationPlugin(configuration)
 

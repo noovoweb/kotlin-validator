@@ -20,10 +20,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MimeType(
-    val values: Array<String>,
-    val message: String = "",
-)
+public annotation class MimeType(val values: Array<String>, val message: String = "",)
 
 /**
  * Validates that a file's extension is one of the allowed extensions.
@@ -45,10 +42,7 @@ public annotation class MimeType(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class FileExtension(
-    val values: Array<String>,
-    val message: String = "",
-)
+public annotation class FileExtension(val values: Array<String>, val message: String = "",)
 
 /**
  * Validates that a file size does not exceed the specified value in bytes.
@@ -70,7 +64,4 @@ public annotation class FileExtension(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MaxFileSize(
-    val bytes: Long,
-    val message: String = "",
-)
+public annotation class MaxFileSize(val bytes: Long, val message: String = "",)

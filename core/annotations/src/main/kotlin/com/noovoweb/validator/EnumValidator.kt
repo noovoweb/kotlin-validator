@@ -25,7 +25,4 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Enum(
-    val value: KClass<out kotlin.Enum<*>>,
-    val message: String = ""
-)
+public annotation class Enum(val value: KClass<out kotlin.Enum<*>>, val message: String = "")

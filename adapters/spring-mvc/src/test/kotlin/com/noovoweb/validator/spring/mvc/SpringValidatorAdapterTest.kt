@@ -15,17 +15,11 @@ import kotlin.test.assertTrue
  */
 class SpringValidatorAdapterTest {
     // Test data class
-    data class TestUser(
-        val username: String?,
-        val email: String?,
-    )
+    data class TestUser(val username: String?, val email: String?,)
 
     // Mock validator that always passes
     class PassingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(
-            target: TestUser,
-            context: ValidationContext,
-        ) {
+        override suspend fun validate(target: TestUser, context: ValidationContext,) {
             // Always passes
         }
 
@@ -37,10 +31,7 @@ class SpringValidatorAdapterTest {
 
     // Mock validator that always fails
     class FailingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(
-            target: TestUser,
-            context: ValidationContext,
-        ): Unit = throw ValidationException(
+        override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(
             mapOf(
                 "username" to listOf("Username is invalid"),
                 "email" to listOf("Email is invalid"),
@@ -145,10 +136,7 @@ class SpringValidatorAdapterTest {
     @Test
     fun `should handle multiple errors per field`() {
         class MultiErrorValidator : GeneratedValidator<TestUser> {
-            override suspend fun validate(
-                target: TestUser,
-                context: ValidationContext,
-            ): Unit = throw ValidationException(
+            override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(
                 mapOf(
                     "username" to listOf("Too short", "No uppercase", "No special chars"),
                 ),
@@ -206,10 +194,7 @@ class SpringValidatorAdapterTest {
     @Test
     fun `should handle empty ValidationException errors`() {
         class EmptyErrorValidator : GeneratedValidator<TestUser> {
-            override suspend fun validate(
-                target: TestUser,
-                context: ValidationContext,
-            ): Unit = throw ValidationException(emptyMap())
+            override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(emptyMap())
 
             override suspend fun validateResult(
                 payload: TestUser,

@@ -13,10 +13,7 @@ import kotlin.test.assertTrue
 class FieldValidatorCodeGeneratorTest {
     private val generator = FieldValidatorCodeGenerator()
 
-    private fun createProperty(
-        name: String,
-        type: String,
-    ): PropertyInfo {
+    private fun createProperty(name: String, type: String,): PropertyInfo {
         val isNullable = type.endsWith("?")
         return PropertyInfo(
             name = name,

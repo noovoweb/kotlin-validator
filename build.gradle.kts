@@ -33,6 +33,10 @@ subprojects {
         }
     }
 
+    tasks.matching { it.name == "compileKotlin" }.configureEach {
+        dependsOn("spotlessCheck")
+    }
+
     configure<SpotlessExtension> {
         kotlin {
             target("src/**/*.kt")
@@ -96,5 +100,11 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         xml.required.set(true)
         html.required.set(true)
         csv.required.set(false)
+    }
+}
+
+gradle.taskGraph.afterTask {
+    if (name.startsWith("spotless") && name.endsWith("Check") && state.failure != null) {
+        logger.lifecycle("\n⚠️  Formatting issues found. Run './gradlew spotlessApply build' to auto-fix and build.\n")
     }
 }

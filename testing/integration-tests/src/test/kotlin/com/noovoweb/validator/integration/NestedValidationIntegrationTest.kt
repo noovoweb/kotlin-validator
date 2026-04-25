@@ -8,10 +8,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 object NestedValidators {
-    suspend fun validateOrderItem(
-        value: String?,
-        context: ValidationContext,
-    ): Boolean {
+    suspend fun validateOrderItem(value: String?, context: ValidationContext,): Boolean {
         if (value == null) return true
         return value.length >= 3
     }

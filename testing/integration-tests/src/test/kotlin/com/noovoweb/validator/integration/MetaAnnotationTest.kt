@@ -39,10 +39,7 @@ annotation class StrongPassword
  * Validator functions for postal codes.
  */
 object PostalCodeValidators {
-    suspend fun validateCanadianPostalCode(
-        value: String?,
-        @Suppress("UNUSED_PARAMETER") context: ValidationContext,
-    ): Boolean {
+    suspend fun validateCanadianPostalCode(value: String?, @Suppress("UNUSED_PARAMETER") context: ValidationContext,): Boolean {
         if (value == null) return true
 
         // Canadian postal code format: A1A 1A1 (letter-digit-letter space digit-letter-digit)
@@ -55,10 +52,7 @@ object PostalCodeValidators {
  * Validator functions for passwords.
  */
 object PasswordValidators {
-    suspend fun validateStrongPassword(
-        value: String?,
-        @Suppress("UNUSED_PARAMETER") context: ValidationContext,
-    ): Boolean {
+    suspend fun validateStrongPassword(value: String?, @Suppress("UNUSED_PARAMETER") context: ValidationContext,): Boolean {
         if (value == null) return true
 
         val hasMinLength = value.length >= 8

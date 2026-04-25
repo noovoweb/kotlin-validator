@@ -11,9 +11,7 @@ import kotlin.test.assertTrue
 
 class MaxFileSizeDataValidatorTest {
     @Test
-    fun `max file size validator accepts files within size limit`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `max file size validator accepts files within size limit`(@TempDir tempDir: File,) = runTest {
         val validator = MaxFileSizeDataValidator()
 
         val smallFile =
@@ -30,9 +28,7 @@ class MaxFileSizeDataValidatorTest {
     }
 
     @Test
-    fun `max file size validator rejects files exceeding size limit`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `max file size validator rejects files exceeding size limit`(@TempDir tempDir: File,) = runTest {
         val validator = MaxFileSizeDataValidator()
 
         val largeFile =
@@ -53,9 +49,7 @@ class MaxFileSizeDataValidatorTest {
     }
 
     @Test
-    fun `max file size validator provides error message`(
-        @TempDir tempDir: File,
-    ) = runTest {
+    fun `max file size validator provides error message`(@TempDir tempDir: File,) = runTest {
         val validator = MaxFileSizeDataValidator()
 
         val largeFile =

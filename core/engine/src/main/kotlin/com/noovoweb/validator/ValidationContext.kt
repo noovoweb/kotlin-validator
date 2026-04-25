@@ -38,10 +38,7 @@ public data class ValidationContext(
 
     public fun withClock(clock: Clock): ValidationContext = copy(clock = clock)
 
-    public fun withMetadata(
-        key: String,
-        value: Any,
-    ): ValidationContext = copy(metadata = metadata + (key to value))
+    public fun withMetadata(key: String, value: Any,): ValidationContext = copy(metadata = metadata + (key to value))
 
     public fun withMetadata(metadata: Map<String, Any>): ValidationContext = copy(metadata = metadata)
 
@@ -64,21 +61,16 @@ public data class ValidationContext(
          */
         public const val DEFAULT_MAX_VALIDATION_DEPTH: Int = 10
 
-        public fun forIO(
-            locale: Locale = Locale.ENGLISH,
-            messageProvider: MessageProvider = DefaultMessageProvider(),
-        ): ValidationContext = ValidationContext(
-            locale = locale,
-            messageProvider = messageProvider,
-            dispatcher = Dispatchers.IO,
-            clock = Clock.systemDefaultZone(),
-            metadata = emptyMap(),
-        )
+        public fun forIO(locale: Locale = Locale.ENGLISH, messageProvider: MessageProvider = DefaultMessageProvider(),): ValidationContext =
+            ValidationContext(
+                locale = locale,
+                messageProvider = messageProvider,
+                dispatcher = Dispatchers.IO,
+                clock = Clock.systemDefaultZone(),
+                metadata = emptyMap(),
+            )
 
-        public fun forTesting(
-            clock: Clock = Clock.systemUTC(),
-            locale: Locale = Locale.ENGLISH,
-        ): ValidationContext = ValidationContext(
+        public fun forTesting(clock: Clock = Clock.systemUTC(), locale: Locale = Locale.ENGLISH,): ValidationContext = ValidationContext(
             locale = locale,
             messageProvider = DefaultMessageProvider(),
             dispatcher = Dispatchers.Default,

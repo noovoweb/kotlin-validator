@@ -9,10 +9,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 object LocaleAwareValidators {
-    suspend fun validateDateFormat(
-        value: String?,
-        context: ValidationContext,
-    ): Boolean {
+    suspend fun validateDateFormat(value: String?, context: ValidationContext,): Boolean {
         if (value == null) return true
         return when (context.locale.language) {
             "en" -> value.matches(Regex("""\d{1,2}/\d{1,2}/\d{4}"""))

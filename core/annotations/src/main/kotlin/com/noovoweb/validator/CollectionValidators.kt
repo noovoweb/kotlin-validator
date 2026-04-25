@@ -13,11 +13,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Size(
-    val min: Int,
-    val max: Int,
-    val message: String = "",
-)
+public annotation class Size(val min: Int, val max: Int, val message: String = "",)
 
 /**
  * Validates that a collection size is at least the specified value.
@@ -31,10 +27,7 @@ public annotation class Size(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MinSize(
-    val value: Int,
-    val message: String = "",
-)
+public annotation class MinSize(val value: Int, val message: String = "",)
 
 /**
  * Validates that a collection size does not exceed the specified value.
@@ -48,10 +41,7 @@ public annotation class MinSize(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MaxSize(
-    val value: Int,
-    val message: String = "",
-)
+public annotation class MaxSize(val value: Int, val message: String = "",)
 
 /**
  * Validates that a collection is not empty.
@@ -64,9 +54,7 @@ public annotation class MaxSize(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class NotEmpty(
-    val message: String = "",
-)
+public annotation class NotEmpty(val message: String = "",)
 
 /**
  * Validates that all elements in a collection are unique.
@@ -80,9 +68,7 @@ public annotation class NotEmpty(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Distinct(
-    val message: String = "",
-)
+public annotation class Distinct(val message: String = "",)
 
 /**
  * Validates that a collection contains the specified value.
@@ -96,10 +82,7 @@ public annotation class Distinct(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class ContainsValue(
-    val value: String,
-    val message: String = "",
-)
+public annotation class ContainsValue(val value: String, val message: String = "",)
 
 /**
  * Validates that a collection does not contain the specified value.
@@ -113,7 +96,4 @@ public annotation class ContainsValue(
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class NotContains(
-    val value: String,
-    val message: String = "",
-)
+public annotation class NotContains(val value: String, val message: String = "",)

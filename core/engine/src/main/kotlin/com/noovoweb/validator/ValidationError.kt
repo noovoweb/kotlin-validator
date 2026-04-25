@@ -18,10 +18,7 @@ public data class ValidationError(
             code = "required",
         )
 
-        public fun invalid(
-            field: String,
-            reason: String,
-        ): ValidationError = ValidationError(
+        public fun invalid(field: String, reason: String,): ValidationError = ValidationError(
             message = "Field '$field' is invalid: $reason",
             code = "invalid",
         )

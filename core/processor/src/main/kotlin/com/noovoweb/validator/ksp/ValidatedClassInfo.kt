@@ -7,11 +7,7 @@ package com.noovoweb.validator.ksp
  * @property className Simple class name
  * @property properties List of validated properties
  */
-internal data class ValidatedClassInfo(
-    val packageName: String,
-    val className: String,
-    val properties: List<PropertyInfo>,
-) {
+internal data class ValidatedClassInfo(val packageName: String, val className: String, val properties: List<PropertyInfo>,) {
     /**
      * Get the fully qualified name of the class.
      */
@@ -75,9 +71,7 @@ internal data class PropertyInfo(
  *
  * @property validateEachElement Whether to validate each element in a collection (@Valid(each = true))
  */
-internal data class NestedValidationInfo(
-    val validateEachElement: Boolean,
-)
+internal data class NestedValidationInfo(val validateEachElement: Boolean,)
 
 /**
  * Extension function to capitalize first letter.

@@ -38,9 +38,5 @@ public interface MessageProvider {
      * // Returns: "This field must be at least 18"
      * ```
      */
-    public suspend fun getMessage(
-        key: String,
-        args: Array<Any>?,
-        locale: Locale,
-    ): String
+    public suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale,): String
 }

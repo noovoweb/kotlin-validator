@@ -10,10 +10,7 @@ import org.springframework.web.servlet.LocaleResolver
  *
  * Requires a LocaleResolver to extract the locale from the request.
  */
-public fun ValidationContext.withLocale(
-    request: HttpServletRequest,
-    localeResolver: LocaleResolver,
-): ValidationContext {
+public fun ValidationContext.withLocale(request: HttpServletRequest, localeResolver: LocaleResolver,): ValidationContext {
     val locale = localeResolver.resolveLocale(request)
     return this.withLocale(locale)
 }
