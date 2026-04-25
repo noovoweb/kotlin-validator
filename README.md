@@ -482,12 +482,13 @@ Found a vulnerability? Email **info@noovoweb.com** rather than opening a public 
 
 ## Contributing & Build
 
-```bash
-./gradlew test                      # run all tests
-./gradlew spotlessApply             # format
-./gradlew clean build               # full build
-./gradlew publishToMavenLocal       # install to ~/.m2/repository
-```
+| Command | Description |
+|---|---|
+| `./gradlew test` | Run all tests |
+| `./gradlew spotlessApply` | Format code |
+| `./gradlew spotlessCheck` | Check formatting |
+| `./gradlew clean build` | Full clean build |
+| `./gradlew publishToMavenLocal` | Install to `~/.m2/repository` for local consumption |
 
 PRs welcome.
 
