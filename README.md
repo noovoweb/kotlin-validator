@@ -2,7 +2,7 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Maven Central](https://img.shields.io/badge/Maven%20Central-0.1.0--beta.1-blue.svg)](https://search.maven.org/search?q=g:com.noovoweb%20AND%20a:kotlin-validator-*)
+[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.1-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
 
 A high-performance, type-safe validation library for Kotlin. Validators are generated at compile time via KSP — no reflection at runtime, no annotation scanning, no surprises.
 
@@ -36,10 +36,41 @@ Plus: 60+ built-in validators, deep nested validation with precise error paths (
 
 ## Install
 
+The library is published to **GitHub Packages**. You'll need a GitHub Personal Access Token (classic) with the `read:packages` scope.
+
+### 1. Add credentials
+
+In `~/.gradle/gradle.properties` (recommended) or your project's `gradle.properties`:
+
+```properties
+gpr.user=your-github-username
+gpr.token=ghp_your_personal_access_token
+```
+
+Or export them as environment variables — `GITHUB_ACTOR` and `GITHUB_TOKEN`.
+
+> Create a token at https://github.com/settings/tokens with the `read:packages` scope.
+
+### 2. Add the repository and dependencies
+
 ```kotlin
 plugins {
     kotlin("jvm") version "2.0.21"
     id("com.google.devtools.ksp") version "2.0.21-1.0.28"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/noovoweb/kotlin-validator")
+        credentials {
+            username = providers.gradleProperty("gpr.user").orNull
+                ?: System.getenv("GITHUB_ACTOR")
+            password = providers.gradleProperty("gpr.token").orNull
+                ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
@@ -489,6 +520,7 @@ Found a vulnerability? Email **info@noovoweb.com** rather than opening a public 
 | `./gradlew spotlessCheck` | Check formatting |
 | `./gradlew clean build` | Full clean build |
 | `./gradlew publishToMavenLocal` | Install to `~/.m2/repository` for local consumption |
+| `./gradlew publishAllPublicationsToGitHubPackagesRepository` | Publish to GitHub Packages (requires `gpr.user` + `gpr.token` with `write:packages` scope) |
 
 PRs welcome.
 
