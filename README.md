@@ -255,6 +255,30 @@ Each example is a runnable REST API covering every validator category, custom va
 
 ## Nested Objects & Arrays
 
+Use `@Valid` to recurse into a single nested object, and `@Valid(each = true)` to validate each element of a collection:
+
+```kotlin
+@Validated
+data class CreateUserRequest(
+    @Required @Email val email: String?,
+    @Valid val address: Address?,            // validates the nested Address
+    @Valid(each = true) val phones: List<Phone>?,  // validates each Phone
+)
+
+@Validated
+data class Address(
+    @Required val street: String?,
+    @Required val city: String?,
+)
+
+@Validated
+data class Phone(
+    @Required val number: String?,
+)
+```
+
+Deeper nesting works the same way:
+
 ```kotlin
 @Validated
 data class Company(
@@ -468,6 +492,77 @@ user.name.too_short=Votre nom doit contenir au moins 3 caractères
 ```
 
 For standalone use (no framework), implement `MessageProvider` and pass it to `ValidationContext`. Spring adapters consult Spring's `MessageSource` first, then fall back to the library bundle. Ktor uses `ValidationMessages.properties` resource bundles.
+
+---
+
+## Configuration
+
+### `ValidationContext` (core)
+
+Pass a `ValidationContext` to any validator. All fields have sensible defaults — override only what you need:
+
+| Field | Purpose | Default |
+|---|---|---|
+| `locale` | Language used to resolve error messages | `Locale.ENGLISH` |
+| `messageProvider` | Source of localized messages (swap for Spring `MessageSource`, custom bundles, etc.) | `DefaultMessageProvider()` |
+| `dispatcher` | Coroutine dispatcher for parallel field validation | `Dispatchers.Default` |
+| `clock` | Clock used by date/time validators (injectable for tests) | `Clock.systemDefaultZone()` |
+| `metadata` | Free-form `Map<String, Any>` passed through to custom validators | `emptyMap()` |
+| `maxValidationDepth` | Maximum nesting depth for `@Valid` recursion (guards against stack overflows on cycles) | `10` |
+
+```kotlin
+val context = ValidationContext()
+    .withLocale(Locale.FRENCH)
+    .withDispatcher(Dispatchers.IO)
+    .withMaxValidationDepth(20)
+    .withMetadata("tenantId", "acme")
+
+UserRequestValidator().validate(request, context)
+```
+
+Factory presets: `ValidationContext.forIO(...)` (uses `Dispatchers.IO`) and `ValidationContext.forTesting(...)` (accepts a fixed `Clock`).
+
+### Spring Boot (`application.yml` / `application.properties`)
+
+Both `kotlin-validator-spring-webflux` and `kotlin-validator-spring-mvc` register a `ValidatorProperties` bean under the `kotlin.validator` prefix:
+
+```yaml
+kotlin:
+  validator:
+    locale: en_US           # default locale; falls back to Locale.getDefault() if unset
+    use-request-locale: true  # MVC only — see below
+```
+
+| Property | Modules | Purpose | Default |
+|---|---|---|---|
+| `kotlin.validator.locale` | `spring-webflux`, `spring-mvc` | Default locale for validation messages (e.g. `en_US`, `fr_FR`, `en`) | `Locale.getDefault()` |
+| `kotlin.validator.use-request-locale` | `spring-mvc` only | When `true`, builds a per-request `ValidationContext` with the locale from `Accept-Language` (requires a `LocaleResolver`, auto-configured if missing). When `false`, uses a singleton context with the fixed `locale` above. | `true` |
+
+In WebFlux, the per-request locale is resolved automatically from `Accept-Language` via Spring's reactive `LocaleContextResolver`.
+
+### Ktor (`install(ValidationPlugin) { ... }`)
+
+```kotlin
+install(ValidationPlugin) {
+    defaultLocale  = Locale.ENGLISH                // fallback when Accept-Language is missing/invalid
+    messageProvider = DefaultMessageProvider()
+    clock          = Clock.systemDefaultZone()
+    dispatcher     = Dispatchers.Default
+}
+```
+
+| Field | Purpose | Default |
+|---|---|---|
+| `defaultLocale` | Locale used when the request has no usable `Accept-Language` header | `Locale.getDefault()` |
+| `messageProvider` | Source of localized messages | `DefaultMessageProvider()` |
+| `clock` | Clock for date/time validators | `Clock.systemDefaultZone()` |
+| `dispatcher` | Coroutine dispatcher for validation | `Dispatchers.Default` |
+
+Inside a route, `call.validationContext()` builds a `ValidationContext` for the current request, with `locale` extracted from the `Accept-Language` header.
+
+### Per-annotation overrides
+
+Most annotations let you override the message key inline (e.g. `@Email("user.email.invalid")`). See [Internationalization](#internationalization) for details.
 
 ---
 
