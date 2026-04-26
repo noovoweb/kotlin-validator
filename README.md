@@ -75,15 +75,17 @@ repositories {
     }
 }
 
+val kotlinValidatorVersion = "0.1.0-beta.3"
+
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.3")
-    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.3")
-    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.3")
+    implementation("com.noovoweb:kotlin-validator-annotations:$kotlinValidatorVersion")
+    implementation("com.noovoweb:kotlin-validator-runtime:$kotlinValidatorVersion")
+    ksp("com.noovoweb:kotlin-validator-processor:$kotlinValidatorVersion")
 
     // Pick the adapter for your framework (optional)
-    // implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.3")
-    // implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.3")
-    // implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.3")
+    // implementation("com.noovoweb:kotlin-validator-spring-webflux:$kotlinValidatorVersion")
+    // implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
+    // implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
 }
 
 kotlin {
@@ -133,8 +135,10 @@ Each adapter exposes a simplified `payload.validate(...)` extension that auto-di
 <summary><b>Spring Boot WebFlux</b> (reactive)</summary>
 
 ```kotlin
+val kotlinValidatorVersion = "0.1.0-beta.3"
+
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.3")
+    implementation("com.noovoweb:kotlin-validator-spring-webflux:$kotlinValidatorVersion")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
 ```
@@ -174,8 +178,10 @@ Handle `ValidationException` in your `@ControllerAdvice` (or equivalent) to shap
 <summary><b>Spring Boot MVC</b> (blocking)</summary>
 
 ```kotlin
+val kotlinValidatorVersion = "0.1.0-beta.3"
+
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.3")
+    implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
     implementation("org.springframework.boot:spring-boot-starter-web")
 }
 ```
@@ -204,8 +210,10 @@ Spring's `@Valid` is also supported via the blocking adapter.
 <summary><b>Ktor</b></summary>
 
 ```kotlin
+val kotlinValidatorVersion = "0.1.0-beta.3"
+
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.3")
+    implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
     implementation("io.ktor:ktor-server-core:2.3.12")
     implementation("io.ktor:ktor-server-content-negotiation:2.3.12")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
