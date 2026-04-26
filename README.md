@@ -2,9 +2,9 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.1-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
+[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.3-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
 
-A high-performance, type-safe, coroutine-native validation library for Kotlin. Validators are generated at compile time via KSP — no reflection at runtime, no annotation scanning, no surprises. Every validator is a `suspend` function: fields validate in parallel, I/O-bound custom validators run without blocking threads, and the whole thing integrates naturally into any coroutine-based stack (Spring WebFlux, Ktor, or plain `runTest`).
+A high-performance, type-safe, coroutine-native validation library for Kotlin. Validators are generated at compile time with KSP, eliminating runtime reflection, annotation scanning, and hidden behavior. Each validator is a `suspend` function, enabling parallel field validation and non-blocking execution of I/O-bound custom validators. The library integrates seamlessly with any coroutine-based stack, including Spring WebFlux, Ktor, and `runTest`.
 
 ```kotlin
 @Validated
@@ -76,14 +76,14 @@ repositories {
 }
 
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.1")
-    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.1")
-    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-annotations:0.1.0-beta.3")
+    implementation("com.noovoweb:kotlin-validator-runtime:0.1.0-beta.3")
+    ksp("com.noovoweb:kotlin-validator-processor:0.1.0-beta.3")
 
     // Pick the adapter for your framework (optional)
-    // implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.1")
-    // implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.1")
-    // implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.1")
+    // implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.3")
+    // implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.3")
+    // implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.3")
 }
 
 kotlin {
@@ -134,7 +134,7 @@ Each adapter exposes a simplified `payload.validate(...)` extension that auto-di
 
 ```kotlin
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-spring-webflux:0.1.0-beta.3")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
 ```
@@ -175,7 +175,7 @@ Handle `ValidationException` in your `@ControllerAdvice` (or equivalent) to shap
 
 ```kotlin
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-spring-mvc:0.1.0-beta.3")
     implementation("org.springframework.boot:spring-boot-starter-web")
 }
 ```
@@ -205,7 +205,7 @@ Spring's `@Valid` is also supported via the blocking adapter.
 
 ```kotlin
 dependencies {
-    implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.1")
+    implementation("com.noovoweb:kotlin-validator-ktor:0.1.0-beta.3")
     implementation("io.ktor:ktor-server-core:2.3.12")
     implementation("io.ktor:ktor-server-content-negotiation:2.3.12")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
