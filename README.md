@@ -454,18 +454,7 @@ suspend fun validateAddressExists(value: String?, ctx: ValidationContext): Boole
 }
 ```
 
-For rate-limited external services use `Dispatchers.IO.limitedParallelism(n)`. To make a custom dispatcher the default for every validator, build your own `ValidationContext`:
-
-```kotlin
-@Bean
-@Primary
-fun validationContext(messageProvider: MessageProvider, clock: Clock) =
-    ValidationContext(
-        messageProvider = messageProvider,
-        dispatcher = Dispatchers.IO,
-        clock = clock,
-    )
-```
+For rate-limited external services use `Dispatchers.IO.limitedParallelism(n)`. Keep `withContext(Dispatchers.IO)` scoped to the I/O call itself — don't swap the context-wide dispatcher to `IO`, since built-in validators are CPU-bound and would needlessly occupy I/O threads.
 
 A complete geocoding example lives in the [WebFlux example repo](https://github.com/noovoweb/kotlin-validator-spring-webflux-example).
 
@@ -505,30 +494,28 @@ For standalone use (no framework), implement `MessageProvider` and pass it to `V
 
 ## Configuration
 
+Most of the time you don't need to configure anything. The options below are the ones that actually move the needle.
+
 ### `ValidationContext` (core)
 
-Pass a `ValidationContext` to any validator. All fields have sensible defaults — override only what you need:
-
-| Field | Purpose | Default |
+| Field | When to override | Default |
 |---|---|---|
-| `locale` | Language used to resolve error messages | `Locale.ENGLISH` |
-| `messageProvider` | Source of localized messages (swap for Spring `MessageSource`, custom bundles, etc.) | `DefaultMessageProvider()` |
-| `dispatcher` | Coroutine dispatcher for parallel field validation | `Dispatchers.Default` |
-| `clock` | Clock used by date/time validators (injectable for tests) | `Clock.systemDefaultZone()` |
-| `metadata` | Free-form `Map<String, Any>` passed through to custom validators | `emptyMap()` |
-| `maxValidationDepth` | Maximum nesting depth for `@Valid` recursion (guards against stack overflows on cycles) | `10` |
+| `locale` | Render messages in a specific language (set per request, or globally) | `Locale.ENGLISH` |
+| `messageProvider` | Plug in your own message source (resource bundles, DB-backed copy, Spring `MessageSource`) | `DefaultMessageProvider()` |
+| `clock` | Inject a fixed `Clock` in tests so `@Past` / `@Future` are deterministic | `Clock.systemDefaultZone()` |
+| `metadata` | Pass request-scoped data (tenant id, user id, feature flags) into custom validators, then read it via `ctx.metadata["key"]` inside the validator | `emptyMap()` |
+| `maxValidationDepth` | Raise when you legitimately have deeply nested `@Valid` graphs; lower to harden against hostile input | `10` |
 
 ```kotlin
 val context = ValidationContext()
     .withLocale(Locale.FRENCH)
-    .withDispatcher(Dispatchers.IO)
+    .withMetadata("tenantId", currentUser.tenantId)  // read inside custom validators via ctx.metadata["tenantId"]
     .withMaxValidationDepth(20)
-    .withMetadata("tenantId", "acme")
 
 UserRequestValidator().validate(request, context)
 ```
 
-Factory presets: `ValidationContext.forIO(...)` (uses `Dispatchers.IO`) and `ValidationContext.forTesting(...)` (accepts a fixed `Clock`).
+> **Note on `dispatcher`:** `ValidationContext` also exposes a `dispatcher`, but built-in validators are CPU-bound, so `Dispatchers.Default` is the right choice and you should leave it alone. For I/O inside a custom validator, wrap that specific call in `withContext(Dispatchers.IO) { ... }` — see [I/O-bound custom validators](#custom-validators).
 
 ### Spring Boot (`application.yml` / `application.properties`)
 
@@ -537,34 +524,34 @@ Both `kotlin-validator-spring-webflux` and `kotlin-validator-spring-mvc` registe
 ```yaml
 kotlin:
   validator:
-    locale: en_US           # default locale; falls back to Locale.getDefault() if unset
+    locale: en_US             # fallback locale when the request has none
     use-request-locale: true  # MVC only — see below
 ```
 
 | Property | Modules | Purpose | Default |
 |---|---|---|---|
-| `kotlin.validator.locale` | `spring-webflux`, `spring-mvc` | Default locale for validation messages (e.g. `en_US`, `fr_FR`, `en`) | `Locale.getDefault()` |
-| `kotlin.validator.use-request-locale` | `spring-mvc` only | When `true`, builds a per-request `ValidationContext` with the locale from `Accept-Language` (requires a `LocaleResolver`, auto-configured if missing). When `false`, uses a singleton context with the fixed `locale` above. | `true` |
+| `kotlin.validator.locale` | `spring-webflux`, `spring-mvc` | Fallback locale for validation messages (e.g. `en_US`, `fr_FR`, `en`) | `Locale.getDefault()` |
+| `kotlin.validator.use-request-locale` | `spring-mvc` only | When `true`, builds a per-request `ValidationContext` with the locale from `Accept-Language` (auto-configures a `LocaleResolver` if missing). When `false`, uses a singleton context with the fixed `locale` above. | `true` |
 
-In WebFlux, the per-request locale is resolved automatically from `Accept-Language` via Spring's reactive `LocaleContextResolver`.
+In WebFlux, the per-request locale is resolved automatically from `Accept-Language` via Spring's reactive `LocaleContextResolver` — no flag needed.
+
+To customize messages, expose your own `MessageSource` bean (standard Spring i18n); the adapter consults it before falling back to the library bundle.
 
 ### Ktor (`install(ValidationPlugin) { ... }`)
 
 ```kotlin
 install(ValidationPlugin) {
-    defaultLocale  = Locale.ENGLISH                // fallback when Accept-Language is missing/invalid
+    defaultLocale   = Locale.ENGLISH         // fallback when Accept-Language is missing/invalid
     messageProvider = DefaultMessageProvider()
-    clock          = Clock.systemDefaultZone()
-    dispatcher     = Dispatchers.Default
+    clock           = Clock.systemDefaultZone()
 }
 ```
 
-| Field | Purpose | Default |
+| Field | When to override | Default |
 |---|---|---|
-| `defaultLocale` | Locale used when the request has no usable `Accept-Language` header | `Locale.getDefault()` |
-| `messageProvider` | Source of localized messages | `DefaultMessageProvider()` |
-| `clock` | Clock for date/time validators | `Clock.systemDefaultZone()` |
-| `dispatcher` | Coroutine dispatcher for validation | `Dispatchers.Default` |
+| `defaultLocale` | Pick the fallback locale used when the request has no usable `Accept-Language` header | `Locale.getDefault()` |
+| `messageProvider` | Swap in custom messages or a different bundle layout | `DefaultMessageProvider()` |
+| `clock` | Inject a fixed `Clock` in tests | `Clock.systemDefaultZone()` |
 
 Inside a route, `call.validationContext()` builds a `ValidationContext` for the current request, with `locale` extracted from the `Accept-Language` header.
 
