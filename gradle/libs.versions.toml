@@ -7,7 +7,7 @@ spring-boot = "4.0.6"
 ktor = "3.4.3"
 kotlinpoet = "1.18.1"
 junit-jupiter = "6.0.3"
-mockk = "1.13.9"
+mockk = "1.14.9"
 compile-testing = "1.6.0"
 spotless = "8.3.0"
 
