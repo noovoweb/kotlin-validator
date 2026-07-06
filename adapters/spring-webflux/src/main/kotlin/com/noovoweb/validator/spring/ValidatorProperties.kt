@@ -26,5 +26,5 @@ public data class ValidatorProperties(
      * If not set, uses Locale.getDefault().
      * Examples: "en_US", "fr_FR", "en"
      */
-    var locale: Locale? = null,
+    var locale: Locale? = null
 )

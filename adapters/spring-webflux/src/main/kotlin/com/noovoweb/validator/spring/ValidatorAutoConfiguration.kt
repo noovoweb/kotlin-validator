@@ -46,12 +46,12 @@ public class ValidatorAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public fun validationContext(properties: ValidatorProperties, messageProvider: MessageProvider, clock: Clock,): ValidationContext =
+    public fun validationContext(properties: ValidatorProperties, messageProvider: MessageProvider, clock: Clock): ValidationContext =
         ValidationContext(
             locale = properties.locale ?: Locale.getDefault(),
             messageProvider = messageProvider,
             dispatcher = Dispatchers.Default,
-            clock = clock,
+            clock = clock
         )
 
     /**

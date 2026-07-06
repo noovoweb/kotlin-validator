@@ -12,7 +12,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Required(val message: String = "",)
+public annotation class Required(val message: String = "")
 
 /**
  * Validates that a string is a valid email address.
@@ -25,7 +25,7 @@ public annotation class Required(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Email(val message: String = "",)
+public annotation class Email(val message: String = "")
 
 /**
  * Validates that a string is a valid URL.
@@ -38,7 +38,7 @@ public annotation class Email(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Url(val message: String = "",)
+public annotation class Url(val message: String = "")
 
 /**
  * Validates that a string is a valid UUID.
@@ -51,7 +51,7 @@ public annotation class Url(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Uuid(val message: String = "",)
+public annotation class Uuid(val message: String = "")
 
 /**
  * Validates that a string length is within a specified range.
@@ -64,7 +64,7 @@ public annotation class Uuid(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Length(val min: Int, val max: Int, val message: String = "",)
+public annotation class Length(val min: Int, val max: Int, val message: String = "")
 
 /**
  * Validates that a string length is at least the specified value.
@@ -76,7 +76,7 @@ public annotation class Length(val min: Int, val max: Int, val message: String =
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MinLength(val value: Int, val message: String = "",)
+public annotation class MinLength(val value: Int, val message: String = "")
 
 /**
  * Validates that a string length does not exceed the specified value.
@@ -88,7 +88,7 @@ public annotation class MinLength(val value: Int, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MaxLength(val value: Int, val message: String = "",)
+public annotation class MaxLength(val value: Int, val message: String = "")
 
 /**
  * Validates that a string matches a regular expression pattern.
@@ -123,7 +123,7 @@ public annotation class MaxLength(val value: Int, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Pattern(val value: String, val message: String = "",)
+public annotation class Pattern(val value: String, val message: String = "")
 
 /**
  * Validates that a string contains only alphabetic characters (a-z, A-Z).
@@ -134,7 +134,7 @@ public annotation class Pattern(val value: String, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Alpha(val message: String = "",)
+public annotation class Alpha(val message: String = "")
 
 /**
  * Validates that a string contains only alphanumeric characters (a-z, A-Z, 0-9).
@@ -145,7 +145,7 @@ public annotation class Alpha(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Alphanumeric(val message: String = "",)
+public annotation class Alphanumeric(val message: String = "")
 
 /**
  * Validates that a string contains only ASCII characters.
@@ -156,7 +156,7 @@ public annotation class Alphanumeric(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Ascii(val message: String = "",)
+public annotation class Ascii(val message: String = "")
 
 /**
  * Validates that a string is entirely lowercase.
@@ -167,7 +167,7 @@ public annotation class Ascii(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Lowercase(val message: String = "",)
+public annotation class Lowercase(val message: String = "")
 
 /**
  * Validates that a string is entirely uppercase.
@@ -178,7 +178,7 @@ public annotation class Lowercase(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Uppercase(val message: String = "",)
+public annotation class Uppercase(val message: String = "")
 
 /**
  * Validates that a string starts with the specified value.
@@ -190,7 +190,7 @@ public annotation class Uppercase(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class StartsWith(val value: String, val message: String = "",)
+public annotation class StartsWith(val value: String, val message: String = "")
 
 /**
  * Validates that a string ends with the specified value.
@@ -202,7 +202,7 @@ public annotation class StartsWith(val value: String, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class EndsWith(val value: String, val message: String = "",)
+public annotation class EndsWith(val value: String, val message: String = "")
 
 /**
  * Validates that a string contains the specified value.
@@ -214,7 +214,7 @@ public annotation class EndsWith(val value: String, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Contains(val value: String, val message: String = "",)
+public annotation class Contains(val value: String, val message: String = "")
 
 /**
  * Validates that a value is one of the allowed values.
@@ -226,7 +226,7 @@ public annotation class Contains(val value: String, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class OneOf(val values: Array<String>, val message: String = "",)
+public annotation class OneOf(val values: Array<String>, val message: String = "")
 
 /**
  * Validates that a value is not one of the forbidden values.
@@ -238,7 +238,7 @@ public annotation class OneOf(val values: Array<String>, val message: String = "
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class NotOneOf(val values: Array<String>, val message: String = "",)
+public annotation class NotOneOf(val values: Array<String>, val message: String = "")
 
 /**
  * Validates that a string is valid JSON.
@@ -251,7 +251,7 @@ public annotation class NotOneOf(val values: Array<String>, val message: String 
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Json(val message: String = "",)
+public annotation class Json(val message: String = "")
 
 /**
  * Validates that a string passes the Luhn algorithm check.
@@ -269,7 +269,7 @@ public annotation class Json(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Luhn(val message: String = "",)
+public annotation class Luhn(val message: String = "")
 
 /**
  * Validates that a string is a valid credit card number.
@@ -306,4 +306,4 @@ public annotation class Luhn(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class CreditCard(val message: String = "",)
+public annotation class CreditCard(val message: String = "")

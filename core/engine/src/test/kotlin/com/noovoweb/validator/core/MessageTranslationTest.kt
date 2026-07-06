@@ -36,7 +36,7 @@ class MessageTranslationTest {
                 "field.contains",
                 "field.oneof",
                 "field.notoneof",
-                "field.json",
+                "field.json"
             )
 
         keys.forEach { key ->
@@ -63,7 +63,7 @@ class MessageTranslationTest {
                 "field.decimal",
                 "field.divisibleby",
                 "field.even",
-                "field.odd",
+                "field.odd"
             )
 
         keys.forEach { key ->
@@ -86,7 +86,7 @@ class MessageTranslationTest {
                 "field.notempty",
                 "field.distinct",
                 "field.containsvalue",
-                "field.notcontains",
+                "field.notcontains"
             )
 
         keys.forEach { key ->
@@ -108,7 +108,7 @@ class MessageTranslationTest {
                 "field.isodatetime",
                 "field.future",
                 "field.past",
-                "field.today",
+                "field.today"
             )
 
         keys.forEach { key ->
@@ -129,7 +129,7 @@ class MessageTranslationTest {
                 "field.ipv6",
                 "field.ip",
                 "field.macaddress",
-                "field.port",
+                "field.port"
             )
 
         keys.forEach { key ->
@@ -148,7 +148,7 @@ class MessageTranslationTest {
             listOf(
                 "field.mimetype",
                 "field.fileextension",
-                "field.maxfilesize",
+                "field.maxfilesize"
             )
 
         keys.forEach { key ->
@@ -170,7 +170,7 @@ class MessageTranslationTest {
                 "field.requiredif",
                 "field.requiredunless",
                 "field.requiredwith",
-                "field.requiredwithout",
+                "field.requiredwithout"
             )
 
         keys.forEach { key ->
@@ -199,7 +199,7 @@ class MessageTranslationTest {
         val keys =
             listOf(
                 "field.pattern.too_long",
-                "field.too_long",
+                "field.too_long"
             )
 
         keys.forEach { key ->
@@ -221,7 +221,7 @@ class MessageTranslationTest {
                 "field.between" to arrayOf<Any>(10, 50),
                 "field.length" to arrayOf<Any>(5, 20),
                 "field.minlength" to arrayOf<Any>(8),
-                "field.maxlength" to arrayOf<Any>(255),
+                "field.maxlength" to arrayOf<Any>(255)
             )
 
         testCases.forEach { (key, params) ->
@@ -287,7 +287,7 @@ class MessageTranslationTest {
                 "field.same", "field.different", "field.requiredif", "field.requiredunless",
                 "field.requiredwith", "field.requiredwithout",
                 // Security validators
-                "field.pattern.too_long", "field.too_long",
+                "field.pattern.too_long", "field.too_long"
             )
 
         allKeys.forEach { key ->

@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class MaxLength(
     @MaxLength(20)
-    val name: String?,
+    val name: String?
 )

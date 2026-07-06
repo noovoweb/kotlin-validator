@@ -24,13 +24,13 @@ class IPValidationTest {
                 "172.16.0.1",
                 "255.255.255.255",
                 "8.8.8.8",
-                "1.1.1.1",
+                "1.1.1.1"
             )
 
         validIPv4.forEach { ip ->
             assertTrue(
                 ValidationPatterns.isValidIPv4(ip),
-                "Expected valid IPv4: $ip",
+                "Expected valid IPv4: $ip"
             )
         }
     }
@@ -52,13 +52,13 @@ class IPValidationTest {
                 "", // Empty
                 "localhost", // Hostname
                 "192.168.1", // Incomplete
-                "192.168.1.1.1", // Too many octets
+                "192.168.1.1.1" // Too many octets
             )
 
         invalidIPv4.forEach { ip ->
             assertFalse(
                 ValidationPatterns.isValidIPv4(ip),
-                "Expected invalid IPv4: $ip",
+                "Expected invalid IPv4: $ip"
             )
         }
     }
@@ -80,14 +80,14 @@ class IPValidationTest {
                 "fe80::200:5aee:feaa:20a2",
                 // Other valid formats
                 "2001:db8:85a3:0:0:8a2e:370:7334",
-                "2001:0db8:0000:0042:0000:8a2e:0370:7334",
+                "2001:0db8:0000:0042:0000:8a2e:0370:7334"
                 // Note: IPv4-mapped IPv6 (::ffff:192.0.2.1) parsed by InetAddress as IPv4
             )
 
         validIPv6.forEach { ip ->
             assertTrue(
                 ValidationPatterns.isValidIPv6(ip),
-                "Expected valid IPv6: $ip",
+                "Expected valid IPv6: $ip"
             )
         }
     }
@@ -106,13 +106,13 @@ class IPValidationTest {
                 "localhost", // Hostname
                 "192.168.1.1", // IPv4 (not IPv6)
                 "::ffff:999.0.2.1", // Invalid IPv4 part
-                "12345::1", // Group too long
+                "12345::1" // Group too long
             )
 
         invalidIPv6.forEach { ip ->
             assertFalse(
                 ValidationPatterns.isValidIPv6(ip),
-                "Expected invalid IPv6: $ip",
+                "Expected invalid IPv6: $ip"
             )
         }
     }
@@ -127,13 +127,13 @@ class IPValidationTest {
                 // IPv6
                 "2001:db8::1",
                 "::1",
-                "fe80::1",
+                "fe80::1"
             )
 
         validIPs.forEach { ip ->
             assertTrue(
                 ValidationPatterns.isValidIP(ip),
-                "Expected valid IP: $ip",
+                "Expected valid IP: $ip"
             )
         }
     }
@@ -146,13 +146,13 @@ class IPValidationTest {
                 "gggg::1", // Invalid IPv6
                 "localhost", // Hostname
                 "", // Empty
-                "not-an-ip",
+                "not-an-ip"
             )
 
         invalidIPs.forEach { ip ->
             assertFalse(
                 ValidationPatterns.isValidIP(ip),
-                "Expected invalid IP: $ip",
+                "Expected invalid IP: $ip"
             )
         }
     }
@@ -163,17 +163,17 @@ class IPValidationTest {
             listOf(
                 "2001:db8::1",
                 "::1",
-                "fe80::1",
+                "fe80::1"
             )
 
         ipv6Addresses.forEach { ip ->
             assertFalse(
                 ValidationPatterns.isValidIPv4(ip),
-                "IPv6 should not be valid IPv4: $ip",
+                "IPv6 should not be valid IPv4: $ip"
             )
             assertTrue(
                 ValidationPatterns.isValidIPv6(ip),
-                "Should be valid IPv6: $ip",
+                "Should be valid IPv6: $ip"
             )
         }
     }
@@ -184,17 +184,17 @@ class IPValidationTest {
             listOf(
                 "192.168.1.1",
                 "8.8.8.8",
-                "127.0.0.1",
+                "127.0.0.1"
             )
 
         ipv4Addresses.forEach { ip ->
             assertTrue(
                 ValidationPatterns.isValidIPv4(ip),
-                "Should be valid IPv4: $ip",
+                "Should be valid IPv4: $ip"
             )
             assertFalse(
                 ValidationPatterns.isValidIPv6(ip),
-                "IPv4 should not be valid IPv6: $ip",
+                "IPv4 should not be valid IPv6: $ip"
             )
         }
     }
@@ -207,7 +207,7 @@ class IPValidationTest {
                 ":" + ":".repeat(10000),
                 "a" + "a".repeat(10000),
                 "." + ".".repeat(10000),
-                "1." + "1.".repeat(1000),
+                "1." + "1.".repeat(1000)
             )
 
         maliciousInputs.forEach { input ->

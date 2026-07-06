@@ -16,7 +16,7 @@ class ValidationExceptionTest {
             mapOf(
                 "email" to listOf("Invalid email", "Email too long"),
                 "age" to listOf("Age must be at least 18"),
-                "name" to listOf("Name is required"),
+                "name" to listOf("Name is required")
             )
         val exception = ValidationException(errors)
 
@@ -30,7 +30,7 @@ class ValidationExceptionTest {
             mapOf(
                 "field1" to listOf("error"),
                 "field2" to listOf("error"),
-                "field3" to listOf("error"),
+                "field3" to listOf("error")
             )
         val exception = ValidationException(errors)
 
@@ -42,7 +42,7 @@ class ValidationExceptionTest {
         val errors =
             mapOf(
                 "email" to listOf("Invalid email", "Too long"),
-                "age" to listOf("Too young"),
+                "age" to listOf("Too young")
             )
         val exception = ValidationException(errors)
 
@@ -66,7 +66,7 @@ class ValidationExceptionTest {
         val errors =
             mapOf(
                 "email" to listOf("error"),
-                "age" to listOf("error"),
+                "age" to listOf("error")
             )
         val exception = ValidationException(errors)
 
@@ -81,7 +81,7 @@ class ValidationExceptionTest {
             mapOf(
                 "email" to listOf("Invalid email", "Too long"),
                 "age" to listOf("Too young"),
-                "name" to listOf("Required", "Too short"),
+                "name" to listOf("Required", "Too short")
             )
         val exception = ValidationException(errors)
 
@@ -107,7 +107,7 @@ class ValidationExceptionTest {
         val errors =
             mapOf(
                 "email" to listOf("Invalid email"),
-                "age" to listOf("Too young"),
+                "age" to listOf("Too young")
             )
         val exception = ValidationException(errors)
 
@@ -124,7 +124,7 @@ class ValidationExceptionTest {
     fun `toJson handles multiple errors per field`() {
         val errors =
             mapOf(
-                "password" to listOf("Too short", "No uppercase", "No number"),
+                "password" to listOf("Too short", "No uppercase", "No number")
             )
         val exception = ValidationException(errors)
 
@@ -138,7 +138,7 @@ class ValidationExceptionTest {
     fun `toJson escapes special characters in messages`() {
         val errors =
             mapOf(
-                "field" to listOf("Message with \"quotes\" and \\backslash"),
+                "field" to listOf("Message with \"quotes\" and \\backslash")
             )
         val exception = ValidationException(errors)
 
@@ -151,7 +151,7 @@ class ValidationExceptionTest {
     fun `toJson escapes special characters in field names`() {
         val errors =
             mapOf(
-                "field\"injection" to listOf("error"),
+                "field\"injection" to listOf("error")
             )
         val exception = ValidationException(errors)
 
@@ -163,7 +163,7 @@ class ValidationExceptionTest {
     fun `toJson escapes control characters`() {
         val errors =
             mapOf(
-                "field" to listOf("line1\nline2\ttab"),
+                "field" to listOf("line1\nline2\ttab")
             )
         val exception = ValidationException(errors)
 
@@ -213,7 +213,7 @@ class ValidationExceptionTest {
                 "lastName" to listOf("Required"),
                 "email" to listOf("Invalid", "Too long"),
                 "age" to listOf("Too young"),
-                "address.city" to listOf("Required"),
+                "address.city" to listOf("Required")
             )
         val exception = ValidationException(errors)
 
@@ -230,7 +230,7 @@ class ValidationExceptionTest {
             mapOf(
                 "user.address.city" to listOf("Required"),
                 "user.phoneNumbers[0].number" to listOf("Invalid format"),
-                "user.phoneNumbers[1].type" to listOf("Invalid type"),
+                "user.phoneNumbers[1].type" to listOf("Invalid type")
             )
         val exception = ValidationException(errors)
 

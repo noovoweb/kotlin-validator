@@ -17,18 +17,18 @@ class ValidatedClassInfoTest {
                 validators =
                 listOf(
                     ValidationValidatorInfo.RequiredValidator(null),
-                    ValidationValidatorInfo.EmailValidator(null),
+                    ValidationValidatorInfo.EmailValidator(null)
                 ),
                 isNullable = true,
                 failFastPositions = emptyList(),
-                nestedValidation = null,
+                nestedValidation = null
             )
 
         val classInfo =
             ValidatedClassInfo(
                 packageName = "com.example",
                 className = "User",
-                properties = listOf(property),
+                properties = listOf(property)
             )
 
         assertEquals("com.example", classInfo.packageName)
@@ -46,11 +46,11 @@ class ValidatedClassInfoTest {
                 validators =
                 listOf(
                     ValidationValidatorInfo.RequiredValidator(null),
-                    ValidationValidatorInfo.MinValidator(18.0, null),
+                    ValidationValidatorInfo.MinValidator(18.0, null)
                 ),
                 isNullable = true,
                 failFastPositions = emptyList(),
-                nestedValidation = null,
+                nestedValidation = null
             )
 
         assertEquals("age", property.name)
@@ -69,11 +69,11 @@ class ValidatedClassInfoTest {
                 validators =
                 listOf(
                     ValidationValidatorInfo.RequiredValidator(null),
-                    ValidationValidatorInfo.EmailValidator(null),
+                    ValidationValidatorInfo.EmailValidator(null)
                 ),
                 isNullable = true,
                 failFastPositions = listOf(2),
-                nestedValidation = null,
+                nestedValidation = null
             )
 
         assertTrue(property.failFastPositions.isNotEmpty())
@@ -83,7 +83,7 @@ class ValidatedClassInfoTest {
     fun `should handle nested validation`() {
         val nestedValidation =
             NestedValidationInfo(
-                validateEachElement = true,
+                validateEachElement = true
             )
 
         val property =
@@ -93,7 +93,7 @@ class ValidatedClassInfoTest {
                 validators = emptyList(),
                 isNullable = false,
                 failFastPositions = emptyList(),
-                nestedValidation = nestedValidation,
+                nestedValidation = nestedValidation
             )
 
         assertEquals(true, property.nestedValidation?.validateEachElement)
@@ -109,7 +109,7 @@ class ValidatedClassInfoTest {
                     validators = listOf(ValidationValidatorInfo.RequiredValidator(null)),
                     isNullable = true,
                     failFastPositions = emptyList(),
-                    nestedValidation = null,
+                    nestedValidation = null
                 ),
                 PropertyInfo(
                     name = "email",
@@ -117,7 +117,7 @@ class ValidatedClassInfoTest {
                     validators = listOf(ValidationValidatorInfo.EmailValidator(null)),
                     isNullable = true,
                     failFastPositions = emptyList(),
-                    nestedValidation = null,
+                    nestedValidation = null
                 ),
                 PropertyInfo(
                     name = "age",
@@ -125,15 +125,15 @@ class ValidatedClassInfoTest {
                     validators = listOf(ValidationValidatorInfo.MinValidator(18.0, null)),
                     isNullable = true,
                     failFastPositions = emptyList(),
-                    nestedValidation = null,
-                ),
+                    nestedValidation = null
+                )
             )
 
         val classInfo =
             ValidatedClassInfo(
                 packageName = "com.example",
                 className = "UserProfile",
-                properties = properties,
+                properties = properties
             )
 
         assertEquals(3, classInfo.properties.size)

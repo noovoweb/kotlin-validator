@@ -30,7 +30,7 @@ class ValidatorPropertiesTest {
         val properties =
             ValidatorProperties(
                 locale = Locale.GERMAN,
-                useRequestLocale = false,
+                useRequestLocale = false
             )
 
         assertEquals(Locale.GERMAN, properties.locale)
