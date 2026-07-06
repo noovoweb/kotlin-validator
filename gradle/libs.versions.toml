@@ -1,6 +1,8 @@
 [versions]
-kotlin = "2.4.0"
-ksp = "2.3.9"
+# Kotlin is pinned below 2.3.30 until CodeQL's Kotlin extractor supports newer
+# versions (see codeql.yml); dependabot ignores Kotlin 2.4.x for the same reason
+kotlin = "2.3.21"
+ksp = "2.3.7"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 spring-boot = "4.0.6"

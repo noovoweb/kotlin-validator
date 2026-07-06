@@ -1,6 +1,6 @@
 # Kotlin Validator
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.4-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
 
@@ -56,8 +56,8 @@ Or export them as environment variables — `GITHUB_ACTOR` and `GITHUB_TOKEN`.
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "2.4.0"
-    id("com.google.devtools.ksp") version "2.3.9"
+    kotlin("jvm") version "2.3.21"
+    id("com.google.devtools.ksp") version "2.3.7"
 }
 
 repositories {
