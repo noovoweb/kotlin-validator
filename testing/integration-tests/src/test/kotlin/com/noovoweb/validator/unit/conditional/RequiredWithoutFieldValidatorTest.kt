@@ -33,7 +33,7 @@ class RequiredWithoutFieldValidatorTest {
         val exception =
             assertThrows<ValidationException> {
                 RequiredWithoutFieldValidator().validate(
-                    RequiredWithoutField(email = null, phone = null, mailingAddress = null),
+                    RequiredWithoutField(email = null, phone = null, mailingAddress = null)
                 )
             }
         assertTrue(exception.errors.containsKey("mailingAddress"))

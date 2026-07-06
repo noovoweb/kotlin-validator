@@ -16,7 +16,7 @@ class ValidationErrorTest {
         val error =
             ValidationError(
                 message = "Invalid email format",
-                code = "invalid_email",
+                code = "invalid_email"
             )
 
         assertEquals("Invalid email format", error.message)
@@ -30,7 +30,7 @@ class ValidationErrorTest {
             ValidationError(
                 message = "Invalid email",
                 code = "invalid",
-                metadata = metadata,
+                metadata = metadata
             )
 
         assertEquals(metadata, error.metadata)
@@ -71,14 +71,14 @@ class ValidationErrorTest {
         val error =
             ValidationError(
                 message = "Test",
-                code = "test_code",
+                code = "test_code"
             )
 
         // Trying to verify immutability through equals/hashCode
         val samError =
             ValidationError(
                 message = "Test",
-                code = "test_code",
+                code = "test_code"
             )
 
         assertEquals(error, samError)
@@ -90,7 +90,7 @@ class ValidationErrorTest {
         val error =
             ValidationError(
                 message = "Custom validation failed",
-                code = "custom_validation",
+                code = "custom_validation"
             )
 
         assertNotNull(error.message)

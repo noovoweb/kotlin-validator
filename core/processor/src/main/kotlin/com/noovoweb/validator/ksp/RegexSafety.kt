@@ -28,7 +28,7 @@ internal object RegexSafety {
             // Alternation with quantifiers
             Regex("""\([^)]*\|[^)]*\)[+*]"""), // (a|b)+ can be dangerous
             // Excessive backtracking potential
-            Regex("""(\w\+){3,}"""), // Multiple consecutive \w+
+            Regex("""(\w\+){3,}""") // Multiple consecutive \w+
         )
 
     /**
@@ -39,7 +39,7 @@ internal object RegexSafety {
             Regex("""\.\*"""), // .* is generally slow
             Regex("""\.\+"""), // .+ is generally slow
             Regex("""\w\*"""), // \w* can be slow
-            Regex("""\\d\+"""), // \d+ can be slow on long inputs
+            Regex("""\\d\+""") // \d+ can be slow on long inputs
         )
 
     /**
@@ -74,7 +74,7 @@ internal object RegexSafety {
                     |  4. Consider using @MaxLength before @Pattern
                     |
                     |See: https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS
-                    """.trimMargin(),
+                    """.trimMargin()
                 )
             }
         }
@@ -116,7 +116,7 @@ internal object RegexSafety {
         } catch (e: Exception) {
             throw IllegalArgumentException(
                 "Invalid regex pattern: $pattern\nError: ${e.message}",
-                e,
+                e
             )
         }
     }

@@ -90,7 +90,7 @@ class ValidationResultTest {
         val errors =
             mapOf(
                 "field1" to listOf(ValidationError("error1")),
-                "field2" to listOf(ValidationError("error2")),
+                "field2" to listOf(ValidationError("error2"))
             )
         val result = ValidationResult.Failure(errors)
 

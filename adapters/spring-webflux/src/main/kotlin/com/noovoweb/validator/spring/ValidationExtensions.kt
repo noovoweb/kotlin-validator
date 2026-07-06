@@ -63,7 +63,7 @@ private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
                     "Make sure your class is annotated with @Validated and that at least one field has a validation " +
                     "annotation (e.g. @Required, @MinLength). " +
                     "If no fields are annotated, KSP will skip validator generation.",
-                cause,
+                cause
             )
         }
         throw e
@@ -89,7 +89,7 @@ private fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
  * @param request ServerRequest for automatic locale extraction
  * @param baseContext Base validation context (injected)
  */
-public suspend fun <T : Any> T.validate(request: ServerRequest, baseContext: ValidationContext,) {
+public suspend fun <T : Any> T.validate(request: ServerRequest, baseContext: ValidationContext) {
     val validator = getValidatorFor(this)
     val localizedContext = baseContext.withLocale(request)
     validator.validate(this, localizedContext)
@@ -128,7 +128,7 @@ public suspend fun <T : Any> T.validate() {
  * }
  * ```
  */
-public fun <T : Any> T.validateMono(request: ServerRequest, baseContext: ValidationContext,): Mono<Void> = mono {
+public fun <T : Any> T.validateMono(request: ServerRequest, baseContext: ValidationContext): Mono<Void> = mono {
     validate(request, baseContext)
 }.then()
 
@@ -153,7 +153,7 @@ public fun <T : Any> T.validateMono(): Mono<Void> = mono {
  *
  * **NOTE**: Consider using the simplified `payload.validate(request, context)` instead.
  */
-public suspend fun <T> GeneratedValidator<T>.validate(payload: T, request: ServerRequest, baseContext: ValidationContext,) {
+public suspend fun <T> GeneratedValidator<T>.validate(payload: T, request: ServerRequest, baseContext: ValidationContext) {
     val localizedContext = baseContext.withLocale(request)
     this.validate(payload, localizedContext)
 }
@@ -178,7 +178,7 @@ public suspend fun <T> GeneratedValidator<T>.validate(payload: T, request: Serve
  * }
  * ```
  */
-public fun <T> GeneratedValidator<T>.validateMono(payload: T, context: ValidationContext,): Mono<Void> = mono {
+public fun <T> GeneratedValidator<T>.validateMono(payload: T, context: ValidationContext): Mono<Void> = mono {
     validate(payload, context)
 }.then()
 
@@ -201,7 +201,7 @@ public fun <T> GeneratedValidator<T>.validateMono(payload: T, context: Validatio
  * }
  * ```
  */
-public fun <T> GeneratedValidator<T>.validateMono(payload: T, request: ServerRequest, baseContext: ValidationContext,): Mono<Void> = mono {
+public fun <T> GeneratedValidator<T>.validateMono(payload: T, request: ServerRequest, baseContext: ValidationContext): Mono<Void> = mono {
     val localizedContext = baseContext.withLocale(request)
     validate(payload, localizedContext)
 }.then()
