@@ -80,4 +80,14 @@ public class DefaultMessageProvider(supportedLocales: List<Locale> = listOf(Loca
      * Check if a locale is loaded.
      */
     public fun isLocaleLoaded(locale: Locale): Boolean = messageCache.keys.any { it.first == locale }
+
+    public companion object {
+        /**
+         * Shared instance with the default locales (English, French).
+         *
+         * Bundle loading happens once per JVM instead of once per [ValidationContext],
+         * so contexts created per request don't repeat the resource-bundle work.
+         */
+        public val DEFAULT: DefaultMessageProvider by lazy { DefaultMessageProvider() }
+    }
 }
