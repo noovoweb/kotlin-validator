@@ -9,7 +9,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
  * Generates a class that implements GeneratedValidator<T> with:
  * - validate() method (exception-based API)
  * - validateResult() method (result-based API)
- * - validateParallel() helper (validates fields in parallel)
+ * - validateFields() helper (parallel for suspending validators, sequential otherwise)
  * - validateFieldX() methods for each property
  */
 internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: FieldValidatorCodeGenerator,) {
@@ -54,7 +54,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 }
                 .addFunction(generateValidateMethod(classInfo, dataClassName))
                 .addFunction(generateValidateResultMethod(classInfo, dataClassName))
-                .addFunction(generateValidateParallelMethod(classInfo, dataClassName))
+                .addFunction(generateValidateFieldsMethod(classInfo, dataClassName))
                 .apply {
                     // Generate individual field validation methods
                     classInfo.properties.forEach { property ->
@@ -67,8 +67,13 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
 
         return FileSpec.builder(classInfo.packageName, classInfo.validatorClassName)
             .addType(validatorClass)
-            .addImport("kotlinx.coroutines", "coroutineScope", "async", "awaitAll", "withContext")
-            .addImport("kotlinx.coroutines", "Dispatchers")
+            .apply {
+                // coroutineScope/async/awaitAll are only referenced by the parallel body
+                if (classNeedsParallelValidation(classInfo)) {
+                    addImport("kotlinx.coroutines", "coroutineScope", "async", "awaitAll", "withContext")
+                    addImport("kotlinx.coroutines", "Dispatchers")
+                }
+            }
             .build()
     }
 
@@ -81,8 +86,8 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
         .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
         .addCode(
             CodeBlock.builder()
-                .addStatement("// Validate all fields in parallel")
-                .addStatement("val errors = validateParallel(payload, context)")
+                .addStatement("// Validate all fields")
+                .addStatement("val errors = validateFields(payload, context)")
                 .addStatement("")
                 .addStatement("// Throw exception if validation failed")
                 .beginControlFlow("if (errors.isNotEmpty())")
@@ -109,8 +114,8 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
             )
             .addCode(
                 CodeBlock.builder()
-                    .addStatement("// Validate all fields in parallel")
-                    .addStatement("val errors = validateParallel(payload, context)")
+                    .addStatement("// Validate all fields")
+                    .addStatement("val errors = validateFields(payload, context)")
                     .addStatement("")
                     .addStatement("// Return Result based on validation outcome")
                     .beginControlFlow("return if (errors.isEmpty())")
@@ -138,49 +143,95 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
             .build()
 
     /**
-     * Generate the validateParallel() helper method.
+     * Generate the validateFields() helper method.
+     *
+     * Fields are validated in parallel (one coroutine per field) only when the class
+     * has validators that can do real suspending work: custom validators or nested
+     * @Valid validation. For classes with only built-in validators, the per-field
+     * coroutine dispatch costs more than the validation itself, so a plain
+     * sequential loop is generated instead.
      */
-    private fun generateValidateParallelMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec =
-        FunSpec.builder("validateParallel")
+    private fun generateValidateFieldsMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec {
+        val validatedProperties = classInfo.properties.filter { it.hasValidators() || it.hasNestedValidation() }
+
+        return FunSpec.builder("validateFields")
             .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
             .addParameter("payload", dataClassName)
             .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
             .returns(MAP.parameterizedBy(STRING, LIST.parameterizedBy(STRING)))
             .addCode(
-                CodeBlock.builder()
-                    .addStatement("// Validate all fields in parallel using async")
-                    .addStatement("return coroutineScope {")
-                    .indent()
-                    .addStatement("val validations = listOf(")
-                    .indent()
-                    .apply {
-                        classInfo.properties.forEach { property ->
-                            if (property.hasValidators() || property.hasNestedValidation()) {
-                                addStatement(
-                                    "async(context.dispatcher) { validate%L(payload, context) },",
-                                    property.name.capitalize(),
-                                )
-                            }
-                        }
-                    }
-                    .unindent()
-                    .addStatement(")")
-                    .addStatement("")
-                    .addStatement("// Wait for all validations to complete")
-                    .addStatement("val allErrors = validations.awaitAll()")
-                    .addStatement("")
-                    .addStatement("// Merge all error maps")
-                    .addStatement("allErrors.fold(mutableMapOf<String, List<String>>()) { acc, errors ->")
-                    .indent()
-                    .addStatement("acc.putAll(errors)")
-                    .addStatement("acc")
-                    .unindent()
-                    .addStatement("}")
-                    .unindent()
-                    .addStatement("}")
-                    .build(),
+                if (classNeedsParallelValidation(classInfo)) {
+                    generateParallelFieldsBody(validatedProperties)
+                } else {
+                    generateSequentialFieldsBody(validatedProperties)
+                },
             )
             .build()
+    }
+
+    /**
+     * True when at least one field can do real suspending work during validation:
+     * custom validators (arbitrary user code, possibly I/O), nested @Valid validation,
+     * or file validators (disk I/O via withContext(Dispatchers.IO)).
+     */
+    private fun classNeedsParallelValidation(classInfo: ValidatedClassInfo): Boolean = classInfo.properties.any { property ->
+        property.hasNestedValidation() ||
+            property.validators.any { validator ->
+                validator is ValidationValidatorInfo.CustomValidatorInfo ||
+                    validator is ValidationValidatorInfo.MimeTypeValidator ||
+                    validator is ValidationValidatorInfo.FileExtensionValidator ||
+                    validator is ValidationValidatorInfo.MaxFileSizeValidator
+            }
+    }
+
+    /**
+     * Parallel body: one async per field, awaited together.
+     */
+    private fun generateParallelFieldsBody(validatedProperties: List<PropertyInfo>): CodeBlock = CodeBlock.builder()
+        .addStatement("// Validate all fields in parallel using async")
+        .addStatement("return coroutineScope {")
+        .indent()
+        .addStatement("val validations = listOf(")
+        .indent()
+        .apply {
+            validatedProperties.forEach { property ->
+                addStatement(
+                    "async(context.dispatcher) { validate%L(payload, context) },",
+                    property.name.capitalize(),
+                )
+            }
+        }
+        .unindent()
+        .addStatement(")")
+        .addStatement("")
+        .addStatement("// Wait for all validations to complete")
+        .addStatement("val allErrors = validations.awaitAll()")
+        .addStatement("")
+        .addStatement("// Merge all error maps")
+        .addStatement("allErrors.fold(mutableMapOf<String, List<String>>()) { acc, errors ->")
+        .indent()
+        .addStatement("acc.putAll(errors)")
+        .addStatement("acc")
+        .unindent()
+        .addStatement("}")
+        .unindent()
+        .addStatement("}")
+        .build()
+
+    /**
+     * Sequential body: built-in validators are CPU-trivial, so avoid coroutine dispatch.
+     */
+    private fun generateSequentialFieldsBody(validatedProperties: List<PropertyInfo>): CodeBlock = CodeBlock.builder()
+        .addStatement("// All validators are built-in (CPU-trivial): validate sequentially")
+        .addStatement("// to avoid per-field coroutine dispatch overhead")
+        .addStatement("val allErrors = mutableMapOf<String, List<String>>()")
+        .apply {
+            validatedProperties.forEach { property ->
+                addStatement("allErrors.putAll(validate%L(payload, context))", property.name.capitalize())
+            }
+        }
+        .addStatement("return allErrors")
+        .build()
 
     /**
      * Generate a field validation method for a single property.
@@ -331,7 +382,9 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
         // Collect all @Pattern validators
         val patternValidators = mutableListOf<Pair<String, String>>() // property name to pattern
 
-        // Collect built-in regex validators (for caching performance)
+        // Built-in regex validators: cached property name to constant name on the runtime
+        // ValidationPatterns object. Emitting references (instead of inlining the pattern
+        // strings) keeps the runtime as the single source of truth for the patterns.
         val builtInRegexes = mutableMapOf<String, String>()
 
         classInfo.properties.forEach { property ->
@@ -343,35 +396,35 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 // OPTIMIZATION: Cache built-in regex patterns for performance
                 when (validator) {
                     is ValidationValidatorInfo.EmailValidator -> {
-                        builtInRegexes["emailRegex"] = ValidationPatterns.EMAIL
+                        builtInRegexes["emailRegex"] = "EMAIL"
                     }
 
                     is ValidationValidatorInfo.UuidValidator -> {
-                        builtInRegexes["uuidRegex"] = ValidationPatterns.UUID
+                        builtInRegexes["uuidRegex"] = "UUID"
                     }
 
                     is ValidationValidatorInfo.AlphaValidator -> {
-                        builtInRegexes["alphaRegex"] = ValidationPatterns.ALPHA
+                        builtInRegexes["alphaRegex"] = "ALPHA"
                     }
 
                     is ValidationValidatorInfo.AlphanumericValidator -> {
-                        builtInRegexes["alphanumericRegex"] = ValidationPatterns.ALPHANUMERIC
+                        builtInRegexes["alphanumericRegex"] = "ALPHANUMERIC"
                     }
 
                     is ValidationValidatorInfo.AsciiValidator -> {
-                        builtInRegexes["asciiRegex"] = ValidationPatterns.ASCII
+                        builtInRegexes["asciiRegex"] = "ASCII"
                     }
 
                     is ValidationValidatorInfo.MacAddressValidator -> {
-                        builtInRegexes["macRegex"] = ValidationPatterns.MAC_ADDRESS
+                        builtInRegexes["macRegex"] = "MAC_ADDRESS"
                     }
 
                     is ValidationValidatorInfo.IsoDateValidator -> {
-                        builtInRegexes["isoDateRegex"] = ValidationPatterns.ISO_DATE
+                        builtInRegexes["isoDateRegex"] = "ISO_DATE"
                     }
 
                     is ValidationValidatorInfo.IsoDateTimeValidator -> {
-                        builtInRegexes["isoDateTimeRegex"] = ValidationPatterns.ISO_DATETIME
+                        builtInRegexes["isoDateTimeRegex"] = "ISO_DATETIME"
                     }
 
                     else -> {
@@ -408,12 +461,18 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                     )
                 }
 
-                // Add built-in regex validators (Email, UUID, etc.)
-                builtInRegexes.forEach { (regexName, pattern) ->
+                // Add built-in regex validators (Email, UUID, etc.) as references to the
+                // runtime ValidationPatterns constants, so pattern fixes in the runtime
+                // apply without regenerating user code.
+                builtInRegexes.forEach { (regexName, constantName) ->
                     addProperty(
                         PropertySpec.builder(regexName, ClassName("kotlin.text", "Regex"))
                             .addModifiers(KModifier.PRIVATE)
-                            .initializer("Regex(%S)", pattern)
+                            .initializer(
+                                "Regex(%T.%L)",
+                                ClassName("com.noovoweb.validator", "ValidationPatterns"),
+                                constantName,
+                            )
                             .build(),
                     )
                 }

@@ -46,7 +46,7 @@ public class ValidationPlugin(configuration: Configuration) {
 
     public class Configuration {
         public var defaultLocale: Locale = Locale.getDefault()
-        public var messageProvider: MessageProvider = DefaultMessageProvider()
+        public var messageProvider: MessageProvider = DefaultMessageProvider.DEFAULT
         public var clock: Clock = Clock.systemDefaultZone()
         public var dispatcher: CoroutineDispatcher = Dispatchers.Default
     }

@@ -1,8 +1,8 @@
 # Kotlin Validator
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.3-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
+[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.4-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
 
 A high-performance, type-safe, coroutine-native validation library for Kotlin. Validators are generated at compile time with KSP, eliminating runtime reflection, annotation scanning, and hidden behavior. Each validator is a `suspend` function, enabling parallel field validation and non-blocking execution of I/O-bound custom validators. The library integrates seamlessly with any coroutine-based stack, including Spring WebFlux, Ktor, and `runTest`.
 
@@ -28,13 +28,12 @@ suspend fun register(request: ServerRequest): ServerResponse {
 |---|---|---|
 | Validator code | Generated at compile time (KSP) | Built at runtime via reflection |
 | Execution model | Non-blocking (`suspend`), coroutine-native | Blocking or reactive wrappers |
-| Field validation | Parallel via coroutines | Sequential |
-| Throughput | ~1.5–2× faster | Baseline |
-| Memory | ~60% lower | Baseline |
+| Field validation | Parallel for suspending validators, sequential fast path otherwise | Sequential |
+| Overhead | No reflection, no annotation scanning at runtime | Reflection + annotation scanning |
 | Type safety | Statically checked | Runtime errors |
 | Cold start | No reflection scan | Slower |
 
-Plus: 60+ built-in validators, deep nested validation with precise error paths (`departments[0].teams[1].members[2].email`), parallel field validation via coroutines, full i18n, and first-class Spring (MVC + WebFlux) and Ktor adapters.
+Plus: 60+ built-in validators, deep nested validation with precise error paths (`departments[0].teams[1].members[2].email`), parallel field validation for I/O-bound validators, full i18n, and first-class Spring (MVC + WebFlux) and Ktor adapters.
 
 ## Install
 
@@ -57,8 +56,8 @@ Or export them as environment variables — `GITHUB_ACTOR` and `GITHUB_TOKEN`.
 
 ```kotlin
 plugins {
-    kotlin("jvm") version "2.3.10"
-    id("com.google.devtools.ksp") version "2.3.6"
+    kotlin("jvm") version "2.3.21"
+    id("com.google.devtools.ksp") version "2.3.7"
 }
 
 repositories {
@@ -75,7 +74,7 @@ repositories {
     }
 }
 
-val kotlinValidatorVersion = "0.1.0-beta.3"
+val kotlinValidatorVersion = "0.1.0-beta.4"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-annotations:$kotlinValidatorVersion")
@@ -87,11 +86,15 @@ dependencies {
     // implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
     // implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
 }
-
-kotlin {
-    sourceSets.main { kotlin.srcDir("build/generated/ksp/main/kotlin") }
-}
 ```
+
+> The KSP Gradle plugin adds the generated sources to the compilation automatically. If your IDE doesn't resolve the generated `*Validator` classes, add:
+>
+> ```kotlin
+> kotlin {
+>     sourceSets.main { kotlin.srcDir("build/generated/ksp/main/kotlin") }
+> }
+> ```
 
 ## Quick Start
 
@@ -135,7 +138,7 @@ Each adapter exposes a simplified `payload.validate(...)` extension that auto-di
 <summary><b>Spring Boot WebFlux</b> (reactive)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.3"
+val kotlinValidatorVersion = "0.1.0-beta.4"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-webflux:$kotlinValidatorVersion")
@@ -178,7 +181,7 @@ Handle `ValidationException` in your `@ControllerAdvice` (or equivalent) to shap
 <summary><b>Spring Boot MVC</b> (blocking)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.3"
+val kotlinValidatorVersion = "0.1.0-beta.4"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
@@ -210,7 +213,7 @@ Spring's `@Valid` is also supported via the blocking adapter.
 <summary><b>Ktor</b></summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.3"
+val kotlinValidatorVersion = "0.1.0-beta.4"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
@@ -329,7 +332,7 @@ Element validation runs in parallel. To prevent runaway recursion, `ValidationCo
 
 ## Validators
 
-`@Validated` activates code generation for a data class. `@FailFast` on a field stops further validators on **that field** once one fails (other fields keep validating in parallel).
+`@Validated` activates code generation for a data class. `@FailFast` on a field stops further validators on **that field** once one fails (other fields still validate independently).
 
 <details>
 <summary><b>String</b> (22)</summary>
@@ -563,7 +566,9 @@ Most annotations let you override the message key inline (e.g. `@Email("user.ema
 
 ## Execution Model
 
-Fields validate in **parallel** via coroutines. Validators **within a field** run sequentially in declaration order, so:
+When a class has validators that can do real suspending work (custom validators, nested `@Valid`, file validators), its fields validate in **parallel** via coroutines. Classes with only built-in CPU-cheap validators use a **sequential fast path** — dispatching a coroutine per field would cost more than the validation itself.
+
+Validators **within a field** always run sequentially in declaration order, so:
 
 - Errors come back in the order you wrote them.
 - `@FailFast` short-circuits the right scope.

@@ -1,15 +1,17 @@
 [versions]
+# Kotlin is pinned below 2.3.30 until CodeQL's Kotlin extractor supports newer
+# versions (see codeql.yml); dependabot ignores Kotlin 2.4.x for the same reason
 kotlin = "2.3.21"
 ksp = "2.3.7"
-kotlinx-coroutines = "1.10.2"
+kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 spring-boot = "4.0.6"
-ktor = "3.4.3"
+ktor = "3.5.0"
 kotlinpoet = "2.3.0"
-junit-jupiter = "6.0.3"
+junit-jupiter = "6.1.0"
 mockk = "1.14.9"
 compile-testing = "1.6.0"
-spotless = "8.4.0"
+spotless = "8.5.1"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }

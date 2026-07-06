@@ -14,7 +14,7 @@ import java.util.Locale
  * ValidationMessages.properties for built-in validators.
  */
 public class SpringMessageProvider(private val messageSource: MessageSource,) : MessageProvider {
-    private val defaultProvider = DefaultMessageProvider()
+    private val defaultProvider = DefaultMessageProvider.DEFAULT
 
     override suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale,): String = try {
         // First try Spring's MessageSource (for custom messages)

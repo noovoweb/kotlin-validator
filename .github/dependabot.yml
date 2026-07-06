@@ -5,6 +5,13 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # CodeQL's Kotlin extractor only supports Kotlin < 2.3.30; drop these
+      # once CodeQL adds Kotlin 2.4 support
+      - dependency-name: "org.jetbrains.kotlin*"
+        versions: [">= 2.4.0"]
+      - dependency-name: "com.google.devtools.ksp*"
+        versions: [">= 2.3.8"]
     groups:
       kotlin:
         patterns:

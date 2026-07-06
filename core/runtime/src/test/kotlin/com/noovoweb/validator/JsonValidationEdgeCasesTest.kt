@@ -1,4 +1,4 @@
-package com.noovoweb.validator.ksp
+package com.noovoweb.validator
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertFalse
@@ -10,7 +10,7 @@ import kotlin.test.assertTrue
  * These tests ensure the JSON validator properly validates structure
  * and doesn't just check for braces.
  */
-class JsonValidationTest {
+class JsonValidationEdgeCasesTest {
     @Test
     fun `test valid JSON objects`() {
         val validJsonObjects =
@@ -216,14 +216,18 @@ break"}""", // Unescaped newline (actual newline in string)
 
     @Test
     fun `test security - deeply nested JSON`() {
-        // Test that deeply nested JSON is still validated
-        val depth = 100
+        // Nesting within the MAX_DEPTH limit (100, counting the innermost value)
+        // is validated correctly without crashing or hanging
+        val depth = 99
         val opening = "{\"a\":".repeat(depth)
         val closing = "1" + "}".repeat(depth)
         val deeplyNested = opening + closing
 
-        // Should validate correctly (not crash or hang)
         assertTrue(ValidationPatterns.isValidJson(deeplyNested))
+
+        // Beyond the limit is rejected instead of risking a stack overflow
+        val tooDeep = "{\"a\":".repeat(200) + "1" + "}".repeat(200)
+        assertFalse(ValidationPatterns.isValidJson(tooDeep))
     }
 
     @Test

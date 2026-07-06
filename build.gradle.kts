@@ -10,9 +10,13 @@ plugins {
     jacoco
 }
 
+// Single source of truth for the published version (gradle.properties is not tracked,
+// so the version must live in a committed file for CI and tag-triggered publishing).
+val validatorVersion = "0.1.0-beta.4"
+
 allprojects {
     group = "com.noovoweb"
-    version = rootProject.version
+    version = validatorVersion
 
     repositories {
         mavenCentral()

@@ -23,7 +23,7 @@ import java.util.Locale
  */
 public data class ValidationContext(
     public val locale: Locale = Locale.ENGLISH,
-    public val messageProvider: MessageProvider = DefaultMessageProvider(),
+    public val messageProvider: MessageProvider = DefaultMessageProvider.DEFAULT,
     public val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     public val clock: Clock = Clock.systemDefaultZone(),
     public val metadata: Map<String, Any> = emptyMap(),
@@ -61,18 +61,20 @@ public data class ValidationContext(
          */
         public const val DEFAULT_MAX_VALIDATION_DEPTH: Int = 10
 
-        public fun forIO(locale: Locale = Locale.ENGLISH, messageProvider: MessageProvider = DefaultMessageProvider(),): ValidationContext =
-            ValidationContext(
-                locale = locale,
-                messageProvider = messageProvider,
-                dispatcher = Dispatchers.IO,
-                clock = Clock.systemDefaultZone(),
-                metadata = emptyMap(),
-            )
+        public fun forIO(
+            locale: Locale = Locale.ENGLISH,
+            messageProvider: MessageProvider = DefaultMessageProvider.DEFAULT,
+        ): ValidationContext = ValidationContext(
+            locale = locale,
+            messageProvider = messageProvider,
+            dispatcher = Dispatchers.IO,
+            clock = Clock.systemDefaultZone(),
+            metadata = emptyMap(),
+        )
 
         public fun forTesting(clock: Clock = Clock.systemUTC(), locale: Locale = Locale.ENGLISH,): ValidationContext = ValidationContext(
             locale = locale,
-            messageProvider = DefaultMessageProvider(),
+            messageProvider = DefaultMessageProvider.DEFAULT,
             dispatcher = Dispatchers.Default,
             clock = clock,
             metadata = emptyMap(),
