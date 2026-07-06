@@ -27,13 +27,13 @@ class URLValidationTest {
                 "http://example.com:8080",
                 "http://example.com:8080/path",
                 "http://subdomain.example.com",
-                "http://sub.domain.example.com",
+                "http://sub.domain.example.com"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL: $url",
+                "Expected valid URL: $url"
             )
         }
     }
@@ -51,13 +51,13 @@ class URLValidationTest {
                 "https://api.example.com/v1/resource",
                 "https://example.com/path?param=value#fragment",
                 "https://user@example.com/path",
-                "https://example.com/path%20with%20spaces",
+                "https://example.com/path%20with%20spaces"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL: $url",
+                "Expected valid URL: $url"
             )
         }
     }
@@ -74,13 +74,13 @@ class URLValidationTest {
                 "ssh://example.com", // SSH
                 "telnet://example.com", // Telnet
                 "ws://example.com", // WebSocket (not HTTP/S)
-                "wss://example.com", // Secure WebSocket (not HTTP/S)
+                "wss://example.com" // Secure WebSocket (not HTTP/S)
             )
 
         invalidURLs.forEach { url ->
             assertFalse(
                 ValidationPatterns.isValidURL(url),
-                "Expected invalid URL (wrong protocol): $url",
+                "Expected invalid URL (wrong protocol): $url"
             )
         }
     }
@@ -100,13 +100,13 @@ class URLValidationTest {
                 "http://", // Incomplete
                 "https://", // Incomplete
                 "http:// example.com", // Space in URL
-                "http://exam ple.com", // Space in host
+                "http://exam ple.com" // Space in host
             )
 
         invalidURLs.forEach { url ->
             assertFalse(
                 ValidationPatterns.isValidURL(url),
-                "Expected invalid URL (malformed): $url",
+                "Expected invalid URL (malformed): $url"
             )
         }
     }
@@ -119,13 +119,13 @@ class URLValidationTest {
                 "https://example.com/path%20with%20spaces",
                 "https://example.com/path?query=hello%20world",
                 "https://example.com/path#fragment",
-                "https://example.com/path?a=1&b=2&c=3",
+                "https://example.com/path?a=1&b=2&c=3"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL: $url",
+                "Expected valid URL: $url"
             )
         }
     }
@@ -139,13 +139,13 @@ class URLValidationTest {
                 "https://example.com:443",
                 "https://example.com:8443",
                 "http://localhost:3000",
-                "http://127.0.0.1:8080",
+                "http://127.0.0.1:8080"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL with port: $url",
+                "Expected valid URL with port: $url"
             )
         }
     }
@@ -156,13 +156,13 @@ class URLValidationTest {
             listOf(
                 "http://user@example.com",
                 "http://user:pass@example.com",
-                "https://admin@api.example.com/resource",
+                "https://admin@api.example.com/resource"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL with auth: $url",
+                "Expected valid URL with auth: $url"
             )
         }
     }
@@ -176,13 +176,13 @@ class URLValidationTest {
                 "http://127.0.0.1",
                 "http://127.0.0.1:8080",
                 "http://192.168.1.1",
-                "http://10.0.0.1:3000",
+                "http://10.0.0.1:3000"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL: $url",
+                "Expected valid URL: $url"
             )
         }
     }
@@ -195,7 +195,7 @@ class URLValidationTest {
                 "http://" + "a".repeat(10000),
                 "http://example.com/" + "x".repeat(10000),
                 "http://example.com?" + "q=".repeat(1000),
-                "http://" + "/".repeat(10000),
+                "http://" + "/".repeat(10000)
             )
 
         maliciousInputs.forEach { input ->
@@ -227,13 +227,13 @@ class URLValidationTest {
                 "http://[::1]",
                 "http://[::1]:8080",
                 "http://[2001:db8::1]",
-                "https://[2001:db8::1]:8443/path",
+                "https://[2001:db8::1]:8443/path"
             )
 
         validURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid URL with IPv6: $url",
+                "Expected valid URL with IPv6: $url"
             )
         }
     }
@@ -269,13 +269,13 @@ class URLValidationTest {
                 "http://example.com:8080/api/v1/users?limit=10&offset=0",
                 "https://docs.oracle.com/javase/8/docs/api/java/net/URL.html",
                 "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                "https://stackoverflow.com/questions/12345/how-to-validate-url",
+                "https://stackoverflow.com/questions/12345/how-to-validate-url"
             )
 
         realWorldURLs.forEach { url ->
             assertTrue(
                 ValidationPatterns.isValidURL(url),
-                "Expected valid real-world URL: $url",
+                "Expected valid real-world URL: $url"
             )
         }
     }
@@ -286,13 +286,13 @@ class URLValidationTest {
             listOf(
                 "javascript:alert(1)",
                 "data:text/html,<script>alert(1)</script>",
-                "vbscript:msgbox(1)",
+                "vbscript:msgbox(1)"
             )
 
         xssVectors.forEach { vector ->
             assertFalse(
                 ValidationPatterns.isValidURL(vector),
-                "XSS vector should be rejected: $vector",
+                "XSS vector should be rejected: $vector"
             )
         }
     }

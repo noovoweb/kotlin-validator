@@ -21,7 +21,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Same(val field: String, val message: String = "",)
+public annotation class Same(val field: String, val message: String = "")
 
 /**
  * Validates that the value differs from another field's value.
@@ -42,7 +42,7 @@ public annotation class Same(val field: String, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Different(val field: String, val message: String = "",)
+public annotation class Different(val field: String, val message: String = "")
 
 /**
  * Validates that the field is required if another field equals a specific value.
@@ -64,7 +64,7 @@ public annotation class Different(val field: String, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class RequiredIf(val field: String, val value: String, val message: String = "",)
+public annotation class RequiredIf(val field: String, val value: String, val message: String = "")
 
 /**
  * Validates that the field is required unless another field equals a specific value.
@@ -86,7 +86,7 @@ public annotation class RequiredIf(val field: String, val value: String, val mes
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class RequiredUnless(val field: String, val value: String, val message: String = "",)
+public annotation class RequiredUnless(val field: String, val value: String, val message: String = "")
 
 /**
  * Validates that the field is required if any of the specified fields are present.
@@ -108,7 +108,7 @@ public annotation class RequiredUnless(val field: String, val value: String, val
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class RequiredWith(val fields: Array<String>, val message: String = "",)
+public annotation class RequiredWith(val fields: Array<String>, val message: String = "")
 
 /**
  * Validates that the field is required if all of the specified fields are absent.
@@ -130,4 +130,4 @@ public annotation class RequiredWith(val fields: Array<String>, val message: Str
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class RequiredWithout(val fields: Array<String>, val message: String = "",)
+public annotation class RequiredWithout(val fields: Array<String>, val message: String = "")

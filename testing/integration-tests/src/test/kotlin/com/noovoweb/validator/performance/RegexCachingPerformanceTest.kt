@@ -26,7 +26,7 @@ class RegexCachingPerformanceTest {
                 val result =
                     validator.validateResult(
                         Email(email = "test@example.com"),
-                        context,
+                        context
                     )
             }
         }
@@ -41,7 +41,7 @@ class RegexCachingPerformanceTest {
                         val result =
                             validator.validateResult(
                                 Email(email = "test$it@example.com"),
-                                context,
+                                context
                             )
                     }
                 }

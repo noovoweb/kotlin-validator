@@ -9,7 +9,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 object AsyncValidators {
-    suspend fun validateUsernameAsync(value: String?, context: ValidationContext,): Boolean {
+    suspend fun validateUsernameAsync(value: String?, context: ValidationContext): Boolean {
         if (value == null) return true
         // Simulate async operation (e.g., database lookup)
         kotlinx.coroutines.delay(5)
@@ -21,7 +21,7 @@ object AsyncValidators {
 @Validated
 data class AsyncUsername(
     @CustomValidator(validator = "com.noovoweb.validator.integration.AsyncValidators::validateUsernameAsync")
-    val username: String?,
+    val username: String?
 )
 
 class AsyncValidatorIntegrationTest {

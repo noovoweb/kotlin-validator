@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.spotless) apply false
-    jacoco
+    id("jacoco-report-aggregation")
 }
 
 // Single source of truth for the published version (gradle.properties is not tracked,
@@ -30,7 +30,7 @@ subprojects {
     // Unified JVM toolchain and explicit API mode for library modules
     plugins.withId("org.jetbrains.kotlin.jvm") {
         configure<KotlinJvmProjectExtension> {
-            jvmToolchain(21)
+            jvmToolchain(17)
             if (name !in listOf("kotlin-validator-testing")) {
                 explicitApi()
             }
@@ -48,8 +48,6 @@ subprojects {
                 .editorConfigOverride(
                     mapOf(
                         "ktlint_standard_no-wildcard-imports" to "disabled",
-                        "ktlint_standard_trailing-comma-on-call-site" to "disabled",
-                        "ktlint_standard_trailing-comma-on-declaration-site" to "disabled",
                         "ktlint_standard_filename" to "disabled",
                         "ktlint_standard_comment-wrapping" to "disabled",
                         "ktlint_standard_value-argument-comment" to "disabled",
@@ -87,23 +85,17 @@ subprojects {
     }
 }
 
-tasks.register<JacocoReport>("jacocoTestReport") {
-    dependsOn(subprojects.map { it.tasks.withType<Test>() })
-    
-    subprojects {
-        // Skip parent directories (they don't have source code)
-        if (name in listOf("core", "adapters", "testing")) {
-            return@subprojects
-        }
-        
-        this@register.sourceSets(this.the<SourceSetContainer>()["main"])
-        this@register.executionData.from(tasks.withType<JacocoReport>().map { it.executionData })
-    }
-    
+// Aggregated coverage report across all modules: ./gradlew jacocoTestReport
+// (output in build/reports/jacoco/jacocoTestReport)
+dependencies {
+    subprojects.forEach { jacocoAggregation(it) }
+}
+
+reporting {
     reports {
-        xml.required.set(true)
-        html.required.set(true)
-        csv.required.set(false)
+        create<JacocoCoverageReport>("jacocoTestReport") {
+            testSuiteName = "test"
+        }
     }
 }
 

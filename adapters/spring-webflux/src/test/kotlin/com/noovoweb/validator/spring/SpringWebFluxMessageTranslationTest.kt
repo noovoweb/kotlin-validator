@@ -23,7 +23,7 @@ class SpringWebFluxMessageTranslationTest {
         val keys =
             listOf(
                 "field.required", "field.email", "field.url", "field.min", "field.max",
-                "field.between", "field.size", "field.future", "field.past",
+                "field.between", "field.size", "field.future", "field.past"
             )
 
         keys.forEach { key ->
@@ -104,7 +104,7 @@ class SpringWebFluxMessageTranslationTest {
                 // Network validators
                 "field.ipv4", "field.ipv6", "field.ip",
                 // Conditional validators
-                "field.same", "field.different",
+                "field.same", "field.different"
             )
 
         allKeys.forEach { key ->
@@ -129,7 +129,7 @@ class SpringWebFluxMessageTranslationTest {
                 "field.min" to arrayOf<Any>(18),
                 "field.max" to arrayOf<Any>(100),
                 "field.between" to arrayOf<Any>(10, 50),
-                "field.length" to arrayOf<Any>(5, 20),
+                "field.length" to arrayOf<Any>(5, 20)
             )
 
         testCases.forEach { (key, params) ->
@@ -140,11 +140,11 @@ class SpringWebFluxMessageTranslationTest {
             params.forEach { param ->
                 assertTrue(
                     englishMessage.contains(param.toString()),
-                    "English message for $key should contain $param",
+                    "English message for $key should contain $param"
                 )
                 assertTrue(
                     frenchMessage.contains(param.toString()),
-                    "French message for $key should contain $param",
+                    "French message for $key should contain $param"
                 )
             }
         }
@@ -212,7 +212,7 @@ class SpringWebFluxMessageTranslationTest {
                 "Network" to listOf("field.ipv4", "field.ip", "field.port"),
                 "File" to listOf("field.mimetype", "field.maxfilesize"),
                 "Conditional" to listOf("field.same", "field.requiredif"),
-                "Boolean" to listOf("field.accepted"),
+                "Boolean" to listOf("field.accepted")
             )
 
         categories.forEach { (category, keys) ->
@@ -222,16 +222,16 @@ class SpringWebFluxMessageTranslationTest {
 
                 assertTrue(
                     englishMessage.isNotEmpty(),
-                    "$category validator $key should have English translation",
+                    "$category validator $key should have English translation"
                 )
                 assertTrue(
                     frenchMessage.isNotEmpty(),
-                    "$category validator $key should have French translation",
+                    "$category validator $key should have French translation"
                 )
                 assertNotEquals(
                     englishMessage,
                     frenchMessage,
-                    "$category validator $key should be translated",
+                    "$category validator $key should be translated"
                 )
             }
         }

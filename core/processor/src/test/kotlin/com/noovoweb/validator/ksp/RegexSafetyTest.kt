@@ -26,7 +26,7 @@ class RegexSafetyTest {
                 "([a-z]+)+",
                 "(\\d+)+",
                 "(a+){2,}",
-                "(a*){2,}",
+                "(a*){2,}"
             )
 
         dangerousPatterns.forEach { pattern ->
@@ -36,11 +36,11 @@ class RegexSafetyTest {
                 }
             assertTrue(
                 exception.message!!.contains("SECURITY ERROR"),
-                "Expected security error for pattern: $pattern",
+                "Expected security error for pattern: $pattern"
             )
             assertTrue(
                 exception.message!!.contains("nested quantifiers"),
-                "Expected 'nested quantifiers' in error message for: $pattern",
+                "Expected 'nested quantifiers' in error message for: $pattern"
             )
         }
     }
@@ -52,7 +52,7 @@ class RegexSafetyTest {
                 ".*.*",
                 ".+.+",
                 ".*.*.*",
-                ".+.+.+",
+                ".+.+.+"
             )
 
         dangerousPatterns.forEach { pattern ->
@@ -62,7 +62,7 @@ class RegexSafetyTest {
                 }
             assertTrue(
                 exception.message!!.contains("SECURITY ERROR"),
-                "Expected security error for pattern: $pattern",
+                "Expected security error for pattern: $pattern"
             )
         }
     }
@@ -74,7 +74,7 @@ class RegexSafetyTest {
                 "(a|ab)+",
                 "(foo|foobar)*",
                 "(x|xy)+",
-                "(test|testing)+",
+                "(test|testing)+"
             )
 
         dangerousPatterns.forEach { pattern ->
@@ -84,7 +84,7 @@ class RegexSafetyTest {
                 }
             assertTrue(
                 exception.message!!.contains("SECURITY ERROR"),
-                "Expected security error for pattern: $pattern",
+                "Expected security error for pattern: $pattern"
             )
         }
     }
@@ -99,7 +99,7 @@ class RegexSafetyTest {
                 "^user_.*$", // Single wildcard
                 "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", // Email
                 "^https?://[^\\s/$.?#].[^\\s]*$", // URL
-                "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", // UUID
+                "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" // UUID
             )
 
         safePatterns.forEach { pattern ->
@@ -115,7 +115,7 @@ class RegexSafetyTest {
             listOf(
                 "^.*$", // Single .* should warn
                 "^.+test$", // Single .+ should warn
-                "^test\\d+end$", // \\d+ should warn
+                "^test\\d+end$" // \\d+ should warn
             )
 
         patternsWithWarnings.forEach { pattern ->
@@ -123,7 +123,7 @@ class RegexSafetyTest {
             // Should not throw but should return warning
             assertTrue(
                 warning != null && warning.contains("WARNING"),
-                "Expected warning for pattern: $pattern",
+                "Expected warning for pattern: $pattern"
             )
         }
     }
@@ -135,7 +135,7 @@ class RegexSafetyTest {
 
         assertTrue(
             warning != null && warning.contains("Very long regex pattern"),
-            "Expected warning for very long pattern",
+            "Expected warning for very long pattern"
         )
     }
 
@@ -146,7 +146,7 @@ class RegexSafetyTest {
                 "[a-z", // Unclosed bracket
                 "(abc", // Unclosed paren
                 "(?P<>test)", // Invalid group
-                "*test", // Invalid quantifier position
+                "*test" // Invalid quantifier position
             )
 
         invalidPatterns.forEach { pattern ->
@@ -197,12 +197,12 @@ class RegexSafetyTest {
                 "([a-zA-Z]+)*c", // Character class
                 "(\\d+)+(\\d+)+", // Multiple nested
                 "^(a+)+$", // Anchored nested
-                "(x+x+)+y", // Exponential backtracking
+                "(x+x+)+y" // Exponential backtracking
             )
 
         realWorldAttacks.forEach { pattern ->
             assertThrows<IllegalArgumentException>(
-                "Pattern '$pattern' should be blocked",
+                "Pattern '$pattern' should be blocked"
             ) {
                 RegexSafety.validatePattern(pattern)
             }
@@ -229,7 +229,7 @@ class RegexSafetyTest {
                 "^[A-Z0-9_]+$",
                 "^\\d{5}$",
                 "^[A-Z]{2}\\d{6}$",
-                "^user_.*$",
+                "^user_.*$"
                 // Note: Patterns with multiple .+ or (pattern)+ may trigger warnings/errors
             )
 
@@ -252,12 +252,12 @@ class RegexSafetyTest {
                 ".*.*",
                 ".+.+",
                 "(a|ab)+",
-                "(foo|foobar)+",
+                "(foo|foobar)+"
             )
 
         docDangerousExamples.forEach { pattern ->
             assertThrows<IllegalArgumentException>(
-                "Documentation example '$pattern' should be blocked",
+                "Documentation example '$pattern' should be blocked"
             ) {
                 RegexSafety.validatePattern(pattern)
             }

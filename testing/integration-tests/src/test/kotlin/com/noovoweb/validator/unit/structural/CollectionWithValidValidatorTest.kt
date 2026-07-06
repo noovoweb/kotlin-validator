@@ -14,8 +14,8 @@ class CollectionWithValidValidatorTest {
         validator.validate(
             CollectionWithValid(
                 name = "Test",
-                items = listOf(Item("value1"), Item("value2")),
-            ),
+                items = listOf(Item("value1"), Item("value2"))
+            )
         )
     }
 
@@ -26,8 +26,8 @@ class CollectionWithValidValidatorTest {
             validator.validate(
                 CollectionWithValid(
                     name = "Test",
-                    items = listOf(Item("value1"), Item(null)),
-                ),
+                    items = listOf(Item("value1"), Item(null))
+                )
             )
         }
     }
@@ -45,8 +45,8 @@ class CollectionWithValidValidatorTest {
                 CollectionWithValidValidator().validate(
                     CollectionWithValid(
                         name = "Test",
-                        items = listOf(Item("value1"), Item(null), Item("value3")),
-                    ),
+                        items = listOf(Item("value1"), Item(null), Item("value3"))
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("items[1].value"))
@@ -60,8 +60,8 @@ class CollectionWithValidValidatorTest {
                 CollectionWithValidValidator().validate(
                     CollectionWithValid(
                         name = "Test",
-                        items = listOf(Item(null), Item(null)),
-                    ),
+                        items = listOf(Item(null), Item(null))
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("items[0].value"))

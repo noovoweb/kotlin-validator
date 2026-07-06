@@ -23,7 +23,17 @@ jobs:
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: Run code formatting check
-        run: ./gradlew spotlessCheck
-      - name: Build and test
-        run: ./gradlew build
+      # spotlessCheck runs implicitly: compileKotlin depends on it
+      - name: Build, test, and aggregate coverage
+        run: ./gradlew build jacocoTestReport
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/test'
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: build/reports/jacoco/jacocoTestReport

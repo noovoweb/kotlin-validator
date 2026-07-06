@@ -20,7 +20,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Valid(val each: Boolean = false, val message: String = "",)
+public annotation class Valid(val each: Boolean = false, val message: String = "")
 
 /**
  * Creates a validation checkpoint that stops field validation if any previous validator failed.
@@ -107,4 +107,4 @@ public annotation class Valid(val each: Boolean = false, val message: String = "
 @Repeatable
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class FailFast(val message: String = "",)
+public annotation class FailFast(val message: String = "")

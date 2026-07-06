@@ -12,7 +12,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Min(val value: Double, val message: String = "",)
+public annotation class Min(val value: Double, val message: String = "")
 
 /**
  * Validates that a number is less than or equal to the specified value.
@@ -26,7 +26,7 @@ public annotation class Min(val value: Double, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Max(val value: Double, val message: String = "",)
+public annotation class Max(val value: Double, val message: String = "")
 
 /**
  * Validates that a number is within the specified range.
@@ -41,7 +41,7 @@ public annotation class Max(val value: Double, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Between(val min: Double, val max: Double, val message: String = "",)
+public annotation class Between(val min: Double, val max: Double, val message: String = "")
 
 /**
  * Validates that a number is positive (greater than zero).
@@ -54,7 +54,7 @@ public annotation class Between(val min: Double, val max: Double, val message: S
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Positive(val message: String = "",)
+public annotation class Positive(val message: String = "")
 
 /**
  * Validates that a number is negative (less than zero).
@@ -67,7 +67,7 @@ public annotation class Positive(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Negative(val message: String = "",)
+public annotation class Negative(val message: String = "")
 
 /**
  * Validates that a number equals zero.
@@ -80,7 +80,7 @@ public annotation class Negative(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Zero(val message: String = "",)
+public annotation class Zero(val message: String = "")
 
 /**
  * Validates that a value is a whole number (no decimal places).
@@ -94,7 +94,7 @@ public annotation class Zero(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Integer(val message: String = "",)
+public annotation class Integer(val message: String = "")
 
 /**
  * Validates that a value has decimal places.
@@ -108,7 +108,7 @@ public annotation class Integer(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Decimal(val message: String = "",)
+public annotation class Decimal(val message: String = "")
 
 /**
  * Validates that a number is divisible by the specified value.
@@ -122,7 +122,7 @@ public annotation class Decimal(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class DivisibleBy(val value: Int, val message: String = "",)
+public annotation class DivisibleBy(val value: Int, val message: String = "")
 
 /**
  * Validates that a number is even.
@@ -135,7 +135,7 @@ public annotation class DivisibleBy(val value: Int, val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Even(val message: String = "",)
+public annotation class Even(val message: String = "")
 
 /**
  * Validates that a number is odd.
@@ -148,7 +148,7 @@ public annotation class Even(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Odd(val message: String = "",)
+public annotation class Odd(val message: String = "")
 
 /**
  * Validates that a string representation of a decimal number has exactly the specified number of decimal places.
@@ -164,4 +164,4 @@ public annotation class Odd(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class DecimalPlaces(val value: Int, val message: String = "",)
+public annotation class DecimalPlaces(val value: Int, val message: String = "")

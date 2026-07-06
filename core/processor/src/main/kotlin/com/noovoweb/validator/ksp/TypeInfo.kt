@@ -12,7 +12,7 @@ internal data class TypeInfo(
     val qualifiedName: String,
     val simpleName: String,
     val isNullable: Boolean,
-    val typeArguments: List<TypeInfo> = emptyList(),
+    val typeArguments: List<TypeInfo> = emptyList()
 ) {
     /**
      * Check if this type is a String.
@@ -67,7 +67,7 @@ internal data class TypeInfo(
                 "kotlin.Float",
                 "kotlin.Double",
                 "kotlin.Short",
-                "kotlin.Byte",
+                "kotlin.Byte"
             )
 
         private val COLLECTION_TYPES =
@@ -75,13 +75,13 @@ internal data class TypeInfo(
                 "kotlin.collections.List",
                 "kotlin.collections.Set",
                 "kotlin.collections.Collection",
-                "kotlin.Array",
+                "kotlin.Array"
             )
 
         private val FILE_TYPES =
             setOf(
                 "java.io.File",
-                "java.nio.file.Path",
+                "java.nio.file.Path"
             )
 
         private val DATE_TIME_TYPES =
@@ -90,7 +90,7 @@ internal data class TypeInfo(
                 "java.time.LocalDateTime",
                 "java.time.Instant",
                 "java.time.ZonedDateTime",
-                "java.time.OffsetDateTime",
+                "java.time.OffsetDateTime"
             )
 
         private val MAP_TYPES =
@@ -98,7 +98,7 @@ internal data class TypeInfo(
                 "kotlin.collections.Map",
                 "kotlin.collections.MutableMap",
                 "kotlin.collections.HashMap",
-                "kotlin.collections.LinkedHashMap",
+                "kotlin.collections.LinkedHashMap"
             )
     }
 }

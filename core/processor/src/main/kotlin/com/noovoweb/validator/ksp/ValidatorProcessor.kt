@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets
 internal class ValidatorProcessor(
     private val codeGenerator: CodeGenerator,
     private val logger: KSPLogger,
-    private val options: Map<String, String>,
+    private val options: Map<String, String>
 ) : SymbolProcessor {
     private val annotationParser = AnnotationParser(logger)
     private val fieldValidatorCodeGenerator = FieldValidatorCodeGenerator()
@@ -73,7 +73,7 @@ internal class ValidatorProcessor(
                 if (Modifier.DATA !in classDeclaration.modifiers) {
                     logger.error(
                         "@Validated can only be applied to data classes",
-                        classDeclaration,
+                        classDeclaration
                     )
                     errorCount++
                     return@forEach
@@ -87,7 +87,7 @@ internal class ValidatorProcessor(
                     logger.error(
                         "${classDeclaration.simpleName.asString()} is annotated with @Validated but has no field validation annotations. " +
                             "Add at least one annotation (e.g. @Required, @MinLength) to a field, or remove @Validated.",
-                        classDeclaration,
+                        classDeclaration
                     )
                     return@forEach
                 }
@@ -96,7 +96,7 @@ internal class ValidatorProcessor(
             } catch (e: Exception) {
                 logger.error(
                     "Failed to process ${classDeclaration.qualifiedName?.asString()}: ${e.message}",
-                    classDeclaration,
+                    classDeclaration
                 )
                 logger.exception(e)
                 errorCount++
@@ -119,13 +119,13 @@ internal class ValidatorProcessor(
                 val dependencies =
                     Dependencies(
                         aggregating = true,
-                        sources = arrayOf(classDeclaration.containingFile!!),
+                        sources = arrayOf(classDeclaration.containingFile!!)
                     )
 
                 codeGenerator.createNewFile(
                     dependencies = dependencies,
                     packageName = fileSpec.packageName,
-                    fileName = fileSpec.name,
+                    fileName = fileSpec.name
                 ).use { outputStream ->
                     OutputStreamWriter(outputStream, StandardCharsets.UTF_8).use { writer ->
                         fileSpec.writeTo(writer)
@@ -137,7 +137,7 @@ internal class ValidatorProcessor(
             } catch (e: Exception) {
                 logger.error(
                     "Failed to process ${classDeclaration.qualifiedName?.asString()}: ${e.message}",
-                    classDeclaration,
+                    classDeclaration
                 )
                 logger.exception(e)
                 errorCount++
@@ -157,7 +157,7 @@ internal class ValidatorProcessor(
      *
      * @return true if any cycle was detected
      */
-    private fun detectValidationCycles(parsedClasses: List<Pair<KSClassDeclaration, ValidatedClassInfo>>,): Boolean {
+    private fun detectValidationCycles(parsedClasses: List<Pair<KSClassDeclaration, ValidatedClassInfo>>): Boolean {
         // Build adjacency list: className -> list of nested @Valid type names
         val graph = mutableMapOf<String, MutableList<String>>()
         parsedClasses.forEach { (_, classInfo) ->
@@ -190,7 +190,7 @@ internal class ValidatorProcessor(
                 logger.warn(
                     "Circular @Valid reference detected: $cycleStr. " +
                         "This will be protected at runtime by ValidationContext.maxValidationDepth (default: 10), " +
-                        "but consider restructuring to avoid circular dependencies.",
+                        "but consider restructuring to avoid circular dependencies."
                 )
                 foundCycle = true
                 return
@@ -244,6 +244,6 @@ internal class ValidatorProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor = ValidatorProcessor(
         codeGenerator = environment.codeGenerator,
         logger = environment.logger,
-        options = environment.options,
+        options = environment.options
     )
 }

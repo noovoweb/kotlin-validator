@@ -15,37 +15,37 @@ import kotlin.test.assertTrue
  */
 class SpringValidatorAdapterTest {
     // Test data class
-    data class TestUser(val username: String?, val email: String?,)
+    data class TestUser(val username: String?, val email: String?)
 
     // Mock validator that always passes
     class PassingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(target: TestUser, context: ValidationContext,) {
+        override suspend fun validate(target: TestUser, context: ValidationContext) {
             // Always passes
         }
 
         override suspend fun validateResult(
             payload: TestUser,
-            context: ValidationContext,
+            context: ValidationContext
         ): com.noovoweb.validator.ValidationResult<TestUser> = com.noovoweb.validator.ValidationResult.Success(payload)
     }
 
     // Mock validator that always fails
     class FailingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(
+        override suspend fun validate(target: TestUser, context: ValidationContext): Unit = throw ValidationException(
             mapOf(
                 "username" to listOf("Username is invalid"),
-                "email" to listOf("Email is invalid"),
-            ),
+                "email" to listOf("Email is invalid")
+            )
         )
 
         override suspend fun validateResult(
             payload: TestUser,
-            context: ValidationContext,
+            context: ValidationContext
         ): com.noovoweb.validator.ValidationResult<TestUser> = com.noovoweb.validator.ValidationResult.Failure(
             mapOf(
                 "username" to listOf(com.noovoweb.validator.ValidationError("Username is invalid")),
-                "email" to listOf(com.noovoweb.validator.ValidationError("Email is invalid")),
-            ),
+                "email" to listOf(com.noovoweb.validator.ValidationError("Email is invalid"))
+            )
         )
     }
 
@@ -55,7 +55,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = PassingValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         assertTrue(adapter.supports(TestUser::class.java))
@@ -67,7 +67,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = PassingValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         assertFalse(adapter.supports(String::class.java))
@@ -80,7 +80,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = PassingValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         val testUser = TestUser("john", "john@example.com")
@@ -97,7 +97,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = FailingValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         val testUser = TestUser("", "invalid")
@@ -115,7 +115,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = FailingValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         val testUser = TestUser("", "invalid")
@@ -136,24 +136,24 @@ class SpringValidatorAdapterTest {
     @Test
     fun `should handle multiple errors per field`() {
         class MultiErrorValidator : GeneratedValidator<TestUser> {
-            override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(
+            override suspend fun validate(target: TestUser, context: ValidationContext): Unit = throw ValidationException(
                 mapOf(
-                    "username" to listOf("Too short", "No uppercase", "No special chars"),
-                ),
+                    "username" to listOf("Too short", "No uppercase", "No special chars")
+                )
             )
 
             override suspend fun validateResult(
                 payload: TestUser,
-                context: ValidationContext,
+                context: ValidationContext
             ): com.noovoweb.validator.ValidationResult<TestUser> = com.noovoweb.validator.ValidationResult.Failure(
                 mapOf(
                     "username" to
                         listOf(
                             com.noovoweb.validator.ValidationError("Too short"),
                             com.noovoweb.validator.ValidationError("No uppercase"),
-                            com.noovoweb.validator.ValidationError("No special chars"),
-                        ),
-                ),
+                            com.noovoweb.validator.ValidationError("No special chars")
+                        )
+                )
             )
         }
 
@@ -161,7 +161,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = MultiErrorValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         val testUser = TestUser("user", "email@test.com")
@@ -180,7 +180,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = PassingValidator(),
                 context = customContext,
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         val testUser = TestUser("john", "john@example.com")
@@ -194,11 +194,11 @@ class SpringValidatorAdapterTest {
     @Test
     fun `should handle empty ValidationException errors`() {
         class EmptyErrorValidator : GeneratedValidator<TestUser> {
-            override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(emptyMap())
+            override suspend fun validate(target: TestUser, context: ValidationContext): Unit = throw ValidationException(emptyMap())
 
             override suspend fun validateResult(
                 payload: TestUser,
-                context: ValidationContext,
+                context: ValidationContext
             ): com.noovoweb.validator.ValidationResult<TestUser> = com.noovoweb.validator.ValidationResult.Failure(emptyMap())
         }
 
@@ -206,7 +206,7 @@ class SpringValidatorAdapterTest {
             SpringValidatorAdapter(
                 validator = EmptyErrorValidator(),
                 context = ValidationContext(),
-                targetClass = TestUser::class.java,
+                targetClass = TestUser::class.java
             )
 
         val testUser = TestUser("user", "email@test.com")

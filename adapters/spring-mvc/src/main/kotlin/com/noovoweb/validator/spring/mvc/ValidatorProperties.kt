@@ -41,5 +41,5 @@ public data class ValidatorProperties(
      * - Uses singleton ValidationContext with fixed locale
      * - Better for non-web applications or when locale doesn't change per request
      */
-    var useRequestLocale: Boolean = true,
+    var useRequestLocale: Boolean = true
 )

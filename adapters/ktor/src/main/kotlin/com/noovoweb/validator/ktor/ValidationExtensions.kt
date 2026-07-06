@@ -45,7 +45,7 @@ internal fun <T : Any> getValidatorFor(payload: T): GeneratedValidator<T> {
                     "Make sure your class is annotated with @Validated and that at least one field has a validation " +
                     "annotation (e.g. @Required, @MinLength). " +
                     "If no fields are annotated, KSP will skip validator generation.",
-                cause,
+                cause
             )
         }
         throw e
@@ -145,7 +145,7 @@ public suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(v
  */
 public suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
     validator: GeneratedValidator<T>,
-    context: ValidationContext,
+    context: ValidationContext
 ): T {
     val payload = receive<T>()
     validator.validate(payload, context)
@@ -157,7 +157,7 @@ public suspend inline fun <reified T : Any> ApplicationCall.receiveAndValidate(
  *
  * @throws com.noovoweb.validator.ValidationException if validation fails (automatically handled by plugin)
  */
-public suspend fun <T : Any> ApplicationCall.validate(payload: T, validator: GeneratedValidator<T>,) {
+public suspend fun <T : Any> ApplicationCall.validate(payload: T, validator: GeneratedValidator<T>) {
     val context = validationContext()
     validator.validate(payload, context)
 }
