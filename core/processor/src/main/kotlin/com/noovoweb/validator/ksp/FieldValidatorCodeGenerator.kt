@@ -27,7 +27,7 @@ internal class FieldValidatorCodeGenerator {
      * @param fieldPath Dot-notation path for error messages (e.g., "email", "address.city")
      * @return CodeBlock with validation logic
      */
-    internal fun generateValidatorCode(validator: ValidationValidatorInfo, property: PropertyInfo, fieldPath: String,): CodeBlock =
+    internal fun generateValidatorCode(validator: ValidationValidatorInfo, property: PropertyInfo, fieldPath: String): CodeBlock =
         when (validator) {
             // String validators
             is ValidationValidatorInfo.RequiredValidator -> generateRequiredValidator(validator, property, fieldPath)
@@ -170,13 +170,13 @@ internal class FieldValidatorCodeGenerator {
     /**
      * Generate code to add an error message.
      */
-    private fun addErrorMessage(validator: ValidationValidatorInfo, args: String? = null,): CodeBlock {
+    private fun addErrorMessage(validator: ValidationValidatorInfo, args: String? = null): CodeBlock {
         val argsCode = args ?: "null"
         val messageKey = validator.customMessage ?: validator.messageKey
         return CodeBlock.of(
             "errors.add(context.messageProvider.getMessage(%S, %L, context.locale))\n",
             messageKey,
-            argsCode,
+            argsCode
         )
     }
 
@@ -184,12 +184,12 @@ internal class FieldValidatorCodeGenerator {
      * Add fail-fast logic if @FailFast is present.
      * NOTE: Returns empty - checkpoints handled by ValidatorClassGenerator.
      */
-    private fun addFailFastIfNeeded(property: PropertyInfo, fieldPath: String,): CodeBlock = CodeBlock.of("")
+    private fun addFailFastIfNeeded(property: PropertyInfo, fieldPath: String): CodeBlock = CodeBlock.of("")
 
     /**
      * Helper to wrap validation logic based on property nullability.
      */
-    private fun wrapInNullabilityCheck(property: PropertyInfo, validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit,): CodeBlock =
+    private fun wrapInNullabilityCheck(property: PropertyInfo, validationLogic: CodeBlock.Builder.(valueRef: String) -> Unit): CodeBlock =
         CodeBlock.builder().apply {
             if (property.isNullable) {
                 beginControlFlow("value?.let")
@@ -208,7 +208,7 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
         comment: String,
-        validation: CodeBlock.Builder.(valueRef: String) -> Unit,
+        validation: CodeBlock.Builder.(valueRef: String) -> Unit
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// $comment")
         add(
@@ -232,14 +232,14 @@ internal class FieldValidatorCodeGenerator {
         fieldPath: String,
         comment: String,
         regexName: String,
-        validator: ValidationValidatorInfo,
+        validator: ValidationValidatorInfo
     ): CodeBlock = generateStringValidator(property, fieldPath, comment) { valueRef ->
         addStatement("// Security: Limit input length for regex matching (ReDoS protection)")
         beginControlFlow("if ($valueRef.length > %L)", RegexSafety.MAX_PATTERN_INPUT_LENGTH)
         addStatement(
             "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
             "field.too_long",
-            RegexSafety.MAX_PATTERN_INPUT_LENGTH,
+            RegexSafety.MAX_PATTERN_INPUT_LENGTH
         )
         add(addFailFastIfNeeded(property, fieldPath))
         endControlFlow()
@@ -257,7 +257,7 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
         comment: String,
-        validation: CodeBlock.Builder.(valueRef: String) -> Unit,
+        validation: CodeBlock.Builder.(valueRef: String) -> Unit
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// $comment")
         add(
@@ -274,7 +274,7 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
         comment: String,
-        validation: CodeBlock.Builder.(valueRef: String) -> Unit,
+        validation: CodeBlock.Builder.(valueRef: String) -> Unit
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// $comment")
         add(
@@ -301,7 +301,7 @@ internal class FieldValidatorCodeGenerator {
         property: PropertyInfo,
         fieldPath: String,
         comment: String,
-        validation: CodeBlock.Builder.(valueRef: String) -> Unit,
+        validation: CodeBlock.Builder.(valueRef: String) -> Unit
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// $comment")
         add(
@@ -323,7 +323,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateRequiredValidator(
         validator: ValidationValidatorInfo.RequiredValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @Required")
@@ -358,13 +358,13 @@ internal class FieldValidatorCodeGenerator {
     private fun generateEmailValidator(
         validator: ValidationValidatorInfo.EmailValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@Email", "emailRegex", validator)
 
     private fun generateUrlValidator(
         validator: ValidationValidatorInfo.UrlValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Url - Uses URL class validation (no ReDoS risk)") { valueRef ->
         addStatement("val isValid = %T.isValidURL($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
         beginControlFlow("if (!isValid)")
@@ -376,13 +376,13 @@ internal class FieldValidatorCodeGenerator {
     private fun generateUuidValidator(
         validator: ValidationValidatorInfo.UuidValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@Uuid", "uuidRegex", validator)
 
     private fun generateLengthValidator(
         validator: ValidationValidatorInfo.LengthValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Length(min=${validator.min}, max=${validator.max})") { valueRef ->
         beginControlFlow("if ($valueRef.length !in %L..%L)", validator.min, validator.max)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
@@ -393,7 +393,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMinLengthValidator(
         validator: ValidationValidatorInfo.MinLengthValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@MinLength(${validator.value})") { valueRef ->
         beginControlFlow("if ($valueRef.length < %L)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -404,7 +404,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMaxLengthValidator(
         validator: ValidationValidatorInfo.MaxLengthValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@MaxLength(${validator.value})") { valueRef ->
         beginControlFlow("if ($valueRef.length > %L)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -415,7 +415,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generatePatternValidator(
         validator: ValidationValidatorInfo.PatternValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock {
         // Validate pattern safety at compile time
         RegexSafety.validatePatternCompiles(validator.pattern)
@@ -446,7 +446,7 @@ internal class FieldValidatorCodeGenerator {
             addStatement(
                 "errors.add(context.messageProvider.getMessage(%S, arrayOf<Any>(%L), context.locale))",
                 "field.pattern.too_long",
-                RegexSafety.MAX_PATTERN_INPUT_LENGTH,
+                RegexSafety.MAX_PATTERN_INPUT_LENGTH
             )
             add(addFailFastIfNeeded(property, fieldPath))
             endControlFlow()
@@ -470,25 +470,25 @@ internal class FieldValidatorCodeGenerator {
     private fun generateAlphaValidator(
         validator: ValidationValidatorInfo.AlphaValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@Alpha", "alphaRegex", validator)
 
     private fun generateAlphanumericValidator(
         validator: ValidationValidatorInfo.AlphanumericValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@Alphanumeric", "alphanumericRegex", validator)
 
     private fun generateAsciiValidator(
         validator: ValidationValidatorInfo.AsciiValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@Ascii", "asciiRegex", validator)
 
     private fun generateLowercaseValidator(
         validator: ValidationValidatorInfo.LowercaseValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Lowercase") { valueRef ->
         beginControlFlow("if ($valueRef != $valueRef.lowercase(java.util.Locale.ROOT))")
         add(addErrorMessage(validator))
@@ -499,7 +499,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateUppercaseValidator(
         validator: ValidationValidatorInfo.UppercaseValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Uppercase") { valueRef ->
         beginControlFlow("if ($valueRef != $valueRef.uppercase(java.util.Locale.ROOT))")
         add(addErrorMessage(validator))
@@ -510,7 +510,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateStartsWithValidator(
         validator: ValidationValidatorInfo.StartsWithValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@StartsWith") { valueRef ->
         beginControlFlow("if (!$valueRef.startsWith(%S))", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
@@ -521,7 +521,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateEndsWithValidator(
         validator: ValidationValidatorInfo.EndsWithValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@EndsWith") { valueRef ->
         beginControlFlow("if (!$valueRef.endsWith(%S))", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
@@ -532,7 +532,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateContainsValidator(
         validator: ValidationValidatorInfo.ContainsValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Contains") { valueRef ->
         beginControlFlow("if (!$valueRef.contains(%S))", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(\"${validator.value}\")"))
@@ -543,7 +543,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateOneOfValidator(
         validator: ValidationValidatorInfo.OneOfValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@OneOf") { valueRef ->
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         addStatement("val allowedValues = setOf($valuesString)")
@@ -557,7 +557,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateNotOneOfValidator(
         validator: ValidationValidatorInfo.NotOneOfValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@NotOneOf") { valueRef ->
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         addStatement("val forbiddenValues = setOf($valuesString)")
@@ -571,7 +571,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateEnumValidator(
         validator: ValidationValidatorInfo.EnumValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Enum") { valueRef ->
         addStatement("val enumEntries = %L.entries", validator.enumClass)
         addStatement("val allowedValues = enumEntries.map { e -> e.name }")
@@ -585,7 +585,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateJsonValidator(
         validator: ValidationValidatorInfo.JsonValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@Json - Proper JSON structure validation") { valueRef ->
         addStatement("val isValid = %T.isValidJson($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
         beginControlFlow("if (!isValid)")
@@ -597,7 +597,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateLuhnValidator(
         validator: ValidationValidatorInfo.LuhnValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @Luhn - Luhn algorithm validation (credit cards, IMEI, etc.)")
 
@@ -650,7 +650,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateCreditCardValidator(
         validator: ValidationValidatorInfo.CreditCardValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @CreditCard - Credit card validation (format + Luhn)")
 
@@ -725,7 +725,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMinValidator(
         validator: ValidationValidatorInfo.MinValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Min(${validator.value})") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() < %L)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -736,7 +736,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMaxValidator(
         validator: ValidationValidatorInfo.MaxValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Max(${validator.value})") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() > %L)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -747,7 +747,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateBetweenValidator(
         validator: ValidationValidatorInfo.BetweenValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Between(${validator.min}, ${validator.max})") { valueRef ->
         addStatement("val numValue = $valueRef.toDouble()")
         beginControlFlow("if (numValue !in %L..%L)", validator.min, validator.max)
@@ -759,7 +759,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generatePositiveValidator(
         validator: ValidationValidatorInfo.PositiveValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Positive") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() <= 0)")
         add(addErrorMessage(validator))
@@ -770,7 +770,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateNegativeValidator(
         validator: ValidationValidatorInfo.NegativeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Negative") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() >= 0)")
         add(addErrorMessage(validator))
@@ -781,7 +781,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateZeroValidator(
         validator: ValidationValidatorInfo.ZeroValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Zero") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() != 0.0)")
         add(addErrorMessage(validator))
@@ -792,7 +792,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateIntegerValidator(
         validator: ValidationValidatorInfo.IntegerValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Integer") { valueRef ->
         // Emit only the branch matching the static property type — avoids dead `is X` branches
         // that become compile errors in Kotlin 2.4 (KTLC-365).
@@ -838,7 +838,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateDecimalValidator(
         validator: ValidationValidatorInfo.DecimalValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Decimal") { valueRef ->
         when (property.type.qualifiedName) {
             "kotlin.Int", "kotlin.Long", "kotlin.Short", "kotlin.Byte" -> {
@@ -888,7 +888,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateDivisibleByValidator(
         validator: ValidationValidatorInfo.DivisibleByValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@DivisibleBy(${validator.value})") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() %% %L != 0.0)", validator.value.toDouble())
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -899,7 +899,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateEvenValidator(
         validator: ValidationValidatorInfo.EvenValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Even") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() %% 2 != 0.0)")
         add(addErrorMessage(validator))
@@ -910,7 +910,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateOddValidator(
         validator: ValidationValidatorInfo.OddValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateNumericValidator(property, fieldPath, "@Odd") { valueRef ->
         beginControlFlow("if ($valueRef.toDouble() %% 2 == 0.0)")
         add(addErrorMessage(validator))
@@ -921,7 +921,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateDecimalPlacesValidator(
         validator: ValidationValidatorInfo.DecimalPlacesValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@DecimalPlaces(${validator.value})") { valueRef ->
         addStatement("val decimalIndex = $valueRef.indexOf('.')")
         beginControlFlow("if (decimalIndex == -1 || $valueRef.length - decimalIndex - 1 != %L)", validator.value)
@@ -935,7 +935,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateAcceptedValidator(
         validator: ValidationValidatorInfo.AcceptedValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Accepted") { valueRef ->
         // Emit only the branch matching the static property type.
         val isAcceptedExpr = when (property.type.qualifiedName) {
@@ -967,7 +967,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateSizeValidator(
         validator: ValidationValidatorInfo.SizeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateCollectionValidator(property, fieldPath, "@Size(min=${validator.min}, max=${validator.max})") { _ ->
         beginControlFlow("if (size !in %L..%L)", validator.min, validator.max)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.min}, ${validator.max})"))
@@ -978,7 +978,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMinSizeValidator(
         validator: ValidationValidatorInfo.MinSizeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateCollectionValidator(property, fieldPath, "@MinSize(${validator.value})") { _ ->
         beginControlFlow("if (size < %L)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -989,7 +989,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMaxSizeValidator(
         validator: ValidationValidatorInfo.MaxSizeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateCollectionValidator(property, fieldPath, "@MaxSize(${validator.value})") { _ ->
         beginControlFlow("if (size > %L)", validator.value)
         add(addErrorMessage(validator, "arrayOf<Any>(${validator.value})"))
@@ -1000,7 +1000,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateNotEmptyValidator(
         validator: ValidationValidatorInfo.NotEmptyValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@NotEmpty") { valueRef ->
         // Collection, Array, Map, and String all have `.isEmpty()` — call directly.
         addStatement("val isEmpty = $valueRef.isEmpty()")
@@ -1013,7 +1013,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateDistinctValidator(
         validator: ValidationValidatorInfo.DistinctValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Distinct") { valueRef ->
         // Use HashSet-based duplicate detection with early exit instead of building a full
         // distinct list, so malicious oversized inputs cannot trigger a quadratic slowdown.
@@ -1029,7 +1029,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateContainsValueValidator(
         validator: ValidationValidatorInfo.ContainsValueValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@ContainsValue") { valueRef ->
         // Iterate directly — Collection and Array both have a `map` extension. Avoids dead
         // `is Array<*>` / `is Collection<*>` branches that fail to compile in Kotlin 2.4.
@@ -1045,7 +1045,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateNotContainsValidator(
         validator: ValidationValidatorInfo.NotContainsValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@NotContains") { valueRef ->
         val elementType = property.type.typeArguments.firstOrNull()
         val mapped = if (elementType?.isString() == true) valueRef else "$valueRef.map { it.toString() }"
@@ -1061,7 +1061,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateDateFormatValidator(
         validator: ValidationValidatorInfo.DateFormatValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@DateFormat") { valueRef ->
         beginControlFlow("try")
         addStatement("java.time.format.DateTimeFormatter.ofPattern(%S).parse($valueRef)", validator.format)
@@ -1074,19 +1074,19 @@ internal class FieldValidatorCodeGenerator {
     private fun generateIsoDateValidator(
         validator: ValidationValidatorInfo.IsoDateValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@IsoDate", "isoDateRegex", validator)
 
     private fun generateIsoDateTimeValidator(
         validator: ValidationValidatorInfo.IsoDateTimeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@IsoDateTime", "isoDateTimeRegex", validator)
 
     private fun generateFutureValidator(
         validator: ValidationValidatorInfo.FutureValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Future - uses injectable Clock from context") { valueRef ->
         val condition = when (property.type.qualifiedName) {
             "java.time.LocalDate" -> "!$valueRef.isAfter(java.time.LocalDate.now(context.clock))"
@@ -1126,7 +1126,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generatePastValidator(
         validator: ValidationValidatorInfo.PastValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Past - uses injectable Clock from context") { valueRef ->
         val condition = when (property.type.qualifiedName) {
             "java.time.LocalDate" -> "!$valueRef.isBefore(java.time.LocalDate.now(context.clock))"
@@ -1166,7 +1166,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateTodayValidator(
         validator: ValidationValidatorInfo.TodayValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Today - uses injectable Clock from context") { valueRef ->
         addStatement("val today = java.time.LocalDate.now(context.clock)")
         val condition = when (property.type.qualifiedName) {
@@ -1202,7 +1202,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateIPv4Validator(
         validator: ValidationValidatorInfo.IPv4Validator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@IPv4 - Uses InetAddress validation (safe)") { valueRef ->
         addStatement("val isValid = %T.isValidIPv4($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
         beginControlFlow("if (!isValid)")
@@ -1214,7 +1214,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateIPv6Validator(
         validator: ValidationValidatorInfo.IPv6Validator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateStringValidator(property, fieldPath, "@IPv6 - Uses InetAddress validation (safe)") { valueRef ->
         addStatement("val isValid = %T.isValidIPv6($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
         beginControlFlow("if (!isValid)")
@@ -1223,7 +1223,7 @@ internal class FieldValidatorCodeGenerator {
         endControlFlow()
     }
 
-    private fun generateIPValidator(validator: ValidationValidatorInfo.IPValidator, property: PropertyInfo, fieldPath: String,): CodeBlock =
+    private fun generateIPValidator(validator: ValidationValidatorInfo.IPValidator, property: PropertyInfo, fieldPath: String): CodeBlock =
         generateStringValidator(property, fieldPath, "@IP (IPv4 or IPv6) - Uses InetAddress validation (safe)") { valueRef ->
             addStatement("val isValid = %T.isValidIP($valueRef)", ClassName("com.noovoweb.validator", "ValidationPatterns"))
             beginControlFlow("if (!isValid)")
@@ -1235,13 +1235,13 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMacAddressValidator(
         validator: ValidationValidatorInfo.MacAddressValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateRegexStringValidator(property, fieldPath, "@MacAddress", "macRegex", validator)
 
     private fun generatePortValidator(
         validator: ValidationValidatorInfo.PortValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@Port") { valueRef ->
         when (property.type.qualifiedName) {
             "kotlin.Int" -> {
@@ -1274,7 +1274,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMimeTypeValidator(
         validator: ValidationValidatorInfo.MimeTypeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         return CodeBlock.builder().apply {
@@ -1366,7 +1366,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateFileExtensionValidator(
         validator: ValidationValidatorInfo.FileExtensionValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         return generateAnyValidator(property, fieldPath, "@FileExtension") { valueRef ->
@@ -1399,7 +1399,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateMaxFileSizeValidator(
         validator: ValidationValidatorInfo.MaxFileSizeValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = generateAnyValidator(property, fieldPath, "@MaxFileSize - NON-BLOCKING with IO dispatcher") { valueRef ->
         when (property.type.qualifiedName) {
             "java.io.File" -> {
@@ -1431,7 +1431,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateSameValidator(
         validator: ValidationValidatorInfo.SameValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @Same - Compare with another field")
         addStatement("val otherValue = payload.%L", validator.field)
@@ -1444,7 +1444,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateDifferentValidator(
         validator: ValidationValidatorInfo.DifferentValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @Different - Must differ from another field")
         addStatement("val otherValue = payload.%L", validator.field)
@@ -1457,7 +1457,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateRequiredIfValidator(
         validator: ValidationValidatorInfo.RequiredIfValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @RequiredIf")
         addStatement("val otherValue = payload.%L", validator.field)
@@ -1472,7 +1472,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateRequiredUnlessValidator(
         validator: ValidationValidatorInfo.RequiredUnlessValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @RequiredUnless")
         addStatement("val otherValue = payload.%L", validator.field)
@@ -1487,7 +1487,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateRequiredWithValidator(
         validator: ValidationValidatorInfo.RequiredWithValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @RequiredWith")
         val fieldsCheck = validator.fields.joinToString(" || ") { "payload.$it != null" }
@@ -1504,7 +1504,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateRequiredWithoutValidator(
         validator: ValidationValidatorInfo.RequiredWithoutValidator,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock = CodeBlock.builder().apply {
         addStatement("// @RequiredWithout")
         val fieldsCheck = validator.fields.joinToString(" && ") { "payload.$it == null" }
@@ -1521,7 +1521,7 @@ internal class FieldValidatorCodeGenerator {
     private fun generateCustomValidator(
         validator: ValidationValidatorInfo.CustomValidatorInfo,
         property: PropertyInfo,
-        fieldPath: String,
+        fieldPath: String
     ): CodeBlock {
         return CodeBlock.builder().apply {
             addStatement("// @CustomValidator - Custom validation logic")

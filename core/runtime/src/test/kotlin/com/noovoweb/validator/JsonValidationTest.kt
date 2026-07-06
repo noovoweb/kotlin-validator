@@ -16,7 +16,7 @@ class JsonValidationTest {
             """{"name": "John", "age": 30}""",
             """{"nested": {"inner": "value"}}""",
             """{"array": [1, 2, 3]}""",
-            """{"mixed": {"arr": [1, "two", true, null]}}""",
+            """{"mixed": {"arr": [1, "two", true, null]}}"""
         )
 
         validJson.forEach { json ->
@@ -32,7 +32,7 @@ class JsonValidationTest {
             """["a", "b", "c"]""",
             """[{"id": 1}, {"id": 2}]""",
             """[true, false, null]""",
-            """[[1, 2], [3, 4]]""",
+            """[[1, 2], [3, 4]]"""
         )
 
         validJson.forEach { json ->
@@ -52,7 +52,7 @@ class JsonValidationTest {
             """1.5e-3""",
             """true""",
             """false""",
-            """null""",
+            """null"""
         )
 
         validJson.forEach { json ->
@@ -69,7 +69,7 @@ class JsonValidationTest {
                 "key": "value"
             }
             """,
-            """[ 1 , 2 , 3 ]""",
+            """[ 1 , 2 , 3 ]"""
         )
 
         validJson.forEach { json ->
@@ -83,7 +83,7 @@ class JsonValidationTest {
             """{"text": "line1\nline2"}""",
             """{"path": "C:\\Users\\test"}""",
             """{"quote": "He said \"hello\""}""",
-            """{"tab": "col1\tcol2"}""",
+            """{"tab": "col1\tcol2"}"""
         )
 
         validJson.forEach { json ->
@@ -105,7 +105,7 @@ class JsonValidationTest {
             "{'key': 'value'}", // Single quotes
             """{"key": }""", // Missing value
             """{"key"}""", // Missing colon and value
-            """{: "value"}""", // Missing key
+            """{: "value"}""" // Missing key
         )
 
         invalidJson.forEach { json ->
@@ -118,7 +118,7 @@ class JsonValidationTest {
         val invalidJson = listOf(
             """{"key": "value",}""",
             """[1, 2, 3,]""",
-            """{"a": 1, "b": 2,}""",
+            """{"a": 1, "b": 2,}"""
         )
 
         invalidJson.forEach { json ->
@@ -132,7 +132,7 @@ class JsonValidationTest {
             """{}{}""",
             """[][]""",
             """{"key": "value"} extra""",
-            """123 456""",
+            """123 456"""
         )
 
         invalidJson.forEach { json ->
@@ -146,7 +146,7 @@ class JsonValidationTest {
             """{"key": "value"""",
             """{"nested": {"inner": "value"}""",
             """[1, 2, 3""",
-            """{"arr": [1, 2, 3}""",
+            """{"arr": [1, 2, 3}"""
         )
 
         invalidJson.forEach { json ->
@@ -168,7 +168,7 @@ class JsonValidationTest {
         val unicodeJson = listOf(
             """{"emoji": "😀"}""",
             """{"chinese": "中文"}""",
-            """{"arabic": "العربية"}""",
+            """{"arabic": "العربية"}"""
         )
 
         unicodeJson.forEach { json ->
@@ -181,7 +181,7 @@ class JsonValidationTest {
         val maliciousInputs = listOf(
             "{" + "\"a\":{".repeat(100) + "}" + "}".repeat(100),
             "[" + "[".repeat(100) + "]".repeat(100) + "]",
-            "\"" + "a".repeat(10000) + "\"",
+            "\"" + "a".repeat(10000) + "\""
         )
 
         maliciousInputs.forEach { input ->

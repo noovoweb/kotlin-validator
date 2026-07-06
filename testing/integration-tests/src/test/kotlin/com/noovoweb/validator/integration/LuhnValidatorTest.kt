@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 @Validated
 data class CreditCardData(
     @Luhn
-    val cardNumber: String?,
+    val cardNumber: String?
 )
 
 class LuhnValidatorTest {

@@ -17,7 +17,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class IPv4(val message: String = "",)
+public annotation class IPv4(val message: String = "")
 
 /**
  * Validates that a string is a valid IPv6 address.
@@ -36,7 +36,7 @@ public annotation class IPv4(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class IPv6(val message: String = "",)
+public annotation class IPv6(val message: String = "")
 
 /**
  * Validates that a string is a valid IP address (IPv4 or IPv6).
@@ -55,7 +55,7 @@ public annotation class IPv6(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class IP(val message: String = "",)
+public annotation class IP(val message: String = "")
 
 /**
  * Validates that a string is a valid MAC address.
@@ -74,7 +74,7 @@ public annotation class IP(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class MacAddress(val message: String = "",)
+public annotation class MacAddress(val message: String = "")
 
 /**
  * Validates that a number is a valid port number (1-65535).
@@ -93,4 +93,4 @@ public annotation class MacAddress(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Port(val message: String = "",)
+public annotation class Port(val message: String = "")

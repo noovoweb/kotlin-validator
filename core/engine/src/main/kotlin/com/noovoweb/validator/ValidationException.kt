@@ -19,7 +19,7 @@ package com.noovoweb.validator
  */
 public class ValidationException(
     public val errors: Map<String, List<String>>,
-    message: String = "Validation failed with ${errors.size} field error(s)",
+    message: String = "Validation failed with ${errors.size} field error(s)"
 ) : RuntimeException(message) {
     /**
      * Get errors for a specific field.

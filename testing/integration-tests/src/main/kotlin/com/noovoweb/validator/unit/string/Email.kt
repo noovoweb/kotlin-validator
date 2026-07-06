@@ -6,5 +6,5 @@ import com.noovoweb.validator.Validated
 @Validated
 data class Email(
     @Email
-    val email: String?,
+    val email: String?
 )

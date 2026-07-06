@@ -23,13 +23,13 @@ class JsonValidationEdgeCasesTest {
                 """{"bool": true, "null": null}""",
                 """{"number": 42, "float": 3.14, "exp": 1.5e10}""",
                 """  {  "whitespace"  :  "handled"  }  """,
-                """{"escaped": "quote: \" and backslash: \\"}""",
+                """{"escaped": "quote: \" and backslash: \\"}"""
             )
 
         validJsonObjects.forEach { json ->
             assertTrue(
                 ValidationPatterns.isValidJson(json),
-                "Expected valid JSON: $json",
+                "Expected valid JSON: $json"
             )
         }
     }
@@ -44,13 +44,13 @@ class JsonValidationEdgeCasesTest {
                 """[{"key": "value"}]""",
                 """[1, "two", {"three": 3}, [4]]""",
                 """[true, false, null]""",
-                """  [  1  ,  2  ,  3  ]  """,
+                """  [  1  ,  2  ,  3  ]  """
             )
 
         validJsonArrays.forEach { json ->
             assertTrue(
                 ValidationPatterns.isValidJson(json),
-                "Expected valid JSON: $json",
+                "Expected valid JSON: $json"
             )
         }
     }
@@ -69,14 +69,14 @@ class JsonValidationEdgeCasesTest {
                 """{"key": "value"""", // Unclosed object
                 """[1, 2, 3""", // Unclosed array
                 """{"key": 'value'}""", // Single quotes
-                """{"key": undefined}""", // Undefined value
+                """{"key": undefined}""" // Undefined value
                 // Note: Duplicate keys are technically valid JSON (though bad practice)
             )
 
         invalidJson.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: $json",
+                "Expected invalid JSON: $json"
             )
         }
     }
@@ -95,13 +95,13 @@ class JsonValidationEdgeCasesTest {
                 """]""",
                 """][""",
                 """[[]""",
-                """]]]""",
+                """]]]"""
             )
 
         justBraces.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: $json",
+                "Expected invalid JSON: $json"
             )
         }
     }
@@ -112,14 +112,14 @@ class JsonValidationEdgeCasesTest {
             listOf(
                 """{"key": "invalid \x escape"}""", // Invalid escape (\x is not valid)
                 """{"key": "line
-break"}""", // Unescaped newline (actual newline in string)
+break"}""" // Unescaped newline (actual newline in string)
                 // Note: Control characters in Kotlin strings are already escaped by Kotlin compiler
             )
 
         invalidEscapes.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: ${json.replace("\n", "\\n")}",
+                "Expected invalid JSON: ${json.replace("\n", "\\n")}"
             )
         }
     }
@@ -133,13 +133,13 @@ break"}""", // Unescaped newline (actual newline in string)
                 """{"num": 5.}""", // No trailing digit
                 """{"num": 1e}""", // Incomplete exponent
                 """{"num": +5}""", // Leading plus
-                """{"num": 0x10}""", // Hex notation
+                """{"num": 0x10}""" // Hex notation
             )
 
         invalidNumbers.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON: $json",
+                "Expected invalid JSON: $json"
             )
         }
     }
@@ -203,13 +203,13 @@ break"}""", // Unescaped newline (actual newline in string)
                 """{"key": "value"} extra""",
                 """[1, 2, 3] garbage""",
                 """{}{}""",
-                """[][]""",
+                """[][]"""
             )
 
         extraChars.forEach { json ->
             assertFalse(
                 ValidationPatterns.isValidJson(json),
-                "Expected invalid JSON with extra characters: $json",
+                "Expected invalid JSON with extra characters: $json"
             )
         }
     }
@@ -236,13 +236,13 @@ break"}""", // Unescaped newline (actual newline in string)
             listOf(
                 """{"emoji": "😀"}""",
                 """{"chinese": "你好"}""",
-                """{"arabic": "مرحبا"}""",
+                """{"arabic": "مرحبا"}"""
             )
 
         unicodeJson.forEach { json ->
             assertTrue(
                 ValidationPatterns.isValidJson(json),
-                "Expected valid JSON with unicode: $json",
+                "Expected valid JSON with unicode: $json"
             )
         }
     }

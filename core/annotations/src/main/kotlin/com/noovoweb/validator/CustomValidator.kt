@@ -192,5 +192,5 @@ public annotation class CustomValidator(
      *
      * Example: "Username must be alphanumeric and 3-20 characters"
      */
-    val message: String = "",
+    val message: String = ""
 )

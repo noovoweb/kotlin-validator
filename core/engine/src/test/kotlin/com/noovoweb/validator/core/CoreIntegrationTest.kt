@@ -25,7 +25,7 @@ class CoreIntegrationTest {
         val context =
             ValidationContext(
                 locale = Locale.ENGLISH,
-                messageProvider = provider,
+                messageProvider = provider
             )
 
         val message = context.messageProvider.getMessage("field.email", null, context.locale)
@@ -38,7 +38,7 @@ class CoreIntegrationTest {
         val errors =
             mapOf(
                 "email" to listOf(ValidationError("Invalid email", "invalid_email")),
-                "age" to listOf(ValidationError("Too young", "too_young")),
+                "age" to listOf(ValidationError("Too young", "too_young"))
             )
 
         val result =
@@ -48,7 +48,7 @@ class CoreIntegrationTest {
                         errorList.map { error ->
                             ValidationError(
                                 message = "${error.message} [${error.code}]",
-                                code = error.code,
+                                code = error.code
                             )
                         }
                     }
@@ -78,12 +78,12 @@ class CoreIntegrationTest {
         val englishContext =
             ValidationContext(
                 locale = Locale.ENGLISH,
-                messageProvider = provider,
+                messageProvider = provider
             )
         val frenchContext =
             ValidationContext(
                 locale = Locale.FRENCH,
-                messageProvider = provider,
+                messageProvider = provider
             )
 
         val engMsg = englishContext.messageProvider.getMessage("field.required", null, englishContext.locale)
@@ -110,7 +110,7 @@ class CoreIntegrationTest {
         val context =
             ValidationContext(
                 locale = Locale.ENGLISH,
-                messageProvider = provider,
+                messageProvider = provider
             )
 
         // Create a failure result
@@ -120,8 +120,8 @@ class CoreIntegrationTest {
                 "email" to
                     listOf(
                         ValidationError("Invalid email", "invalid_email"),
-                        ValidationError("Too long", "too_long"),
-                    ),
+                        ValidationError("Too long", "too_long")
+                    )
             )
 
         val result = ValidationResult.Failure(errors)
@@ -149,7 +149,7 @@ class CoreIntegrationTest {
         val context1 =
             ValidationContext(
                 locale = Locale.ENGLISH,
-                messageProvider = provider1,
+                messageProvider = provider1
             )
 
         val context2 =
@@ -186,7 +186,7 @@ class CoreIntegrationTest {
         val context =
             ValidationContext(
                 locale = Locale.ENGLISH,
-                messageProvider = provider,
+                messageProvider = provider
             )
 
         val minMsg = context.messageProvider.getMessage("field.min", arrayOf(18), context.locale)

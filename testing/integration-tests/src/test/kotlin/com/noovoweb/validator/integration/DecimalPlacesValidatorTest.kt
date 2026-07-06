@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 @Validated
 data class PriceData(
     @DecimalPlaces(2)
-    val priceString: String?,
+    val priceString: String?
 )
 
 class DecimalPlacesValidatorTest {
