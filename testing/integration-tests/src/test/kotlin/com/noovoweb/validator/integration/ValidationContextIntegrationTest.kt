@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertTrue
 
 object ContextValidators {
-    suspend fun validateWithContext(value: String?, context: ValidationContext,): Boolean {
+    suspend fun validateWithContext(value: String?, context: ValidationContext): Boolean {
         if (value == null) return true
         // Use context information for validation
         return when (context.locale.language) {
@@ -22,7 +22,7 @@ object ContextValidators {
 @Validated
 data class ContextData(
     @CustomValidator(validator = "com.noovoweb.validator.integration.ContextValidators::validateWithContext")
-    val value: String?,
+    val value: String?
 )
 
 class ValidationContextIntegrationTest {
@@ -41,7 +41,7 @@ class ValidationContextIntegrationTest {
     fun `should propagate context to validators`() = runTest {
         val customContext =
             ValidationContext(
-                locale = java.util.Locale.FRANCE,
+                locale = java.util.Locale.FRANCE
             )
 
         val isValid = ContextValidators.validateWithContext("31-12-2024", customContext)

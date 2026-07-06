@@ -29,7 +29,7 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should have Required error (validators run until one fails)",
+            "Should have Required error (validators run until one fails)"
         )
     }
 
@@ -47,7 +47,7 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should have Email error",
+            "Should have Email error"
         )
     }
 
@@ -65,7 +65,7 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should have Required error and stop at checkpoint",
+            "Should have Required error and stop at checkpoint"
         )
     }
 
@@ -83,7 +83,7 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should have Email error and stop at checkpoint, skipping MaxLength",
+            "Should have Email error and stop at checkpoint, skipping MaxLength"
         )
     }
 
@@ -101,7 +101,7 @@ class FailFastValidatorTest {
         // All validators run because checkpoint is AFTER all of them
         assertTrue(
             exception.errors["email"]!!.size >= 2,
-            "Should collect Email and MaxLength errors since checkpoint is at the end",
+            "Should collect Email and MaxLength errors since checkpoint is at the end"
         )
     }
 
@@ -119,7 +119,7 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should have Required error (other validators skip null)",
+            "Should have Required error (other validators skip null)"
         )
     }
 
@@ -136,11 +136,11 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should only have Required error, stops at checkpoint 1",
+            "Should only have Required error, stops at checkpoint 1"
         )
         assertTrue(
             exception.errors["email"]!![0].contains("required"),
-            "Error should be about required field",
+            "Error should be about required field"
         )
     }
 
@@ -157,12 +157,12 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should only have Email error, stops at checkpoint 2",
+            "Should only have Email error, stops at checkpoint 2"
         )
         assertTrue(
             exception.errors["email"]!![0].contains("email") ||
                 exception.errors["email"]!![0].contains("valid"),
-            "Error should be about invalid email",
+            "Error should be about invalid email"
         )
     }
 
@@ -180,12 +180,12 @@ class FailFastValidatorTest {
         assertEquals(
             1,
             exception.errors["email"]!!.size,
-            "Should only have MaxLength error",
+            "Should only have MaxLength error"
         )
         assertTrue(
             exception.errors["email"]!![0].contains("50") ||
                 exception.errors["email"]!![0].contains("length"),
-            "Error should be about max length",
+            "Error should be about max length"
         )
     }
 

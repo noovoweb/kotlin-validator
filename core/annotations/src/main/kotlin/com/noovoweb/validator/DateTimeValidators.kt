@@ -20,7 +20,7 @@ package com.noovoweb.validator
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class DateFormat(val format: String, val message: String = "",)
+public annotation class DateFormat(val format: String, val message: String = "")
 
 /**
  * Validates that a string is a valid ISO 8601 date (YYYY-MM-DD).
@@ -39,7 +39,7 @@ public annotation class DateFormat(val format: String, val message: String = "",
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class IsoDate(val message: String = "",)
+public annotation class IsoDate(val message: String = "")
 
 /**
  * Validates that a string is a valid ISO 8601 datetime.
@@ -58,7 +58,7 @@ public annotation class IsoDate(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class IsoDateTime(val message: String = "",)
+public annotation class IsoDateTime(val message: String = "")
 
 /**
  * Validates that a date is in the future.
@@ -79,7 +79,7 @@ public annotation class IsoDateTime(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Future(val message: String = "",)
+public annotation class Future(val message: String = "")
 
 /**
  * Validates that a date is in the past.
@@ -100,7 +100,7 @@ public annotation class Future(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Past(val message: String = "",)
+public annotation class Past(val message: String = "")
 
 /**
  * Validates that a date is today.
@@ -121,4 +121,4 @@ public annotation class Past(val message: String = "",)
  */
 @Target(AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.SOURCE)
-public annotation class Today(val message: String = "",)
+public annotation class Today(val message: String = "")

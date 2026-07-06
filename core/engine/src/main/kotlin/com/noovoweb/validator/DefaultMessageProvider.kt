@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap
  * - English (en)
  * - French (fr)
  */
-public class DefaultMessageProvider(supportedLocales: List<Locale> = listOf(Locale.ENGLISH, Locale.FRENCH),) : MessageProvider {
+public class DefaultMessageProvider(supportedLocales: List<Locale> = listOf(Locale.ENGLISH, Locale.FRENCH)) : MessageProvider {
     private val messageCache = ConcurrentHashMap<Pair<Locale, String>, String>()
 
     init {
@@ -53,7 +53,7 @@ public class DefaultMessageProvider(supportedLocales: List<Locale> = listOf(Loca
      * Performs pure memory lookup - no I/O operations.
      * Falls back to English if the locale is not cached.
      */
-    override suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale,): String {
+    override suspend fun getMessage(key: String, args: Array<Any>?, locale: Locale): String {
         // Pure memory lookup - fully non-blocking
         val template =
             messageCache[locale to key]

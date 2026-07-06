@@ -16,7 +16,7 @@ public sealed class ValidationResult<out T> {
         is Success -> value
 
         is Failure -> throw ValidationException(
-            errors.mapValues { (_, errors) -> errors.map { it.message } },
+            errors.mapValues { (_, errors) -> errors.map { it.message } }
         )
     }
 
@@ -56,13 +56,13 @@ public sealed class ValidationResult<out T> {
     }
 
     public inline fun mapErrors(
-        transform: (Map<String, List<ValidationError>>) -> Map<String, List<ValidationError>>,
+        transform: (Map<String, List<ValidationError>>) -> Map<String, List<ValidationError>>
     ): ValidationResult<T> = when (this) {
         is Success -> this
         is Failure -> Failure(transform(errors))
     }
 
-    public inline fun <R> fold(onSuccess: (T) -> R, onFailure: (Map<String, List<ValidationError>>) -> R,): R = when (this) {
+    public inline fun <R> fold(onSuccess: (T) -> R, onFailure: (Map<String, List<ValidationError>>) -> R): R = when (this) {
         is Success -> onSuccess(value)
         is Failure -> onFailure(errors)
     }
