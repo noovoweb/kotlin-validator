@@ -14,8 +14,8 @@ class NestedObjectValidatorTest {
         validator.validate(
             NestedObject(
                 name = "John",
-                address = Address(street = "123 Main St", city = "New York"),
-            ),
+                address = Address(street = "123 Main St", city = "New York")
+            )
         )
     }
 
@@ -26,8 +26,8 @@ class NestedObjectValidatorTest {
             validator.validate(
                 NestedObject(
                     name = "John",
-                    address = Address(street = null, city = "New York"),
-                ),
+                    address = Address(street = null, city = "New York")
+                )
             )
         }
     }
@@ -39,8 +39,8 @@ class NestedObjectValidatorTest {
             validator.validate(
                 NestedObject(
                     name = null,
-                    address = Address(street = "123 Main St", city = "New York"),
-                ),
+                    address = Address(street = "123 Main St", city = "New York")
+                )
             )
         }
     }
@@ -58,8 +58,8 @@ class NestedObjectValidatorTest {
                 NestedObjectValidator().validate(
                     NestedObject(
                         name = "John",
-                        address = Address(street = null, city = null),
-                    ),
+                        address = Address(street = null, city = null)
+                    )
                 )
             }
         println("Error keys: ${exception.errors.keys}")

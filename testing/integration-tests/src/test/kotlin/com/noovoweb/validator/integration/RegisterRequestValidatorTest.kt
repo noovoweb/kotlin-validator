@@ -19,7 +19,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         validator.validate(request)
@@ -37,7 +37,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -60,7 +60,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -83,7 +83,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -106,7 +106,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -129,7 +129,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -152,7 +152,7 @@ class RegisterRequestValidatorTest {
                 lastName = null,
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         validator.validate(request)
@@ -170,7 +170,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 16,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -193,7 +193,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 130,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -216,7 +216,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "abc123",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val exception =
@@ -239,7 +239,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = false,
+                acceptTerms = false
             )
 
         val exception =
@@ -262,7 +262,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 25,
                 phoneNumber = "+1234567890",
-                acceptTerms = true,
+                acceptTerms = true
             )
 
         val result = validator.validateResult(request)
@@ -282,7 +282,7 @@ class RegisterRequestValidatorTest {
                 lastName = "Doe",
                 age = 16,
                 phoneNumber = "abc123",
-                acceptTerms = false,
+                acceptTerms = false
             )
 
         val result = validator.validateResult(request)

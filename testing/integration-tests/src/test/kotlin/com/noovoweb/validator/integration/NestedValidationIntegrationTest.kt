@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
 object NestedValidators {
-    suspend fun validateOrderItem(value: String?, context: ValidationContext,): Boolean {
+    suspend fun validateOrderItem(value: String?, context: ValidationContext): Boolean {
         if (value == null) return true
         return value.length >= 3
     }
@@ -17,13 +17,13 @@ object NestedValidators {
 @Validated
 data class OrderItem(
     @CustomValidator(validator = "com.noovoweb.validator.integration.NestedValidators::validateOrderItem")
-    val name: String?,
+    val name: String?
 )
 
 @Validated
 data class Order(
     @Valid(each = true)
-    val items: List<OrderItem>?,
+    val items: List<OrderItem>?
 )
 
 class NestedValidationIntegrationTest {
@@ -35,8 +35,8 @@ class NestedValidationIntegrationTest {
                 items =
                 listOf(
                     OrderItem(name = "Item1"),
-                    OrderItem(name = "Item2"),
-                ),
+                    OrderItem(name = "Item2")
+                )
             )
         validator.validate(order)
     }
@@ -63,8 +63,8 @@ class NestedValidationIntegrationTest {
                 items =
                 listOf(
                     OrderItem(name = "ValidItem"),
-                    OrderItem(name = "AnotherValidItem"),
-                ),
+                    OrderItem(name = "AnotherValidItem")
+                )
             )
         validator.validate(order)
     }

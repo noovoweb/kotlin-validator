@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 @Validated
 data class CreditCardTestData(
     @CreditCard
-    val cardNumber: String?,
+    val cardNumber: String?
 )
 
 class CreditCardValidatorTest {

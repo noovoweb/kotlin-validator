@@ -23,35 +23,35 @@ import kotlin.test.assertTrue
 
 class ValidationPluginTest {
     @Serializable
-    data class TestUser(val username: String, val email: String,)
+    data class TestUser(val username: String, val email: String)
 
     class PassingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(target: TestUser, context: ValidationContext,) {
+        override suspend fun validate(target: TestUser, context: ValidationContext) {
             // Always passes
         }
 
         override suspend fun validateResult(
             payload: TestUser,
-            context: ValidationContext,
+            context: ValidationContext
         ): com.noovoweb.validator.ValidationResult<TestUser> = com.noovoweb.validator.ValidationResult.Success(payload)
     }
 
     class FailingValidator : GeneratedValidator<TestUser> {
-        override suspend fun validate(target: TestUser, context: ValidationContext,): Unit = throw ValidationException(
+        override suspend fun validate(target: TestUser, context: ValidationContext): Unit = throw ValidationException(
             mapOf(
                 "username" to listOf("Username is required"),
-                "email" to listOf("Email must be valid"),
-            ),
+                "email" to listOf("Email must be valid")
+            )
         )
 
         override suspend fun validateResult(
             payload: TestUser,
-            context: ValidationContext,
+            context: ValidationContext
         ): com.noovoweb.validator.ValidationResult<TestUser> = com.noovoweb.validator.ValidationResult.Failure(
             mapOf(
                 "username" to listOf(com.noovoweb.validator.ValidationError("Username is required")),
-                "email" to listOf(com.noovoweb.validator.ValidationError("Email must be valid")),
-            ),
+                "email" to listOf(com.noovoweb.validator.ValidationError("Email must be valid"))
+            )
         )
     }
 

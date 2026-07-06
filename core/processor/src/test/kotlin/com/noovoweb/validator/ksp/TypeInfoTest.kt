@@ -15,7 +15,7 @@ class TypeInfoTest {
             TypeInfo(
                 qualifiedName = "kotlin.String",
                 simpleName = "String",
-                isNullable = true,
+                isNullable = true
             )
 
         assertEquals("kotlin.String", typeInfo.qualifiedName)
@@ -29,7 +29,7 @@ class TypeInfoTest {
             TypeInfo(
                 qualifiedName = "kotlin.Int",
                 simpleName = "Int",
-                isNullable = false,
+                isNullable = false
             )
 
         assertEquals("kotlin.Int", typeInfo.qualifiedName)
@@ -43,7 +43,7 @@ class TypeInfoTest {
             TypeInfo(
                 qualifiedName = "kotlin.collections.List",
                 simpleName = "List",
-                isNullable = false,
+                isNullable = false
             )
 
         assertEquals("kotlin.collections.List", typeInfo.qualifiedName)
@@ -56,7 +56,7 @@ class TypeInfoTest {
             TypeInfo(
                 qualifiedName = "com.example.User",
                 simpleName = "User",
-                isNullable = true,
+                isNullable = true
             )
 
         assertEquals("com.example.User", typeInfo.qualifiedName)

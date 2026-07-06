@@ -27,14 +27,14 @@ enum class Priority {
 @Validated
 data class EnumTestData(
     @Enum(Status::class)
-    val status: String?,
+    val status: String?
 )
 
 @Validated
 data class RequiredEnumTestData(
     @Required
     @Enum(Status::class)
-    val status: String,
+    val status: String
 )
 
 @Validated
@@ -43,7 +43,7 @@ data class MultipleEnumTestData(
     val status: String?,
 
     @Enum(Priority::class)
-    val priority: String?,
+    val priority: String?
 )
 
 class EnumValidatorTest {

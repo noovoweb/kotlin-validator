@@ -20,7 +20,7 @@ data class Member(
     val name: String?,
     @Required
     @Email
-    val email: String?,
+    val email: String?
 )
 
 @Validated
@@ -29,7 +29,7 @@ data class Team(
     @MinLength(3)
     val teamName: String?,
     @Valid(each = true)
-    val members: List<Member>?,
+    val members: List<Member>?
 )
 
 @Validated
@@ -38,7 +38,7 @@ data class Department(
     @MinLength(3)
     val departmentName: String?,
     @Valid(each = true)
-    val teams: List<Team>?,
+    val teams: List<Team>?
 )
 
 @Validated
@@ -46,7 +46,7 @@ data class Organization(
     @Required
     val organizationName: String?,
     @Valid(each = true)
-    val departments: List<Department>?,
+    val departments: List<Department>?
 )
 
 class NestedArrayValidationIntegrationTest {
@@ -68,17 +68,17 @@ class NestedArrayValidationIntegrationTest {
                                 members =
                                 listOf(
                                     Member(name = "Alice", email = "invalid-email"), // Invalid email
-                                    Member(name = "Bob", email = "bob@example.com"),
-                                ),
+                                    Member(name = "Bob", email = "bob@example.com")
+                                )
                             ),
                             Team(
                                 teamName = "UI", // Too short (min 3)
                                 members =
                                 listOf(
-                                    Member(name = "Charlie", email = "charlie@example.com"),
-                                ),
-                            ),
-                        ),
+                                    Member(name = "Charlie", email = "charlie@example.com")
+                                )
+                            )
+                        )
                     ),
                     Department(
                         departmentName = "Sales",
@@ -90,12 +90,12 @@ class NestedArrayValidationIntegrationTest {
                                 listOf(
                                     Member(name = "David", email = "david@example.com"),
                                     Member(name = "Eve", email = "eve@example.com"),
-                                    Member(name = "Frank123", email = "frank@example.com"), // Invalid name (not alpha)
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
+                                    Member(name = "Frank123", email = "frank@example.com") // Invalid name (not alpha)
+                                )
+                            )
+                        )
+                    )
+                )
             )
 
         val exception =
@@ -132,12 +132,12 @@ class NestedArrayValidationIntegrationTest {
                                 members =
                                 listOf(
                                     Member(name = "Alice", email = "alice@example.com"),
-                                    Member(name = "Bob", email = "bob@example.com"),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
+                                    Member(name = "Bob", email = "bob@example.com")
+                                )
+                            )
+                        )
+                    )
+                )
             )
 
         validator.validate(organization)
@@ -161,17 +161,17 @@ class NestedArrayValidationIntegrationTest {
                                 members =
                                 listOf(
                                     Member(name = "Alice123", email = "invalid"), // Both invalid
-                                    Member(name = "Bob", email = "also-invalid"), // Invalid email
-                                ),
+                                    Member(name = "Bob", email = "also-invalid") // Invalid email
+                                )
                             ),
                             Team(
                                 teamName = "XY", // Too short
                                 members =
                                 listOf(
-                                    Member(name = "Charlie@", email = "charlie@example.com"), // Invalid name
-                                ),
-                            ),
-                        ),
+                                    Member(name = "Charlie@", email = "charlie@example.com") // Invalid name
+                                )
+                            )
+                        )
                     ),
                     Department(
                         departmentName = "HR",
@@ -182,12 +182,12 @@ class NestedArrayValidationIntegrationTest {
                                 members =
                                 listOf(
                                     Member(name = "David", email = "not-an-email"), // Invalid email
-                                    Member(name = "123Eve", email = "eve@example.com"), // Invalid name
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
+                                    Member(name = "123Eve", email = "eve@example.com") // Invalid name
+                                )
+                            )
+                        )
+                    )
+                )
             )
 
         val exception =
@@ -220,9 +220,9 @@ class NestedArrayValidationIntegrationTest {
                 listOf(
                     Department(
                         departmentName = "Engineering",
-                        teams = emptyList(),
-                    ),
-                ),
+                        teams = emptyList()
+                    )
+                )
             )
 
         validator.validate(organization)
@@ -239,9 +239,9 @@ class NestedArrayValidationIntegrationTest {
                 listOf(
                     Department(
                         departmentName = "Engineering",
-                        teams = null,
-                    ),
-                ),
+                        teams = null
+                    )
+                )
             )
 
         validator.validate(organization)
@@ -267,12 +267,12 @@ class NestedArrayValidationIntegrationTest {
                                     Member(name = "Alice", email = "alice@example.com"),
                                     Member(name = "Bob", email = "bob@example.com"),
                                     Member(name = "Charlie123", email = "charlie@example.com"), // Index 2, invalid name
-                                    Member(name = "David", email = "david@example.com"),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
+                                    Member(name = "David", email = "david@example.com")
+                                )
+                            )
+                        )
+                    )
+                )
             )
 
         val exception =
@@ -301,10 +301,10 @@ class NestedArrayValidationIntegrationTest {
                                 teamName = "Backend",
                                 members =
                                 listOf(
-                                    Member(name = "Alice", email = "alice@example.com"), // Valid
-                                ),
-                            ),
-                        ),
+                                    Member(name = "Alice", email = "alice@example.com") // Valid
+                                )
+                            )
+                        )
                     ),
                     Department(
                         departmentName = "Sales",
@@ -314,12 +314,12 @@ class NestedArrayValidationIntegrationTest {
                                 teamName = "North",
                                 members =
                                 listOf(
-                                    Member(name = "Bob", email = "invalid-email"), // Invalid at index [1]
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
+                                    Member(name = "Bob", email = "invalid-email") // Invalid at index [1]
+                                )
+                            )
+                        )
+                    )
+                )
             )
 
         val exception =
