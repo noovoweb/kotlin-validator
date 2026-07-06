@@ -28,7 +28,7 @@ public data class ValidationContext(
     public val clock: Clock = Clock.systemDefaultZone(),
     public val metadata: Map<String, Any> = emptyMap(),
     public val currentDepth: Int = 0,
-    public val maxValidationDepth: Int = DEFAULT_MAX_VALIDATION_DEPTH,
+    public val maxValidationDepth: Int = DEFAULT_MAX_VALIDATION_DEPTH
 ) {
     public fun withLocale(locale: Locale): ValidationContext = copy(locale = locale)
 
@@ -38,7 +38,7 @@ public data class ValidationContext(
 
     public fun withClock(clock: Clock): ValidationContext = copy(clock = clock)
 
-    public fun withMetadata(key: String, value: Any,): ValidationContext = copy(metadata = metadata + (key to value))
+    public fun withMetadata(key: String, value: Any): ValidationContext = copy(metadata = metadata + (key to value))
 
     public fun withMetadata(metadata: Map<String, Any>): ValidationContext = copy(metadata = metadata)
 
@@ -63,21 +63,21 @@ public data class ValidationContext(
 
         public fun forIO(
             locale: Locale = Locale.ENGLISH,
-            messageProvider: MessageProvider = DefaultMessageProvider.DEFAULT,
+            messageProvider: MessageProvider = DefaultMessageProvider.DEFAULT
         ): ValidationContext = ValidationContext(
             locale = locale,
             messageProvider = messageProvider,
             dispatcher = Dispatchers.IO,
             clock = Clock.systemDefaultZone(),
-            metadata = emptyMap(),
+            metadata = emptyMap()
         )
 
-        public fun forTesting(clock: Clock = Clock.systemUTC(), locale: Locale = Locale.ENGLISH,): ValidationContext = ValidationContext(
+        public fun forTesting(clock: Clock = Clock.systemUTC(), locale: Locale = Locale.ENGLISH): ValidationContext = ValidationContext(
             locale = locale,
             messageProvider = DefaultMessageProvider.DEFAULT,
             dispatcher = Dispatchers.Default,
             clock = clock,
-            metadata = emptyMap(),
+            metadata = emptyMap()
         )
     }
 }

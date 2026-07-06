@@ -107,7 +107,7 @@ class ValidationContextTest {
         val context =
             ValidationContext(
                 locale = Locale.FRENCH,
-                dispatcher = Dispatchers.IO,
+                dispatcher = Dispatchers.IO
             )
 
         assertEquals(Locale.FRENCH, context.locale)

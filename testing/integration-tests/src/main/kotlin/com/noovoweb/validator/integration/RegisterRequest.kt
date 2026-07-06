@@ -39,5 +39,5 @@ data class RegisterRequest(
     @Pattern(value = """^\s*\+?[1-9]\d{1,14}\s*$""")
     val phoneNumber: String?,
     @Accepted
-    val acceptTerms: Boolean?,
+    val acceptTerms: Boolean?
 )

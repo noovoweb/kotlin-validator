@@ -44,7 +44,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
         return ValidatedClassInfo(
             packageName = packageName,
             className = className,
-            properties = properties,
+            properties = properties
         )
     }
 
@@ -54,7 +54,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
     private fun parseProperty(
         property: KSPropertyDeclaration,
         allPropertyNames: Set<String>,
-        classDeclaration: KSClassDeclaration,
+        classDeclaration: KSClassDeclaration
     ): PropertyInfo? {
         val propertyName = property.simpleName.asString()
         val type = parseType(property.type)
@@ -126,7 +126,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
                     logger.error(
                         "Property '$propertyName' references unknown field '$fieldName'. " +
                             "Available fields: ${allPropertyNames.joinToString(", ")}",
-                        classDeclaration,
+                        classDeclaration
                     )
                 }
             }
@@ -138,7 +138,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             validators = validators,
             isNullable = type.isNullable,
             failFastPositions = failFastPositions,
-            nestedValidation = nestedValidation,
+            nestedValidation = nestedValidation
         )
     }
 
@@ -160,7 +160,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             qualifiedName = qualifiedName,
             simpleName = simpleName,
             isNullable = isNullable,
-            typeArguments = typeArguments,
+            typeArguments = typeArguments
         )
     }
 
@@ -233,25 +233,25 @@ internal class AnnotationParser(private val logger: KSPLogger) {
                 ValidationValidatorInfo.LengthValidator(
                     min = getAnnotationArgument<Int>(annotation, "min") ?: 0,
                     max = getAnnotationArgument<Int>(annotation, "max") ?: Int.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "MinLength" ->
                 ValidationValidatorInfo.MinLengthValidator(
                     value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "MaxLength" ->
                 ValidationValidatorInfo.MaxLengthValidator(
                     value = getAnnotationArgument<Int>(annotation, "value") ?: Int.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Pattern" ->
                 ValidationValidatorInfo.PatternValidator(
                     pattern = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Alpha" -> ValidationValidatorInfo.AlphaValidator(message)
@@ -267,31 +267,31 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             "StartsWith" ->
                 ValidationValidatorInfo.StartsWithValidator(
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "EndsWith" ->
                 ValidationValidatorInfo.EndsWithValidator(
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Contains" ->
                 ValidationValidatorInfo.ContainsValidator(
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "OneOf" ->
                 ValidationValidatorInfo.OneOfValidator(
                     values = getAnnotationArrayArgument<String>(annotation, "values"),
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "NotOneOf" ->
                 ValidationValidatorInfo.NotOneOfValidator(
                     values = getAnnotationArrayArgument<String>(annotation, "values"),
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Enum" -> {
@@ -312,20 +312,20 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             "Min" ->
                 ValidationValidatorInfo.MinValidator(
                     value = getAnnotationArgument<Double>(annotation, "value") ?: 0.0,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Max" ->
                 ValidationValidatorInfo.MaxValidator(
                     value = getAnnotationArgument<Double>(annotation, "value") ?: Double.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Between" ->
                 ValidationValidatorInfo.BetweenValidator(
                     min = getAnnotationArgument<Double>(annotation, "min") ?: 0.0,
                     max = getAnnotationArgument<Double>(annotation, "max") ?: Double.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Positive" -> ValidationValidatorInfo.PositiveValidator(message)
@@ -341,7 +341,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             "DivisibleBy" ->
                 ValidationValidatorInfo.DivisibleByValidator(
                     value = getAnnotationArgument<Int>(annotation, "value") ?: 1,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Even" -> ValidationValidatorInfo.EvenValidator(message)
@@ -351,7 +351,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             "DecimalPlaces" ->
                 ValidationValidatorInfo.DecimalPlacesValidator(
                     value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             // Boolean validators
@@ -362,19 +362,19 @@ internal class AnnotationParser(private val logger: KSPLogger) {
                 ValidationValidatorInfo.SizeValidator(
                     min = getAnnotationArgument<Int>(annotation, "min") ?: 0,
                     max = getAnnotationArgument<Int>(annotation, "max") ?: Int.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "MinSize" ->
                 ValidationValidatorInfo.MinSizeValidator(
                     value = getAnnotationArgument<Int>(annotation, "value") ?: 0,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "MaxSize" ->
                 ValidationValidatorInfo.MaxSizeValidator(
                     value = getAnnotationArgument<Int>(annotation, "value") ?: Int.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "NotEmpty" -> ValidationValidatorInfo.NotEmptyValidator(message)
@@ -384,20 +384,20 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             "ContainsValue" ->
                 ValidationValidatorInfo.ContainsValueValidator(
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "NotContains" ->
                 ValidationValidatorInfo.NotContainsValidator(
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             // Date/Time validators
             "DateFormat" ->
                 ValidationValidatorInfo.DateFormatValidator(
                     format = getAnnotationArgument<String>(annotation, "format") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "IsoDate" -> ValidationValidatorInfo.IsoDateValidator(message)
@@ -425,65 +425,65 @@ internal class AnnotationParser(private val logger: KSPLogger) {
             "MimeType" ->
                 ValidationValidatorInfo.MimeTypeValidator(
                     values = getAnnotationArrayArgument<String>(annotation, "values"),
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "FileExtension" ->
                 ValidationValidatorInfo.FileExtensionValidator(
                     values = getAnnotationArrayArgument<String>(annotation, "values"),
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "MaxFileSize" ->
                 ValidationValidatorInfo.MaxFileSizeValidator(
                     bytes = getAnnotationArgument<Long>(annotation, "bytes") ?: Long.MAX_VALUE,
-                    customMessage = message,
+                    customMessage = message
                 )
 
             // Conditional validators
             "Same" ->
                 ValidationValidatorInfo.SameValidator(
                     field = getAnnotationArgument<String>(annotation, "field") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "Different" ->
                 ValidationValidatorInfo.DifferentValidator(
                     field = getAnnotationArgument<String>(annotation, "field") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "RequiredIf" ->
                 ValidationValidatorInfo.RequiredIfValidator(
                     field = getAnnotationArgument<String>(annotation, "field") ?: "",
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "RequiredUnless" ->
                 ValidationValidatorInfo.RequiredUnlessValidator(
                     field = getAnnotationArgument<String>(annotation, "field") ?: "",
                     value = getAnnotationArgument<String>(annotation, "value") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "RequiredWith" ->
                 ValidationValidatorInfo.RequiredWithValidator(
                     fields = getAnnotationArrayArgument<String>(annotation, "fields"),
-                    customMessage = message,
+                    customMessage = message
                 )
 
             "RequiredWithout" ->
                 ValidationValidatorInfo.RequiredWithoutValidator(
                     fields = getAnnotationArrayArgument<String>(annotation, "fields"),
-                    customMessage = message,
+                    customMessage = message
                 )
 
             // Custom validators
             "CustomValidator" ->
                 ValidationValidatorInfo.CustomValidatorInfo(
                     validatorFunctionFqn = getAnnotationArgument<String>(annotation, "validator") ?: "",
-                    customMessage = message,
+                    customMessage = message
                 )
 
             else -> null
@@ -494,7 +494,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
      * Get a single annotation argument value.
      */
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T> getAnnotationArgument(annotation: KSAnnotation, argName: String,): T? = annotation.arguments
+    private inline fun <reified T> getAnnotationArgument(annotation: KSAnnotation, argName: String): T? = annotation.arguments
         .find { it.name?.asString() == argName }
         ?.value as? T
 
@@ -502,7 +502,7 @@ internal class AnnotationParser(private val logger: KSPLogger) {
      * Get an array annotation argument value.
      */
     @Suppress("UNCHECKED_CAST")
-    private inline fun <reified T> getAnnotationArrayArgument(annotation: KSAnnotation, argName: String,): List<T> {
+    private inline fun <reified T> getAnnotationArrayArgument(annotation: KSAnnotation, argName: String): List<T> {
         val value =
             annotation.arguments
                 .find { it.name?.asString() == argName }

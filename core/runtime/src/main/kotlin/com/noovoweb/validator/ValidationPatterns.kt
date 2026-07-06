@@ -440,11 +440,13 @@ public object ValidationPatterns {
     public fun isValidIP(address: String): Boolean = isValidIPv4(address) || isValidIPv6(address)
 
     /**
-     * Validates URL using Java's URL class.
+     * Validates URL using Java's URI class.
      *
      * This is MUCH safer and more reliable than regex validation.
      * - No ReDoS risk
-     * - Proper URL parsing and validation
+     * - Strict RFC 2396 parsing, consistent across JDK versions
+     *   (java.net.URL is lenient about spaces on older JDKs and its
+     *   String constructor is deprecated since JDK 20)
      * - Validates protocol, host, port, path
      * - No performance issues with malicious input
      *
@@ -466,11 +468,11 @@ public object ValidationPatterns {
         if (urlString.trim() != urlString) return false // Reject leading/trailing whitespace
 
         return try {
-            val url = java.net.URL(urlString)
+            val uri = java.net.URI(urlString)
             // Only allow http and https protocols
-            val validProtocol = url.protocol.lowercase() in listOf("http", "https")
+            val validProtocol = uri.scheme?.lowercase() in listOf("http", "https")
             // Ensure host is not empty
-            val hasHost = url.host.isNotBlank()
+            val hasHost = !uri.host.isNullOrBlank()
 
             validProtocol && hasHost
         } catch (e: Exception) {

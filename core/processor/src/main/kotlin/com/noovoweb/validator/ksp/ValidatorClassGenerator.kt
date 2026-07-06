@@ -12,7 +12,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
  * - validateFields() helper (parallel for suspending validators, sequential otherwise)
  * - validateFieldX() methods for each property
  */
-internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: FieldValidatorCodeGenerator,) {
+internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: FieldValidatorCodeGenerator) {
     /**
      * Generate a complete validator class for the given validated class.
      *
@@ -28,11 +28,11 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 .addAnnotation(
                     AnnotationSpec.builder(Suppress::class)
                         .addMember("%S, %S", "USELESS_IS_CHECK", "REDUNDANT_ELSE_IN_WHEN")
-                        .build(),
+                        .build()
                 )
                 .addSuperinterface(
                     ClassName("com.noovoweb.validator", "GeneratedValidator")
-                        .parameterizedBy(dataClassName),
+                        .parameterizedBy(dataClassName)
                 )
                 .addKdoc(
                     """
@@ -43,7 +43,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
 
                     **100%% Non-Blocking**: All validation is performed using suspend functions
                     with proper dispatcher usage for I/O operations.
-                    """.trimIndent(),
+                    """.trimIndent()
                 )
                 .apply {
                     // Add companion object with cached regex patterns for @Pattern validators
@@ -80,7 +80,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
     /**
      * Generate the validate() method (exception-based API).
      */
-    private fun generateValidateMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec = FunSpec.builder("validate")
+    private fun generateValidateMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName): FunSpec = FunSpec.builder("validate")
         .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
         .addParameter("payload", dataClassName)
         .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
@@ -93,24 +93,24 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 .beginControlFlow("if (errors.isNotEmpty())")
                 .addStatement(
                     "throw %T(errors)",
-                    ClassName("com.noovoweb.validator", "ValidationException"),
+                    ClassName("com.noovoweb.validator", "ValidationException")
                 )
                 .endControlFlow()
-                .build(),
+                .build()
         )
         .build()
 
     /**
      * Generate the validateResult() method (result-based API).
      */
-    private fun generateValidateResultMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec =
+    private fun generateValidateResultMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName): FunSpec =
         FunSpec.builder("validateResult")
             .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
             .addParameter("payload", dataClassName)
             .addParameter("context", ClassName("com.noovoweb.validator", "ValidationContext"))
             .returns(
                 ClassName("com.noovoweb.validator", "ValidationResult")
-                    .parameterizedBy(dataClassName),
+                    .parameterizedBy(dataClassName)
             )
             .addCode(
                 CodeBlock.builder()
@@ -121,7 +121,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                     .beginControlFlow("return if (errors.isEmpty())")
                     .addStatement(
                         "%T.Success(payload)",
-                        ClassName("com.noovoweb.validator", "ValidationResult"),
+                        ClassName("com.noovoweb.validator", "ValidationResult")
                     )
                     .nextControlFlow("else")
                     .addStatement("// Convert string errors to ValidationError objects")
@@ -129,16 +129,16 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                     .indent()
                     .addStatement(
                         "messages.map { %T(it) }",
-                        ClassName("com.noovoweb.validator", "ValidationError"),
+                        ClassName("com.noovoweb.validator", "ValidationError")
                     )
                     .unindent()
                     .addStatement("}")
                     .addStatement(
                         "%T.Failure(errorObjects)",
-                        ClassName("com.noovoweb.validator", "ValidationResult"),
+                        ClassName("com.noovoweb.validator", "ValidationResult")
                     )
                     .endControlFlow()
-                    .build(),
+                    .build()
             )
             .build()
 
@@ -151,7 +151,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
      * coroutine dispatch costs more than the validation itself, so a plain
      * sequential loop is generated instead.
      */
-    private fun generateValidateFieldsMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec {
+    private fun generateValidateFieldsMethod(classInfo: ValidatedClassInfo, dataClassName: ClassName): FunSpec {
         val validatedProperties = classInfo.properties.filter { it.hasValidators() || it.hasNestedValidation() }
 
         return FunSpec.builder("validateFields")
@@ -164,7 +164,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                     generateParallelFieldsBody(validatedProperties)
                 } else {
                     generateSequentialFieldsBody(validatedProperties)
-                },
+                }
             )
             .build()
     }
@@ -197,7 +197,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
             validatedProperties.forEach { property ->
                 addStatement(
                     "async(context.dispatcher) { validate%L(payload, context) },",
-                    property.name.capitalize(),
+                    property.name.capitalize()
                 )
             }
         }
@@ -236,7 +236,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
     /**
      * Generate a field validation method for a single property.
      */
-    private fun generateFieldValidationMethod(property: PropertyInfo, classInfo: ValidatedClassInfo, dataClassName: ClassName,): FunSpec =
+    private fun generateFieldValidationMethod(property: PropertyInfo, classInfo: ValidatedClassInfo, dataClassName: ClassName): FunSpec =
         FunSpec.builder("validate${property.name.capitalize()}")
             .addModifiers(KModifier.PRIVATE, KModifier.SUSPEND)
             .addParameter("payload", dataClassName)
@@ -248,7 +248,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
     /**
      * Generate the validation code for a single field.
      */
-    private fun generateFieldValidationCode(property: PropertyInfo, classInfo: ValidatedClassInfo,): CodeBlock = CodeBlock.builder().apply {
+    private fun generateFieldValidationCode(property: PropertyInfo, classInfo: ValidatedClassInfo): CodeBlock = CodeBlock.builder().apply {
         addStatement("val errors = mutableListOf<String>()")
         addStatement("val value = payload.%L", property.name)
         addStatement("")
@@ -448,7 +448,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 All patterns are validated at compile-time for safety.
 
                 PERFORMANCE: Built-in patterns (Email, UUID, etc.) are cached here for 10-100x speedup.
-                """.trimIndent(),
+                """.trimIndent()
             )
             .apply {
                 // Add user-defined @Pattern validators
@@ -457,7 +457,7 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                         PropertySpec.builder("${propertyName}Regex", ClassName("kotlin.text", "Regex"))
                             .addModifiers(KModifier.PRIVATE)
                             .initializer("Regex(%S)", pattern)
-                            .build(),
+                            .build()
                     )
                 }
 
@@ -471,9 +471,9 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                             .initializer(
                                 "Regex(%T.%L)",
                                 ClassName("com.noovoweb.validator", "ValidationPatterns"),
-                                constantName,
+                                constantName
                             )
-                            .build(),
+                            .build()
                     )
                 }
             }

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertTrue
 
 object ComplexValidators {
-    suspend fun validateComplexData(value: String?, context: ValidationContext,): Boolean {
+    suspend fun validateComplexData(value: String?, context: ValidationContext): Boolean {
         if (value == null) return true
         val errors = mutableMapOf<String, List<String>>()
         val parts = value.split("-")
@@ -35,7 +35,7 @@ object ComplexValidators {
 @Validated
 data class ComplexData(
     @CustomValidator(validator = "com.noovoweb.validator.integration.ComplexValidators::validateComplexData")
-    val data: String?,
+    val data: String?
 )
 
 class ValidationExceptionIntegrationTest {

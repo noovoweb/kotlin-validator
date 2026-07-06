@@ -23,29 +23,29 @@ import kotlin.test.assertTrue
 
 class ValidationExtensionsTest {
     @Serializable
-    data class TestRequest(val name: String, val age: Int,)
+    data class TestRequest(val name: String, val age: Int)
 
     class PassingValidator : GeneratedValidator<TestRequest> {
-        override suspend fun validate(target: TestRequest, context: ValidationContext,) {
+        override suspend fun validate(target: TestRequest, context: ValidationContext) {
             // Always passes
         }
 
         override suspend fun validateResult(
             payload: TestRequest,
-            context: ValidationContext,
+            context: ValidationContext
         ): com.noovoweb.validator.ValidationResult<TestRequest> = com.noovoweb.validator.ValidationResult.Success(payload)
     }
 
     class FailingValidator : GeneratedValidator<TestRequest> {
-        override suspend fun validate(target: TestRequest, context: ValidationContext,): Unit = throw ValidationException(
-            mapOf("name" to listOf("Name is required")),
+        override suspend fun validate(target: TestRequest, context: ValidationContext): Unit = throw ValidationException(
+            mapOf("name" to listOf("Name is required"))
         )
 
         override suspend fun validateResult(
             payload: TestRequest,
-            context: ValidationContext,
+            context: ValidationContext
         ): com.noovoweb.validator.ValidationResult<TestRequest> = com.noovoweb.validator.ValidationResult.Failure(
-            mapOf("name" to listOf(com.noovoweb.validator.ValidationError("Name is required"))),
+            mapOf("name" to listOf(com.noovoweb.validator.ValidationError("Name is required")))
         )
     }
 
@@ -112,13 +112,13 @@ class ValidationExtensionsTest {
         var capturedLocale: Locale? = null
 
         class LocaleCapturingValidator : GeneratedValidator<TestRequest> {
-            override suspend fun validate(target: TestRequest, context: ValidationContext,) {
+            override suspend fun validate(target: TestRequest, context: ValidationContext) {
                 capturedLocale = context.locale
             }
 
             override suspend fun validateResult(
                 payload: TestRequest,
-                context: ValidationContext,
+                context: ValidationContext
             ): com.noovoweb.validator.ValidationResult<TestRequest> {
                 capturedLocale = context.locale
                 return com.noovoweb.validator.ValidationResult.Success(payload)
@@ -138,7 +138,7 @@ class ValidationExtensionsTest {
                     ValidationContext(
                         locale = Locale.FRENCH,
                         dispatcher = Dispatchers.Default,
-                        clock = Clock.systemDefaultZone(),
+                        clock = Clock.systemDefaultZone()
                     )
                 val request = call.receiveAndValidate(LocaleCapturingValidator(), customContext)
                 call.respond(HttpStatusCode.OK, "OK")
@@ -219,13 +219,13 @@ class ValidationExtensionsTest {
         var capturedLocale: Locale? = null
 
         class LocaleCapturingValidator : GeneratedValidator<TestRequest> {
-            override suspend fun validate(target: TestRequest, context: ValidationContext,) {
+            override suspend fun validate(target: TestRequest, context: ValidationContext) {
                 capturedLocale = context.locale
             }
 
             override suspend fun validateResult(
                 payload: TestRequest,
-                context: ValidationContext,
+                context: ValidationContext
             ): com.noovoweb.validator.ValidationResult<TestRequest> {
                 capturedLocale = context.locale
                 return com.noovoweb.validator.ValidationResult.Success(payload)

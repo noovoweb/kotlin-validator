@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 class FieldValidatorCodeGeneratorTest {
     private val generator = FieldValidatorCodeGenerator()
 
-    private fun createProperty(name: String, type: String,): PropertyInfo {
+    private fun createProperty(name: String, type: String): PropertyInfo {
         val isNullable = type.endsWith("?")
         return PropertyInfo(
             name = name,
@@ -21,12 +21,12 @@ class FieldValidatorCodeGeneratorTest {
             TypeInfo(
                 qualifiedName = "kotlin.$type".replace("?", ""),
                 simpleName = type.replace("?", ""),
-                isNullable = isNullable,
+                isNullable = isNullable
             ),
             validators = emptyList(),
             isNullable = isNullable,
             failFastPositions = emptyList(),
-            nestedValidation = null,
+            nestedValidation = null
         )
     }
 
@@ -42,7 +42,7 @@ class FieldValidatorCodeGeneratorTest {
         // Should check if field is null or blank
         assertTrue(
             codeString.contains("username") || codeString.contains("value"),
-            "Generated code should reference the field or value",
+            "Generated code should reference the field or value"
         )
     }
 
@@ -61,7 +61,7 @@ class FieldValidatorCodeGeneratorTest {
                 codeString.contains("Regex") ||
                 codeString.contains("@") ||
                 codeString.contains("EMAIL"),
-            "Email validator should contain validation logic",
+            "Email validator should contain validation logic"
         )
     }
 
@@ -103,7 +103,7 @@ class FieldValidatorCodeGeneratorTest {
         // Should check size
         assertTrue(
             codeString.contains("3") || codeString.contains("50"),
-            "Size validator should contain min or max values",
+            "Size validator should contain min or max values"
         )
     }
 
@@ -119,7 +119,7 @@ class FieldValidatorCodeGeneratorTest {
         // Should contain regex pattern
         assertTrue(
             codeString.contains("[A-Z]+") || codeString.contains("Regex") || codeString.contains("pattern"),
-            "Pattern validator should contain the regex pattern or pattern validation",
+            "Pattern validator should contain the regex pattern or pattern validation"
         )
     }
 
@@ -192,14 +192,14 @@ class FieldValidatorCodeGeneratorTest {
                 ValidationValidatorInfo.AlphaValidator(null),
                 ValidationValidatorInfo.AlphanumericValidator(null),
                 ValidationValidatorInfo.PositiveValidator(null),
-                ValidationValidatorInfo.NegativeValidator(null),
+                ValidationValidatorInfo.NegativeValidator(null)
             )
 
         validators.forEach { validator ->
             val code = generator.generateValidatorCode(validator, property, fieldPath)
             assertTrue(
                 code.toString().isNotEmpty(),
-                "Validator ${validator::class.simpleName} should generate non-empty code",
+                "Validator ${validator::class.simpleName} should generate non-empty code"
             )
         }
     }

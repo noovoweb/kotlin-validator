@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 @Retention(AnnotationRetention.SOURCE)
 @CustomValidator(
     validator = "com.noovoweb.validator.integration.PostalCodeValidators::validateCanadianPostalCode",
-    message = "postal_code.invalid_canadian",
+    message = "postal_code.invalid_canadian"
 )
 annotation class ValidCanadianPostalCode
 
@@ -31,7 +31,7 @@ annotation class ValidCanadianPostalCode
 @Retention(AnnotationRetention.SOURCE)
 @CustomValidator(
     validator = "com.noovoweb.validator.integration.PasswordValidators::validateStrongPassword",
-    message = "password.not_strong",
+    message = "password.not_strong"
 )
 annotation class StrongPassword
 
@@ -39,7 +39,7 @@ annotation class StrongPassword
  * Validator functions for postal codes.
  */
 object PostalCodeValidators {
-    suspend fun validateCanadianPostalCode(value: String?, @Suppress("UNUSED_PARAMETER") context: ValidationContext,): Boolean {
+    suspend fun validateCanadianPostalCode(value: String?, @Suppress("UNUSED_PARAMETER") context: ValidationContext): Boolean {
         if (value == null) return true
 
         // Canadian postal code format: A1A 1A1 (letter-digit-letter space digit-letter-digit)
@@ -52,7 +52,7 @@ object PostalCodeValidators {
  * Validator functions for passwords.
  */
 object PasswordValidators {
-    suspend fun validateStrongPassword(value: String?, @Suppress("UNUSED_PARAMETER") context: ValidationContext,): Boolean {
+    suspend fun validateStrongPassword(value: String?, @Suppress("UNUSED_PARAMETER") context: ValidationContext): Boolean {
         if (value == null) return true
 
         val hasMinLength = value.length >= 8
@@ -73,7 +73,7 @@ data class MetaAnnotationTestData(
     @ValidCanadianPostalCode
     val postalCode: String?,
     @StrongPassword
-    val password: String?,
+    val password: String?
 )
 
 /**
@@ -91,7 +91,7 @@ data class CombinedMetaAnnotationData(
     @Same("password")
     val passwordConfirmation: String?,
     @ValidCanadianPostalCode
-    val postalCode: String?,
+    val postalCode: String?
 )
 
 /**
@@ -104,8 +104,8 @@ class MetaAnnotationTest {
         validator.validate(
             MetaAnnotationTestData(
                 postalCode = "H3Z 2Y7",
-                password = "Valid123!@#",
-            ),
+                password = "Valid123!@#"
+            )
         )
     }
 
@@ -117,8 +117,8 @@ class MetaAnnotationTest {
                 validator.validate(
                     MetaAnnotationTestData(
                         postalCode = "12345",
-                        password = "Valid123!@#",
-                    ),
+                        password = "Valid123!@#"
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("postalCode"))
@@ -132,8 +132,8 @@ class MetaAnnotationTest {
                 validator.validate(
                     MetaAnnotationTestData(
                         postalCode = "H3Z2Y7",
-                        password = "Valid123!@#",
-                    ),
+                        password = "Valid123!@#"
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("postalCode"))
@@ -145,8 +145,8 @@ class MetaAnnotationTest {
         validator.validate(
             MetaAnnotationTestData(
                 postalCode = null,
-                password = "Valid123!@#",
-            ),
+                password = "Valid123!@#"
+            )
         )
     }
 
@@ -156,8 +156,8 @@ class MetaAnnotationTest {
         validator.validate(
             MetaAnnotationTestData(
                 postalCode = "H3Z 2Y7",
-                password = "StrongPass123!@#",
-            ),
+                password = "StrongPass123!@#"
+            )
         )
     }
 
@@ -169,8 +169,8 @@ class MetaAnnotationTest {
                 validator.validate(
                     MetaAnnotationTestData(
                         postalCode = "H3Z 2Y7",
-                        password = "weakpass123!@#",
-                    ),
+                        password = "weakpass123!@#"
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("password"))
@@ -184,8 +184,8 @@ class MetaAnnotationTest {
                 validator.validate(
                     MetaAnnotationTestData(
                         postalCode = "H3Z 2Y7",
-                        password = "WeakPass!@#",
-                    ),
+                        password = "WeakPass!@#"
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("password"))
@@ -199,8 +199,8 @@ class MetaAnnotationTest {
                 validator.validate(
                     MetaAnnotationTestData(
                         postalCode = "H3Z 2Y7",
-                        password = "WeakPass123",
-                    ),
+                        password = "WeakPass123"
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("password"))
@@ -214,8 +214,8 @@ class MetaAnnotationTest {
                 validator.validate(
                     MetaAnnotationTestData(
                         postalCode = "H3Z 2Y7",
-                        password = "Short1!",
-                    ),
+                        password = "Short1!"
+                    )
                 )
             }
         assertTrue(exception.errors.containsKey("password"))
@@ -227,8 +227,8 @@ class MetaAnnotationTest {
         validator.validate(
             MetaAnnotationTestData(
                 postalCode = "H3Z 2Y7",
-                password = null,
-            ),
+                password = null
+            )
         )
     }
 
@@ -240,8 +240,8 @@ class MetaAnnotationTest {
                 email = "user@example.com",
                 password = "StrongPass123!@#",
                 passwordConfirmation = "StrongPass123!@#",
-                postalCode = "H3Z 2Y7",
-            ),
+                postalCode = "H3Z 2Y7"
+            )
         )
     }
 
@@ -255,8 +255,8 @@ class MetaAnnotationTest {
                         email = "invalid-email",
                         password = "weak",
                         passwordConfirmation = "different",
-                        postalCode = "12345",
-                    ),
+                        postalCode = "12345"
+                    )
                 )
             }
 
@@ -277,8 +277,8 @@ class MetaAnnotationTest {
                         email = "valid@example.com",
                         password = "StrongPass123!@#",
                         passwordConfirmation = "StrongPass123!@#",
-                        postalCode = "INVALID",
-                    ),
+                        postalCode = "INVALID"
+                    )
                 )
             }
 

@@ -15,11 +15,11 @@ import kotlin.test.assertTrue
  */
 class ReactiveValidationExtensionsTest {
     // Test data class
-    data class TestRequest(val email: String?, val name: String?,)
+    data class TestRequest(val email: String?, val name: String?)
 
     // Mock validator for testing
     class TestRequestValidator(private val shouldFail: Boolean = false) : GeneratedValidator<TestRequest> {
-        override suspend fun validate(payload: TestRequest, context: ValidationContext,) {
+        override suspend fun validate(payload: TestRequest, context: ValidationContext) {
             if (shouldFail) {
                 val errors = mutableMapOf<String, MutableList<String>>()
                 if (payload.email.isNullOrEmpty()) {
@@ -34,7 +34,7 @@ class ReactiveValidationExtensionsTest {
             }
         }
 
-        override suspend fun validateResult(payload: TestRequest, context: ValidationContext,): ValidationResult<TestRequest> = try {
+        override suspend fun validateResult(payload: TestRequest, context: ValidationContext): ValidationResult<TestRequest> = try {
             validate(payload, context)
             ValidationResult.Success(payload)
         } catch (ex: ValidationException) {

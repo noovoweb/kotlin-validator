@@ -19,13 +19,13 @@ data class UserProfile(
     val username: String?,
     @Required
     @Email
-    val email: String?,
+    val email: String?
 )
 
 @Validated
 data class UserWithProfile(
     @com.noovoweb.validator.Valid
-    val profile: UserProfile?,
+    val profile: UserProfile?
 )
 
 class AcceptLanguageHeaderIntegrationTest {
@@ -57,7 +57,7 @@ class AcceptLanguageHeaderIntegrationTest {
         val invalidProfile =
             UserProfile(
                 username = "ab", // Too short
-                email = "invalid-email",
+                email = "invalid-email"
             )
 
         val exception =
@@ -72,12 +72,12 @@ class AcceptLanguageHeaderIntegrationTest {
         assertTrue(
             usernameErrors.any {
                 it.contains("character", ignoreCase = true) || it.contains("least", ignoreCase = true)
-            },
+            }
         )
         assertTrue(
             emailErrors.any {
                 it.contains("email", ignoreCase = true) || it.contains("valid", ignoreCase = true)
-            },
+            }
         )
     }
 
@@ -91,7 +91,7 @@ class AcceptLanguageHeaderIntegrationTest {
         val invalidProfile =
             UserProfile(
                 username = "ab", // Too short
-                email = "invalid-email",
+                email = "invalid-email"
             )
 
         val exception =
@@ -110,7 +110,7 @@ class AcceptLanguageHeaderIntegrationTest {
                     it.contains("minimum", ignoreCase = true) ||
                     it.contains("moins", ignoreCase = true)
             },
-            "Expected French error message for username, got: $usernameErrors",
+            "Expected French error message for username, got: $usernameErrors"
         )
         assertTrue(
             emailErrors.any {
@@ -118,7 +118,7 @@ class AcceptLanguageHeaderIntegrationTest {
                     it.contains("valide", ignoreCase = true) ||
                     it.contains("adresse", ignoreCase = true)
             },
-            "Expected French error message for email, got: $emailErrors",
+            "Expected French error message for email, got: $emailErrors"
         )
     }
 
@@ -132,7 +132,7 @@ class AcceptLanguageHeaderIntegrationTest {
         val invalidProfile =
             UserProfile(
                 username = "ab",
-                email = "invalid-email",
+                email = "invalid-email"
             )
 
         val exception =
@@ -156,7 +156,7 @@ class AcceptLanguageHeaderIntegrationTest {
                     it.contains("character", ignoreCase = true) ||
                     it.contains("least", ignoreCase = true)
             },
-            "Expected German or English error message for username, got: $usernameErrors",
+            "Expected German or English error message for username, got: $usernameErrors"
         )
     }
 
@@ -169,7 +169,7 @@ class AcceptLanguageHeaderIntegrationTest {
         val invalidProfile =
             UserProfile(
                 username = null, // Required field
-                email = null,
+                email = null
             )
 
         val exception =
@@ -201,7 +201,7 @@ class AcceptLanguageHeaderIntegrationTest {
         val invalidProfile =
             UserProfile(
                 username = null, // Required
-                email = "not-an-email", // Invalid format
+                email = "not-an-email" // Invalid format
             )
 
         val exception =
@@ -221,7 +221,7 @@ class AcceptLanguageHeaderIntegrationTest {
                 // (though "email" is international)
                 !error.contains("required", ignoreCase = true) ||
                     error.contains("obligatoire", ignoreCase = true)
-            },
+            }
         )
     }
 
@@ -234,7 +234,7 @@ class AcceptLanguageHeaderIntegrationTest {
         val validator = UserWithProfileValidator()
         val invalidUser =
             UserWithProfile(
-                profile = UserProfile(username = "a", email = "bad"),
+                profile = UserProfile(username = "a", email = "bad")
             )
 
         val exception =
