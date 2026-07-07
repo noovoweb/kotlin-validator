@@ -1278,7 +1278,7 @@ internal class FieldValidatorCodeGenerator {
     ): CodeBlock {
         val valuesString = validator.values.joinToString(", ") { "\"$it\"" }
         return CodeBlock.builder().apply {
-            addStatement("// @MimeType - NON-BLOCKING with IO dispatcher")
+            addStatement("// @MimeType - content-based (magic bytes) detection, NON-BLOCKING with IO dispatcher")
             beginControlFlow("value?.let")
 
             // Emit only the branch matching the static property type.
@@ -1286,7 +1286,7 @@ internal class FieldValidatorCodeGenerator {
                 "java.io.File" -> {
                     addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
                     indent()
-                    addStatement("java.nio.file.Files.probeContentType(it.toPath()) ?: \"application/octet-stream\"")
+                    addStatement("com.noovoweb.validator.FileSignatures.detectMimeType(it.toPath()) ?: \"application/octet-stream\"")
                     unindent()
                     addStatement("}")
                     addStatement("val allowedTypes = arrayOf($valuesString)")
@@ -1299,7 +1299,7 @@ internal class FieldValidatorCodeGenerator {
                 "java.nio.file.Path" -> {
                     addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
                     indent()
-                    addStatement("java.nio.file.Files.probeContentType(it) ?: \"application/octet-stream\"")
+                    addStatement("com.noovoweb.validator.FileSignatures.detectMimeType(it) ?: \"application/octet-stream\"")
                     unindent()
                     addStatement("}")
                     addStatement("val allowedTypes = arrayOf($valuesString)")
@@ -1323,7 +1323,7 @@ internal class FieldValidatorCodeGenerator {
                     indent()
                     addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
                     indent()
-                    addStatement("java.nio.file.Files.probeContentType(it.toPath()) ?: \"application/octet-stream\"")
+                    addStatement("com.noovoweb.validator.FileSignatures.detectMimeType(it.toPath()) ?: \"application/octet-stream\"")
                     unindent()
                     addStatement("}")
                     addStatement("val allowedTypes = arrayOf($valuesString)")
@@ -1337,7 +1337,7 @@ internal class FieldValidatorCodeGenerator {
                     indent()
                     addStatement("val mimeType = %M(%M.IO) {", withContextIO, dispatchersIO)
                     indent()
-                    addStatement("java.nio.file.Files.probeContentType(it) ?: \"application/octet-stream\"")
+                    addStatement("com.noovoweb.validator.FileSignatures.detectMimeType(it) ?: \"application/octet-stream\"")
                     unindent()
                     addStatement("}")
                     addStatement("val allowedTypes = arrayOf($valuesString)")

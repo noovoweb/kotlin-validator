@@ -326,7 +326,7 @@ Errors carry the precise path:
 }
 ```
 
-Element validation runs in parallel. To prevent runaway recursion, `ValidationContext.maxValidationDepth` is enforced (default `10`); circular references are also detected at compile time.
+Element validation runs in parallel, but bounded: at most `ValidationContext.maxElementConcurrency` elements (default `64`) are validated at once, so a large collection can't spawn one coroutine per element and exhaust resources. To prevent runaway recursion, `ValidationContext.maxValidationDepth` is enforced (default `10`); circular references are also detected at compile time.
 
 ---
 
@@ -390,6 +390,8 @@ IP validation uses `InetAddress` rather than regex (no ReDoS risk).
 <summary><b>File</b> (3)</summary>
 
 `@MimeType([…])`, `@FileExtension([…])`, `@MaxFileSize(bytes)`
+
+`@MimeType` detects the type from the file's content (magic bytes), so a mismatched extension can't spoof it; signature-less formats (text, CSV, JSON, SVG) fall back to the OS content probe.
 
 </details>
 
@@ -508,6 +510,7 @@ Most of the time you don't need to configure anything. The options below are the
 | `clock` | Inject a fixed `Clock` in tests so `@Past` / `@Future` are deterministic | `Clock.systemDefaultZone()` |
 | `metadata` | Pass request-scoped data (tenant id, user id, feature flags) into custom validators, then read it via `ctx.metadata["key"]` inside the validator | `emptyMap()` |
 | `maxValidationDepth` | Raise when you legitimately have deeply nested `@Valid` graphs; lower to harden against hostile input | `10` |
+| `maxElementConcurrency` | Caps how many `@Valid(each = true)` elements validate at once; raise for I/O-bound element validators, lower to bound resource use on large collections | `64` |
 
 ```kotlin
 val context = ValidationContext()

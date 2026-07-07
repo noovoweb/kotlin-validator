@@ -59,6 +59,36 @@ class MimeTypeFileValidatorTest {
     }
 
     @Test
+    fun `rejects a disallowed type spoofed with an image extension`(@TempDir tempDir: File) = runTest {
+        val validator = MimeTypeFileValidator()
+
+        // PDF content behind a .png name: content detection must catch it.
+        val spoof =
+            File(tempDir, "avatar.png").apply {
+                createNewFile()
+                writeBytes("%PDF-1.7 not really an image".toByteArray(Charsets.US_ASCII))
+            }
+        val exception =
+            assertThrows<ValidationException> {
+                validator.validate(MimeTypeFile(file = spoof))
+            }
+        assertTrue(exception.errors.containsKey("file"))
+    }
+
+    @Test
+    fun `accepts an allowed type regardless of extension`(@TempDir tempDir: File) = runTest {
+        val validator = MimeTypeFileValidator()
+
+        // Real PNG bytes behind a non-image name: content detection must accept it.
+        val pngAsTxt =
+            File(tempDir, "notanimage.txt").apply {
+                createNewFile()
+                writeBytes(byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A))
+            }
+        validator.validate(MimeTypeFile(file = pngAsTxt))
+    }
+
+    @Test
     fun `mime type validator provides error message`(@TempDir tempDir: File) = runTest {
         val validator = MimeTypeFileValidator()
 

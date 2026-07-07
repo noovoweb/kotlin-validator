@@ -297,12 +297,14 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
             val elementSimple = elementType?.simpleName ?: "Unknown"
             val validatorType = ClassName(elementPackage, "${elementSimple}Validator")
 
-            // @Valid(each = true) - validate collection elements in parallel
-            // The `mapIndexed` extension works on both Collection and Array, so we can iterate
-            // directly without a `when` over the runtime type — avoids dead-code branches that
-            // become compile errors in Kotlin 2.4 (KTLC-365).
+            // @Valid(each = true) - validate collection elements in parallel, but bounded.
+            // Elements are validated in chunks of context.maxElementConcurrency so a large
+            // collection cannot spawn one coroutine per element (resource-exhaustion DoS).
+            // `withIndex().chunked(n)` works on both Collection and Array, so we iterate
+            // without a `when` over the runtime type — avoids dead-code branches that become
+            // compile errors in Kotlin 2.4 (KTLC-365).
             CodeBlock.builder()
-                .addStatement("// @Valid(each = true) - Validate collection elements in parallel")
+                .addStatement("// @Valid(each = true) - Validate collection elements in parallel (bounded concurrency)")
                 .beginControlFlow("if (!context.canGoDeeper())")
                 .addStatement("errors.add(%S)", "Nested validation depth limit exceeded")
                 .nextControlFlow("else")
@@ -310,7 +312,8 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 .addStatement("val nestedContext = context.withIncrementedDepth()")
                 .addStatement("coroutineScope {")
                 .indent()
-                .addStatement("val nestedValidations = collection.mapIndexed { index, item ->")
+                .beginControlFlow("collection.withIndex().chunked(context.maxElementConcurrency).forEach { chunk ->")
+                .addStatement("val chunkValidations = chunk.map { (index, item) ->")
                 .indent()
                 .addStatement("async(nestedContext.dispatcher) {")
                 .indent()
@@ -327,13 +330,13 @@ internal class ValidatorClassGenerator(private val fieldValidatorCodeGenerator: 
                 .unindent()
                 .addStatement("}")
                 .addStatement("")
-                .addStatement("// Wait for all nested validations and collect errors")
-                .addStatement("val allNestedErrors = nestedValidations.awaitAll()")
-                .addStatement("allNestedErrors.forEach { errorMap ->")
+                .addStatement("// Wait for this chunk before starting the next, bounding live coroutines")
+                .addStatement("chunkValidations.awaitAll().forEach { errorMap ->")
                 .indent()
                 .addStatement("nestedErrors.putAll(errorMap)")
                 .unindent()
                 .addStatement("}")
+                .endControlFlow()
                 .unindent()
                 .addStatement("}")
                 .endControlFlow()

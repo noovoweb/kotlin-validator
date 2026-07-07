@@ -3,7 +3,11 @@ package com.noovoweb.validator
 /**
  * Validates that a file's MIME type is one of the allowed types.
  *
- * Uses Files.probeContentType() wrapped in IO dispatcher (non-blocking).
+ * For File and Path, the type is detected from the file's content ("magic bytes"), so a
+ * mismatched extension cannot spoof it; formats without a recognizable signature (text,
+ * CSV, JSON, SVG) fall back to the OS content probe. Detection runs on the IO dispatcher
+ * (non-blocking). A String value is treated as an already-resolved MIME type and checked
+ * directly against the allowlist.
  *
  * Supports: File, Path, String (file path)
  *
