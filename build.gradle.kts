@@ -12,7 +12,7 @@ plugins {
 
 // Single source of truth for the published version (gradle.properties is not tracked,
 // so the version must live in a committed file for CI and tag-triggered publishing).
-val validatorVersion = "0.1.0-beta.4"
+val validatorVersion = "0.1.0-beta.5"
 
 allprojects {
     group = "com.noovoweb"
