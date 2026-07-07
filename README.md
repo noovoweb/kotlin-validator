@@ -2,7 +2,7 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.4-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
+[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.5-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
 
 A high-performance, type-safe, coroutine-native validation library for Kotlin. Validators are generated at compile time with KSP, eliminating runtime reflection, annotation scanning, and hidden behavior. Each validator is a `suspend` function, enabling parallel field validation and non-blocking execution of I/O-bound custom validators. The library integrates seamlessly with any coroutine-based stack, including Spring WebFlux, Ktor, and `runTest`.
 
@@ -74,7 +74,7 @@ repositories {
     }
 }
 
-val kotlinValidatorVersion = "0.1.0-beta.4"
+val kotlinValidatorVersion = "0.1.0-beta.5"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-annotations:$kotlinValidatorVersion")
@@ -138,7 +138,7 @@ Each adapter exposes a simplified `payload.validate(...)` extension that auto-di
 <summary><b>Spring Boot WebFlux</b> (reactive)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.4"
+val kotlinValidatorVersion = "0.1.0-beta.5"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-webflux:$kotlinValidatorVersion")
@@ -181,7 +181,7 @@ Handle `ValidationException` in your `@ControllerAdvice` (or equivalent) to shap
 <summary><b>Spring Boot MVC</b> (blocking)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.4"
+val kotlinValidatorVersion = "0.1.0-beta.5"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
@@ -213,7 +213,7 @@ Spring's `@Valid` is also supported via the blocking adapter.
 <summary><b>Ktor</b></summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.4"
+val kotlinValidatorVersion = "0.1.0-beta.5"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
