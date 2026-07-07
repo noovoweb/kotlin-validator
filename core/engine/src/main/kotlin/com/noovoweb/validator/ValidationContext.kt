@@ -20,6 +20,8 @@ import java.util.Locale
  * @property metadata Custom metadata for extensibility
  * @property currentDepth Current nesting depth during @Valid traversal (0 = top-level)
  * @property maxValidationDepth Maximum allowed nesting depth for @Valid (prevents circular reference stack overflows)
+ * @property maxElementConcurrency Maximum number of collection elements validated concurrently during @Valid(each = true)
+ *   (bounds coroutine fan-out so a large collection cannot exhaust memory/scheduler resources)
  */
 public data class ValidationContext(
     public val locale: Locale = Locale.ENGLISH,
@@ -28,7 +30,8 @@ public data class ValidationContext(
     public val clock: Clock = Clock.systemDefaultZone(),
     public val metadata: Map<String, Any> = emptyMap(),
     public val currentDepth: Int = 0,
-    public val maxValidationDepth: Int = DEFAULT_MAX_VALIDATION_DEPTH
+    public val maxValidationDepth: Int = DEFAULT_MAX_VALIDATION_DEPTH,
+    public val maxElementConcurrency: Int = DEFAULT_MAX_ELEMENT_CONCURRENCY
 ) {
     public fun withLocale(locale: Locale): ValidationContext = copy(locale = locale)
 
@@ -43,6 +46,11 @@ public data class ValidationContext(
     public fun withMetadata(metadata: Map<String, Any>): ValidationContext = copy(metadata = metadata)
 
     public fun withMaxValidationDepth(maxDepth: Int): ValidationContext = copy(maxValidationDepth = maxDepth)
+
+    public fun withMaxElementConcurrency(maxConcurrency: Int): ValidationContext {
+        require(maxConcurrency > 0) { "maxElementConcurrency must be > 0, was $maxConcurrency" }
+        return copy(maxElementConcurrency = maxConcurrency)
+    }
 
     /**
      * Returns a copy with incremented depth for nested @Valid traversal.
@@ -60,6 +68,12 @@ public data class ValidationContext(
          * Prevents stack overflows from circular references.
          */
         public const val DEFAULT_MAX_VALIDATION_DEPTH: Int = 10
+
+        /**
+         * Default cap on concurrently-validated collection elements for @Valid(each = true).
+         * Bounds coroutine fan-out so a large collection cannot spawn one coroutine per element.
+         */
+        public const val DEFAULT_MAX_ELEMENT_CONCURRENCY: Int = 64
 
         public fun forIO(
             locale: Locale = Locale.ENGLISH,
