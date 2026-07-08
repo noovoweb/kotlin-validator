@@ -1,0 +1,304 @@
+public abstract interface annotation class com/noovoweb/validator/Accepted : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Alpha : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Alphanumeric : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Ascii : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Between : java/lang/annotation/Annotation {
+	public abstract fun max ()D
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun min ()D
+}
+
+public abstract interface annotation class com/noovoweb/validator/Contains : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/ContainsValue : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/CreditCard : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/CustomValidator : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun validator ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/DateFormat : java/lang/annotation/Annotation {
+	public abstract fun format ()Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Decimal : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/DecimalPlaces : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/Different : java/lang/annotation/Annotation {
+	public abstract fun field ()Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Distinct : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/DivisibleBy : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/Email : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/EndsWith : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Enum : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/Class;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Even : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/FailFast : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/FailFast$Container : java/lang/annotation/Annotation {
+	public abstract fun value ()[Lcom/noovoweb/validator/FailFast;
+}
+
+public abstract interface annotation class com/noovoweb/validator/FileExtension : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun values ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Future : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/IP : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/IPv4 : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/IPv6 : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Integer : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/IsoDate : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/IsoDateTime : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Json : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Length : java/lang/annotation/Annotation {
+	public abstract fun max ()I
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun min ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/Lowercase : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Luhn : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/MacAddress : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Max : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()D
+}
+
+public abstract interface annotation class com/noovoweb/validator/MaxFileSize : java/lang/annotation/Annotation {
+	public abstract fun bytes ()J
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/MaxLength : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/MaxSize : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/MimeType : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun values ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Min : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()D
+}
+
+public abstract interface annotation class com/noovoweb/validator/MinLength : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/MinSize : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/Negative : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/NotContains : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/NotEmpty : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/NotOneOf : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun values ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Odd : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/OneOf : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun values ()[Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Past : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Pattern : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Port : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Positive : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Required : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/RequiredIf : java/lang/annotation/Annotation {
+	public abstract fun field ()Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/RequiredUnless : java/lang/annotation/Annotation {
+	public abstract fun field ()Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/RequiredWith : java/lang/annotation/Annotation {
+	public abstract fun fields ()[Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/RequiredWithout : java/lang/annotation/Annotation {
+	public abstract fun fields ()[Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Same : java/lang/annotation/Annotation {
+	public abstract fun field ()Ljava/lang/String;
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Size : java/lang/annotation/Annotation {
+	public abstract fun max ()I
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun min ()I
+}
+
+public abstract interface annotation class com/noovoweb/validator/StartsWith : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+	public abstract fun value ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Today : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Uppercase : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Url : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Uuid : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Valid : java/lang/annotation/Annotation {
+	public abstract fun each ()Z
+	public abstract fun message ()Ljava/lang/String;
+}
+
+public abstract interface annotation class com/noovoweb/validator/Validated : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class com/noovoweb/validator/Zero : java/lang/annotation/Annotation {
+	public abstract fun message ()Ljava/lang/String;
+}
+

@@ -1,0 +1,137 @@
+public final class com/noovoweb/validator/DefaultMessageProvider : com/noovoweb/validator/MessageProvider {
+	public static final field Companion Lcom/noovoweb/validator/DefaultMessageProvider$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/util/List;)V
+	public synthetic fun <init> (Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getCacheSize ()I
+	public fun getMessage (Ljava/lang/String;[Ljava/lang/Object;Ljava/util/Locale;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun isLocaleLoaded (Ljava/util/Locale;)Z
+}
+
+public final class com/noovoweb/validator/DefaultMessageProvider$Companion {
+	public final fun getDEFAULT ()Lcom/noovoweb/validator/DefaultMessageProvider;
+}
+
+public abstract interface class com/noovoweb/validator/MessageProvider {
+	public abstract fun getMessage (Ljava/lang/String;[Ljava/lang/Object;Ljava/util/Locale;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/noovoweb/validator/ValidationContext {
+	public static final field Companion Lcom/noovoweb/validator/ValidationContext$Companion;
+	public static final field DEFAULT_MAX_ELEMENT_CONCURRENCY I
+	public static final field DEFAULT_MAX_VALIDATION_DEPTH I
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Locale;Lcom/noovoweb/validator/MessageProvider;Lkotlinx/coroutines/CoroutineDispatcher;Ljava/time/Clock;Ljava/util/Map;III)V
+	public synthetic fun <init> (Ljava/util/Locale;Lcom/noovoweb/validator/MessageProvider;Lkotlinx/coroutines/CoroutineDispatcher;Ljava/time/Clock;Ljava/util/Map;IIIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun canGoDeeper ()Z
+	public final fun component1 ()Ljava/util/Locale;
+	public final fun component2 ()Lcom/noovoweb/validator/MessageProvider;
+	public final fun component3 ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public final fun component4 ()Ljava/time/Clock;
+	public final fun component5 ()Ljava/util/Map;
+	public final fun component6 ()I
+	public final fun component7 ()I
+	public final fun component8 ()I
+	public final fun copy (Ljava/util/Locale;Lcom/noovoweb/validator/MessageProvider;Lkotlinx/coroutines/CoroutineDispatcher;Ljava/time/Clock;Ljava/util/Map;III)Lcom/noovoweb/validator/ValidationContext;
+	public static synthetic fun copy$default (Lcom/noovoweb/validator/ValidationContext;Ljava/util/Locale;Lcom/noovoweb/validator/MessageProvider;Lkotlinx/coroutines/CoroutineDispatcher;Ljava/time/Clock;Ljava/util/Map;IIIILjava/lang/Object;)Lcom/noovoweb/validator/ValidationContext;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClock ()Ljava/time/Clock;
+	public final fun getCurrentDepth ()I
+	public final fun getDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public final fun getLocale ()Ljava/util/Locale;
+	public final fun getMaxElementConcurrency ()I
+	public final fun getMaxValidationDepth ()I
+	public final fun getMessageProvider ()Lcom/noovoweb/validator/MessageProvider;
+	public final fun getMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun withClock (Ljava/time/Clock;)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withDispatcher (Lkotlinx/coroutines/CoroutineDispatcher;)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withIncrementedDepth ()Lcom/noovoweb/validator/ValidationContext;
+	public final fun withLocale (Ljava/util/Locale;)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withMaxElementConcurrency (I)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withMaxValidationDepth (I)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withMessageProvider (Lcom/noovoweb/validator/MessageProvider;)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withMetadata (Ljava/lang/String;Ljava/lang/Object;)Lcom/noovoweb/validator/ValidationContext;
+	public final fun withMetadata (Ljava/util/Map;)Lcom/noovoweb/validator/ValidationContext;
+}
+
+public final class com/noovoweb/validator/ValidationContext$Companion {
+	public final fun forIO (Ljava/util/Locale;Lcom/noovoweb/validator/MessageProvider;)Lcom/noovoweb/validator/ValidationContext;
+	public static synthetic fun forIO$default (Lcom/noovoweb/validator/ValidationContext$Companion;Ljava/util/Locale;Lcom/noovoweb/validator/MessageProvider;ILjava/lang/Object;)Lcom/noovoweb/validator/ValidationContext;
+	public final fun forTesting (Ljava/time/Clock;Ljava/util/Locale;)Lcom/noovoweb/validator/ValidationContext;
+	public static synthetic fun forTesting$default (Lcom/noovoweb/validator/ValidationContext$Companion;Ljava/time/Clock;Ljava/util/Locale;ILjava/lang/Object;)Lcom/noovoweb/validator/ValidationContext;
+}
+
+public final class com/noovoweb/validator/ValidationError {
+	public static final field Companion Lcom/noovoweb/validator/ValidationError$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/util/Map;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;)Lcom/noovoweb/validator/ValidationError;
+	public static synthetic fun copy$default (Lcom/noovoweb/validator/ValidationError;Ljava/lang/String;Ljava/lang/String;Ljava/util/Map;ILjava/lang/Object;)Lcom/noovoweb/validator/ValidationError;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public final fun getMessage ()Ljava/lang/String;
+	public final fun getMetadata ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/noovoweb/validator/ValidationError$Companion {
+	public final fun invalid (Ljava/lang/String;Ljava/lang/String;)Lcom/noovoweb/validator/ValidationError;
+	public final fun required (Ljava/lang/String;)Lcom/noovoweb/validator/ValidationError;
+}
+
+public final class com/noovoweb/validator/ValidationException : java/lang/RuntimeException {
+	public fun <init> (Ljava/util/Map;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/util/Map;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getAllMessages ()Ljava/util/List;
+	public final fun getErrorCount ()I
+	public final fun getErrors ()Ljava/util/Map;
+	public final fun getFieldCount ()I
+	public final fun getFieldErrors (Ljava/lang/String;)Ljava/util/List;
+	public final fun hasFieldError (Ljava/lang/String;)Z
+	public final fun toJson ()Ljava/lang/String;
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract class com/noovoweb/validator/ValidationResult {
+	public final fun flatMap (Lkotlin/jvm/functions/Function1;)Lcom/noovoweb/validator/ValidationResult;
+	public final fun fold (Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun getOrDefault (Ljava/lang/Object;)Ljava/lang/Object;
+	public final fun getOrElse (Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+	public final fun getOrNull ()Ljava/lang/Object;
+	public final fun getOrThrow ()Ljava/lang/Object;
+	public final fun isFailure ()Z
+	public final fun isSuccess ()Z
+	public final fun map (Lkotlin/jvm/functions/Function1;)Lcom/noovoweb/validator/ValidationResult;
+	public final fun mapErrors (Lkotlin/jvm/functions/Function1;)Lcom/noovoweb/validator/ValidationResult;
+	public final fun onFailure (Lkotlin/jvm/functions/Function1;)Lcom/noovoweb/validator/ValidationResult;
+	public final fun onSuccess (Lkotlin/jvm/functions/Function1;)Lcom/noovoweb/validator/ValidationResult;
+}
+
+public final class com/noovoweb/validator/ValidationResult$Failure : com/noovoweb/validator/ValidationResult {
+	public fun <init> (Ljava/util/Map;)V
+	public final fun component1 ()Ljava/util/Map;
+	public final fun copy (Ljava/util/Map;)Lcom/noovoweb/validator/ValidationResult$Failure;
+	public static synthetic fun copy$default (Lcom/noovoweb/validator/ValidationResult$Failure;Ljava/util/Map;ILjava/lang/Object;)Lcom/noovoweb/validator/ValidationResult$Failure;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getErrors ()Ljava/util/Map;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class com/noovoweb/validator/ValidationResult$Success : com/noovoweb/validator/ValidationResult {
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun copy (Ljava/lang/Object;)Lcom/noovoweb/validator/ValidationResult$Success;
+	public static synthetic fun copy$default (Lcom/noovoweb/validator/ValidationResult$Success;Ljava/lang/Object;ILjava/lang/Object;)Lcom/noovoweb/validator/ValidationResult$Success;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getValue ()Ljava/lang/Object;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

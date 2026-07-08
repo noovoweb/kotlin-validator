@@ -1,0 +1,41 @@
+public final class com/noovoweb/validator/FileSignatures {
+	public static final field INSTANCE Lcom/noovoweb/validator/FileSignatures;
+	public final fun detectMimeType (Ljava/nio/file/Path;)Ljava/lang/String;
+}
+
+public abstract interface class com/noovoweb/validator/GeneratedValidator {
+	public abstract fun validate (Ljava/lang/Object;Lcom/noovoweb/validator/ValidationContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun validate$default (Lcom/noovoweb/validator/GeneratedValidator;Ljava/lang/Object;Lcom/noovoweb/validator/ValidationContext;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public abstract fun validateResult (Ljava/lang/Object;Lcom/noovoweb/validator/ValidationContext;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun validateResult$default (Lcom/noovoweb/validator/GeneratedValidator;Ljava/lang/Object;Lcom/noovoweb/validator/ValidationContext;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/noovoweb/validator/GeneratedValidator$DefaultImpls {
+	public static synthetic fun validate$default (Lcom/noovoweb/validator/GeneratedValidator;Ljava/lang/Object;Lcom/noovoweb/validator/ValidationContext;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static synthetic fun validateResult$default (Lcom/noovoweb/validator/GeneratedValidator;Ljava/lang/Object;Lcom/noovoweb/validator/ValidationContext;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+}
+
+public final class com/noovoweb/validator/ValidationPatterns {
+	public static final field ALPHA Ljava/lang/String;
+	public static final field ALPHANUMERIC Ljava/lang/String;
+	public static final field ASCII Ljava/lang/String;
+	public static final field EMAIL Ljava/lang/String;
+	public static final field INSTANCE Lcom/noovoweb/validator/ValidationPatterns;
+	public static final field IPV4 Ljava/lang/String;
+	public static final field IPV6 Ljava/lang/String;
+	public static final field ISO_DATE Ljava/lang/String;
+	public static final field ISO_DATETIME Ljava/lang/String;
+	public static final field MAC_ADDRESS Ljava/lang/String;
+	public static final field URL Ljava/lang/String;
+	public static final field UUID Ljava/lang/String;
+	public final fun isAccepted (Ljava/lang/Object;)Z
+	public final fun isDecimal (Ljava/lang/Number;)Z
+	public final fun isInteger (Ljava/lang/Number;)Z
+	public final fun isValidIP (Ljava/lang/String;)Z
+	public final fun isValidIPv4 (Ljava/lang/String;)Z
+	public final fun isValidIPv6 (Ljava/lang/String;)Z
+	public final fun isValidJson (Ljava/lang/String;)Z
+	public final fun isValidPort (I)Z
+	public final fun isValidURL (Ljava/lang/String;)Z
+}
+

@@ -13,26 +13,35 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [ '17', '21' ]
 
     steps:
       - uses: actions/checkout@v7
-      - name: Set up JDK 21
+      - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v5
         with:
-          java-version: '21'
+          java-version: ${{ matrix.java }}
           distribution: 'temurin'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-      # spotlessCheck runs implicitly: compileKotlin depends on it
-      - name: Build, test, and aggregate coverage
-        run: ./gradlew build jacocoTestReport
+      # spotlessCheck runs implicitly: compileKotlin depends on it.
+      # apiCheck verifies the public ABI matches the committed *.api files.
+      - name: Build and test (JDK ${{ matrix.java }})
+        run: ./gradlew build apiCheck -PbuildJavaVersion=${{ matrix.java }}
+      - name: Aggregate coverage
+        if: matrix.java == '17'
+        run: ./gradlew jacocoTestReport
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
+          name: test-reports-jdk${{ matrix.java }}
           path: '**/build/reports/tests/test'
       - name: Upload coverage report
+        if: matrix.java == '17'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report

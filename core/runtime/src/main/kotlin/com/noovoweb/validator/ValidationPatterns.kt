@@ -21,7 +21,7 @@ public object ValidationPatterns {
      * Matches HTTP/HTTPS URLs.
      *
      * NOTE: This regex is exposed for convenience but [isValidURL] should be preferred
-     * for actual URL validation as it uses [java.net.URL] and avoids any ReDoS concerns.
+     * for actual URL validation as it uses [java.net.URI] and avoids any ReDoS concerns.
      * The trailing quantifier is bounded ({0,2000}) here to prevent catastrophic backtracking.
      */
     public const val URL: String = "^https?://[^\\s/$.?#].[^\\s]{0,2000}$"
