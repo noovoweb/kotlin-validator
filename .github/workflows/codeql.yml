@@ -34,7 +34,9 @@ jobs:
         with:
           languages: ${{ matrix.language }}
       - uses: gradle/actions/setup-gradle@v6
-      - run: ./gradlew assemble -x test
+      # CodeQL must trace a real compilation. Force one (clean, no build cache) so a
+      # cache hit can't leave it with "no source code seen" on no-code-change PRs.
+      - run: ./gradlew clean assemble -x test --no-build-cache
       - uses: github/codeql-action/analyze@v4
         with:
           category: "/language:${{ matrix.language }}"
