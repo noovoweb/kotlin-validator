@@ -8,7 +8,11 @@ While the version is `0.x` / pre-release, the public API may still change betwee
 
 ## [Unreleased]
 
+## [0.1.0-beta.8] - 2026-07-07
+
 ### Added
+- Publishing to Maven Central via the Central Portal (signed artifacts with sources
+  and javadoc jars); GitHub Packages retained as a secondary target.
 - `CHANGELOG.md`.
 - Binary-compatibility validation (`apiCheck` / `apiDump`) with committed `*.api`
   files, run in CI so public API changes are caught in review.
@@ -74,7 +78,8 @@ While the version is `0.x` / pre-release, the public API may still change betwee
   validators, nested/collection validation with precise error paths, coroutine-native
   execution, i18n, and Spring MVC / Spring WebFlux / Ktor adapters.
 
-[Unreleased]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.7...HEAD
+[Unreleased]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.8...HEAD
+[0.1.0-beta.8]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.7...v0.1.0-beta.8
 [0.1.0-beta.7]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.6...v0.1.0-beta.7
 [0.1.0-beta.6]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.5...v0.1.0-beta.6
 [0.1.0-beta.5]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.4...v0.1.0-beta.5

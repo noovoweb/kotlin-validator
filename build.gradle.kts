@@ -23,7 +23,7 @@ apiValidation {
 }
 
 // Single source of truth for the published version.
-val validatorVersion = "0.1.0-beta.7"
+val validatorVersion = "0.1.0-beta.8"
 
 // JDK to compile and test against. Defaults to the supported floor (17); CI overrides it
 // (-PbuildJavaVersion=21) to also verify the library on newer JDKs. Published artifacts
