@@ -1,0 +1,37 @@
+public final class com/noovoweb/validator/ktor/ValidationExtensionsKt {
+	public static final fun getValidatorCache ()Ljava/util/concurrent/ConcurrentHashMap;
+	public static final fun getValidatorClassName (Ljava/lang/Object;)Ljava/lang/String;
+	public static final fun getValidatorFor (Ljava/lang/Object;)Lcom/noovoweb/validator/GeneratedValidator;
+	public static final fun validate (Lio/ktor/server/application/ApplicationCall;Ljava/lang/Object;Lcom/noovoweb/validator/GeneratedValidator;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun validate (Ljava/lang/Object;Lio/ktor/server/application/ApplicationCall;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun validate (Ljava/lang/Object;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/noovoweb/validator/ktor/ValidationPlugin {
+	public static final field Plugin Lcom/noovoweb/validator/ktor/ValidationPlugin$Plugin;
+	public fun <init> (Lcom/noovoweb/validator/ktor/ValidationPlugin$Configuration;)V
+	public final fun createContext (Lio/ktor/server/application/ApplicationCall;)Lcom/noovoweb/validator/ValidationContext;
+}
+
+public final class com/noovoweb/validator/ktor/ValidationPlugin$Configuration {
+	public fun <init> ()V
+	public final fun getClock ()Ljava/time/Clock;
+	public final fun getDefaultLocale ()Ljava/util/Locale;
+	public final fun getDispatcher ()Lkotlinx/coroutines/CoroutineDispatcher;
+	public final fun getMessageProvider ()Lcom/noovoweb/validator/MessageProvider;
+	public final fun setClock (Ljava/time/Clock;)V
+	public final fun setDefaultLocale (Ljava/util/Locale;)V
+	public final fun setDispatcher (Lkotlinx/coroutines/CoroutineDispatcher;)V
+	public final fun setMessageProvider (Lcom/noovoweb/validator/MessageProvider;)V
+}
+
+public final class com/noovoweb/validator/ktor/ValidationPlugin$Plugin : io/ktor/server/application/BaseApplicationPlugin {
+	public fun getKey ()Lio/ktor/util/AttributeKey;
+	public fun install (Lio/ktor/server/application/Application;Lkotlin/jvm/functions/Function1;)Lcom/noovoweb/validator/ktor/ValidationPlugin;
+	public synthetic fun install (Lio/ktor/util/pipeline/Pipeline;Lkotlin/jvm/functions/Function1;)Ljava/lang/Object;
+}
+
+public final class com/noovoweb/validator/ktor/ValidationPluginKt {
+	public static final fun validationContext (Lio/ktor/server/application/ApplicationCall;)Lcom/noovoweb/validator/ValidationContext;
+}
+

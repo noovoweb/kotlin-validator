@@ -1,0 +1,47 @@
+public final class com/noovoweb/validator/spring/mvc/SpringMessageProvider : com/noovoweb/validator/MessageProvider {
+	public fun <init> (Lorg/springframework/context/MessageSource;)V
+	public fun getMessage (Ljava/lang/String;[Ljava/lang/Object;Ljava/util/Locale;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/noovoweb/validator/spring/mvc/SpringValidatorAdapter : org/springframework/validation/Validator {
+	public fun <init> (Lcom/noovoweb/validator/GeneratedValidator;Lcom/noovoweb/validator/ValidationContext;Ljava/lang/Class;)V
+	public synthetic fun <init> (Lcom/noovoweb/validator/GeneratedValidator;Lcom/noovoweb/validator/ValidationContext;Ljava/lang/Class;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun supports (Ljava/lang/Class;)Z
+	public fun validate (Ljava/lang/Object;Lorg/springframework/validation/Errors;)V
+}
+
+public class com/noovoweb/validator/spring/mvc/ValidationContextProvider {
+	public fun <init> (Lcom/noovoweb/validator/ValidationContext;Lorg/springframework/web/servlet/LocaleResolver;)V
+	public fun get (Ljakarta/servlet/http/HttpServletRequest;)Lcom/noovoweb/validator/ValidationContext;
+	public fun getBase ()Lcom/noovoweb/validator/ValidationContext;
+}
+
+public final class com/noovoweb/validator/spring/mvc/ValidationExtensionsKt {
+	public static final fun validate (Lcom/noovoweb/validator/GeneratedValidator;Ljava/lang/Object;Ljakarta/servlet/http/HttpServletRequest;Lcom/noovoweb/validator/ValidationContext;Lorg/springframework/web/servlet/LocaleResolver;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun withLocale (Lcom/noovoweb/validator/ValidationContext;Ljakarta/servlet/http/HttpServletRequest;Lorg/springframework/web/servlet/LocaleResolver;)Lcom/noovoweb/validator/ValidationContext;
+}
+
+public class com/noovoweb/validator/spring/mvc/ValidatorAutoConfiguration {
+	public fun <init> ()V
+	public fun localeResolver (Lcom/noovoweb/validator/spring/mvc/ValidatorProperties;)Lorg/springframework/web/servlet/LocaleResolver;
+	public fun messageProvider (Lorg/springframework/context/MessageSource;)Lcom/noovoweb/validator/MessageProvider;
+	public fun validationContext (Lcom/noovoweb/validator/spring/mvc/ValidatorProperties;Lcom/noovoweb/validator/MessageProvider;)Lcom/noovoweb/validator/ValidationContext;
+}
+
+public final class com/noovoweb/validator/spring/mvc/ValidatorProperties {
+	public fun <init> ()V
+	public fun <init> (Ljava/util/Locale;Z)V
+	public synthetic fun <init> (Ljava/util/Locale;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/Locale;
+	public final fun component2 ()Z
+	public final fun copy (Ljava/util/Locale;Z)Lcom/noovoweb/validator/spring/mvc/ValidatorProperties;
+	public static synthetic fun copy$default (Lcom/noovoweb/validator/spring/mvc/ValidatorProperties;Ljava/util/Locale;ZILjava/lang/Object;)Lcom/noovoweb/validator/spring/mvc/ValidatorProperties;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLocale ()Ljava/util/Locale;
+	public final fun getUseRequestLocale ()Z
+	public fun hashCode ()I
+	public final fun setLocale (Ljava/util/Locale;)V
+	public final fun setUseRequestLocale (Z)V
+	public fun toString ()Ljava/lang/String;
+}
+

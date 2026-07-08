@@ -341,7 +341,7 @@ Element validation runs in parallel, but bounded: at most `ValidationContext.max
 |---|---|
 | `@Required` | Not null and not blank |
 | `@Email` | Valid email |
-| `@Url` | Valid HTTP/HTTPS URL (uses `java.net.URL`) |
+| `@Url` | Valid HTTP/HTTPS URL (uses `java.net.URI`) |
 | `@Uuid` | UUID format |
 | `@Length(min, max)` / `@MinLength(n)` / `@MaxLength(n)` | Length bounds |
 | `@Pattern(regex)` | Matches regex |
@@ -601,7 +601,7 @@ The library is designed to be safe against malicious input by default:
 
 - Regex patterns are compiled once and cached — no compile-on-call DoS.
 - Pattern-based validators apply hard input length limits to mitigate ReDoS.
-- IP and URL validation use `InetAddress` / `java.net.URL`, not unbounded regex.
+- IP and URL validation use `InetAddress` / `java.net.URI`, not unbounded regex.
 - The built-in JSON validator caps recursion depth (100 levels) to prevent stack overflow on nested payloads.
 - `@Distinct` uses `HashSet`-based detection with early exit, so oversized arrays cannot be used to slow validation.
 - Case-sensitive comparisons are locale-invariant (`Locale.ROOT`) — no Turkish-i surprises.

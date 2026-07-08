@@ -1,4 +1,7 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
+import com.vanniktech.maven.publish.SonatypeHost
+import org.gradle.api.publish.PublishingExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
@@ -7,12 +10,25 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.spotless) apply false
+    alias(libs.plugins.binary.compatibility.validator)
+    alias(libs.plugins.maven.publish) apply false
     id("jacoco-report-aggregation")
 }
 
-// Single source of truth for the published version (gradle.properties is not tracked,
-// so the version must live in a committed file for CI and tag-triggered publishing).
+// Public ABI tracking: `./gradlew apiDump` regenerates the *.api files, `apiCheck`
+// (wired into `build`) fails when the public surface changes without an update.
+apiValidation {
+    // Not published — its ABI is not a compatibility promise.
+    ignoredProjects.add("kotlin-validator-testing")
+}
+
+// Single source of truth for the published version.
 val validatorVersion = "0.1.0-beta.7"
+
+// JDK to compile and test against. Defaults to the supported floor (17); CI overrides it
+// (-PbuildJavaVersion=21) to also verify the library on newer JDKs. Published artifacts
+// always target 17 since publishing does not pass this property.
+val buildJavaVersion: Int = providers.gradleProperty("buildJavaVersion").map { it.toInt() }.getOrElse(17)
 
 allprojects {
     group = "com.noovoweb"
@@ -30,7 +46,7 @@ subprojects {
     // Unified JVM toolchain and explicit API mode for library modules
     plugins.withId("org.jetbrains.kotlin.jvm") {
         configure<KotlinJvmProjectExtension> {
-            jvmToolchain(17)
+            jvmToolchain(buildJavaVersion)
             if (name !in listOf("kotlin-validator-testing")) {
                 explicitApi()
             }
@@ -72,17 +88,74 @@ subprojects {
     }
 }
 
-// Apply publishing configuration to all publishable modules
+// Publishing for every published module.
+// Primary target: Maven Central via the Central Portal (com.vanniktech.maven.publish),
+// which builds signed bundles with sources + javadoc jars and a complete POM.
+// Secondary target: GitHub Packages.
+// Credentials come from environment variables in CI (never committed):
+//   ORG_GRADLE_PROJECT_mavenCentralUsername / ...Password  — Central Portal token
+//   ORG_GRADLE_PROJECT_signingInMemoryKey / ...KeyPassword — ASCII-armored GPG key
+//   GITHUB_ACTOR / GITHUB_TOKEN                             — GitHub Packages
 subprojects {
-    // Skip parent directories (they don't have source code)
-    if (name in listOf("core", "adapters", "testing")) {
+    // Skip parent directories (no source) and the dev-only testing module.
+    if (name in listOf("core", "adapters", "testing", "kotlin-validator-testing")) {
         return@subprojects
     }
-    
-    // Skip testing module - it's for development only
-    if (name != "kotlin-validator-testing") {
-        apply(from = "$rootDir/gradle/publish.gradle.kts")
+
+    plugins.withId("com.vanniktech.maven.publish") {
+        configure<MavenPublishBaseExtension> {
+            // Upload to the Central Portal; keep the release manual (review, then publish).
+            publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = false)
+            // Sign only when a key is present (ORG_GRADLE_PROJECT_signingInMemoryKey in CI),
+            // so local builds and publishToMavenLocal don't require one.
+            if (project.findProperty("signingInMemoryKey") != null) {
+                signAllPublications()
+            }
+            coordinates(project.group.toString(), project.name, project.version.toString())
+
+            pom {
+                name.set(project.name)
+                description.set("Kotlin validation library with compile-time code generation using KSP")
+                url.set("https://github.com/noovoweb/kotlin-validator")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("noovoweb")
+                        name.set("NoovoWeb")
+                        email.set("info@noovoweb.com")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/noovoweb/kotlin-validator.git")
+                    developerConnection.set("scm:git:ssh://github.com/noovoweb/kotlin-validator.git")
+                    url.set("https://github.com/noovoweb/kotlin-validator")
+                }
+            }
+        }
+
+        // Secondary target: GitHub Packages. vanniktech creates the publications; this
+        // only adds the extra repository so publishAllPublicationsToGitHubPackagesRepository works.
+        configure<PublishingExtension> {
+            repositories {
+                maven {
+                    name = "GitHubPackages"
+                    url = uri("https://maven.pkg.github.com/noovoweb/kotlin-validator")
+                    credentials {
+                        username = (project.findProperty("gpr.user") as String?) ?: System.getenv("GITHUB_ACTOR")
+                        password = (project.findProperty("gpr.token") as String?) ?: System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
+        }
     }
+
+    apply(plugin = "com.vanniktech.maven.publish")
 }
 
 // Aggregated coverage report across all modules: ./gradlew jacocoTestReport
