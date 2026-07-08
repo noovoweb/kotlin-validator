@@ -8,6 +8,13 @@ While the version is `0.x` / pre-release, the public API may still change betwee
 
 ## [Unreleased]
 
+## [0.1.0-beta.9] - 2026-07-08
+
+### Changed
+- Maven Central is now the sole distribution channel. GitHub Packages publishing has
+  been removed, and installation no longer requires a Personal Access Token — just
+  `mavenCentral()`. See the updated Install section in the README.
+
 ## [0.1.0-beta.8] - 2026-07-07
 
 ### Added
@@ -78,7 +85,8 @@ While the version is `0.x` / pre-release, the public API may still change betwee
   validators, nested/collection validation with precise error paths, coroutine-native
   execution, i18n, and Spring MVC / Spring WebFlux / Ktor adapters.
 
-[Unreleased]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.8...HEAD
+[Unreleased]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.9...HEAD
+[0.1.0-beta.9]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.8...v0.1.0-beta.9
 [0.1.0-beta.8]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.7...v0.1.0-beta.8
 [0.1.0-beta.7]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.6...v0.1.0-beta.7
 [0.1.0-beta.6]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.5...v0.1.0-beta.6

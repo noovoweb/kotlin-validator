@@ -2,7 +2,7 @@
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.3.21-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Packages](https://img.shields.io/badge/GitHub%20Packages-0.1.0--beta.8-blue.svg?logo=github)](https://github.com/noovoweb/kotlin-validator/packages)
+[![Maven Central](https://img.shields.io/maven-central/v/com.noovoweb/kotlin-validator-runtime.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.noovoweb/kotlin-validator-runtime)
 
 A high-performance, type-safe, coroutine-native validation library for Kotlin. Validators are generated at compile time with KSP, eliminating runtime reflection, annotation scanning, and hidden behavior. Each validator is a `suspend` function, enabling parallel field validation and non-blocking execution of I/O-bound custom validators. The library integrates seamlessly with any coroutine-based stack, including Spring WebFlux, Ktor, and `runTest`.
 
@@ -37,22 +37,7 @@ Plus: 60+ built-in validators, deep nested validation with precise error paths (
 
 ## Install
 
-The library is published to **GitHub Packages**. You'll need a GitHub Personal Access Token (classic) with the `read:packages` scope.
-
-### 1. Add credentials
-
-In `~/.gradle/gradle.properties` (recommended) or your project's `gradle.properties`:
-
-```properties
-gpr.user=your-github-username
-gpr.token=ghp_your_personal_access_token
-```
-
-Or export them as environment variables — `GITHUB_ACTOR` and `GITHUB_TOKEN`.
-
-> Create a token at https://github.com/settings/tokens with the `read:packages` scope.
-
-### 2. Add the repository and dependencies
+The library is published to **Maven Central** — no credentials or extra repositories required.
 
 ```kotlin
 plugins {
@@ -62,19 +47,9 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/noovoweb/kotlin-validator")
-        credentials {
-            username = providers.gradleProperty("gpr.user").orNull
-                ?: System.getenv("GITHUB_ACTOR")
-            password = providers.gradleProperty("gpr.token").orNull
-                ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
-val kotlinValidatorVersion = "0.1.0-beta.8"
+val kotlinValidatorVersion = "0.1.0-beta.9"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-annotations:$kotlinValidatorVersion")
@@ -138,7 +113,7 @@ Each adapter exposes a simplified `payload.validate(...)` extension that auto-di
 <summary><b>Spring Boot WebFlux</b> (reactive)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.8"
+val kotlinValidatorVersion = "0.1.0-beta.9"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-webflux:$kotlinValidatorVersion")
@@ -181,7 +156,7 @@ Handle `ValidationException` in your `@ControllerAdvice` (or equivalent) to shap
 <summary><b>Spring Boot MVC</b> (blocking)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.8"
+val kotlinValidatorVersion = "0.1.0-beta.9"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
@@ -213,7 +188,7 @@ Spring's `@Valid` is also supported via the blocking adapter.
 <summary><b>Ktor</b></summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.8"
+val kotlinValidatorVersion = "0.1.0-beta.9"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
