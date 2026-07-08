@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - uses: actions/checkout@v7
@@ -28,8 +27,8 @@ jobs:
       - name: Build
         run: ./gradlew build -x test
 
-      # Primary: upload signed bundles to the Maven Central Portal. The release is left
-      # manual (automaticRelease = false) — review and publish it in the portal.
+      # Upload signed bundles to the Maven Central Portal. The release is left manual
+      # (automaticRelease = false) — review and publish it in the portal.
       - name: Publish to Maven Central
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_USERNAME }}
@@ -37,10 +36,3 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
         run: ./gradlew publishToMavenCentral --no-configuration-cache
-
-      # Secondary: GitHub Packages.
-      - name: Publish to GitHub Packages
-        env:
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publishAllPublicationsToGitHubPackagesRepository

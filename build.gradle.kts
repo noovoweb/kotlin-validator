@@ -1,7 +1,6 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
-import org.gradle.api.publish.PublishingExtension
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
@@ -23,7 +22,7 @@ apiValidation {
 }
 
 // Single source of truth for the published version.
-val validatorVersion = "0.1.0-beta.8"
+val validatorVersion = "0.1.0-beta.9"
 
 // JDK to compile and test against. Defaults to the supported floor (17); CI overrides it
 // (-PbuildJavaVersion=21) to also verify the library on newer JDKs. Published artifacts
@@ -88,14 +87,12 @@ subprojects {
     }
 }
 
-// Publishing for every published module.
-// Primary target: Maven Central via the Central Portal (com.vanniktech.maven.publish),
-// which builds signed bundles with sources + javadoc jars and a complete POM.
-// Secondary target: GitHub Packages.
+// Publishing for every published module: Maven Central via the Central Portal
+// (com.vanniktech.maven.publish), which builds signed bundles with sources + javadoc
+// jars and a complete POM.
 // Credentials come from environment variables in CI (never committed):
 //   ORG_GRADLE_PROJECT_mavenCentralUsername / ...Password  — Central Portal token
 //   ORG_GRADLE_PROJECT_signingInMemoryKey / ...KeyPassword — ASCII-armored GPG key
-//   GITHUB_ACTOR / GITHUB_TOKEN                             — GitHub Packages
 subprojects {
     // Skip parent directories (no source) and the dev-only testing module.
     if (name in listOf("core", "adapters", "testing", "kotlin-validator-testing")) {
@@ -135,21 +132,6 @@ subprojects {
                     connection.set("scm:git:git://github.com/noovoweb/kotlin-validator.git")
                     developerConnection.set("scm:git:ssh://github.com/noovoweb/kotlin-validator.git")
                     url.set("https://github.com/noovoweb/kotlin-validator")
-                }
-            }
-        }
-
-        // Secondary target: GitHub Packages. vanniktech creates the publications; this
-        // only adds the extra repository so publishAllPublicationsToGitHubPackagesRepository works.
-        configure<PublishingExtension> {
-            repositories {
-                maven {
-                    name = "GitHubPackages"
-                    url = uri("https://maven.pkg.github.com/noovoweb/kotlin-validator")
-                    credentials {
-                        username = (project.findProperty("gpr.user") as String?) ?: System.getenv("GITHUB_ACTOR")
-                        password = (project.findProperty("gpr.token") as String?) ?: System.getenv("GITHUB_TOKEN")
-                    }
                 }
             }
         }
