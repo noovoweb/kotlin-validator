@@ -386,53 +386,61 @@ public object ValidationPatterns {
     }
 
     /**
-     * Validates IPv4 address using Java's InetAddress.
+     * Validates an IPv4 address by pure syntactic parsing — **no DNS, no network**.
      *
-     * This is more reliable and secure than regex validation.
-     * Properly handles edge cases and prevents ReDoS.
+     * Four dot-separated decimal octets (0–255). Leading zeros are rejected to avoid
+     * octal/decimal-obfuscation bypasses (e.g. `0177.0.0.1`). This never calls
+     * `InetAddress.getByName`, so a hostname passed here can never trigger a blocking
+     * DNS lookup on the validation thread.
      *
      * @param address The IPv4 address string to validate
      * @return true if valid IPv4, false otherwise
      */
-    public fun isValidIPv4(address: String): Boolean = try {
-        val addr = java.net.InetAddress.getByName(address)
-        // Check it's IPv4 (not IPv6) and matches the input format
-        addr is java.net.Inet4Address &&
-            address.matches(Regex("^\\d+\\.\\d+\\.\\d+\\.\\d+$"))
-    } catch (e: Exception) {
-        false
+    public fun isValidIPv4(address: String): Boolean {
+        val parts = address.split(".")
+        if (parts.size != 4) return false
+        return parts.all { isIPv4Octet(it) }
+    }
+
+    private fun isIPv4Octet(part: String): Boolean {
+        if (part.isEmpty() || part.length > 3) return false
+        if (!part.all { it in '0'..'9' }) return false
+        if (part.length > 1 && part[0] == '0') return false // no leading zeros (octal-bypass guard)
+        return part.toInt() in 0..255
     }
 
     /**
-     * Validates IPv6 address using Java's InetAddress.
+     * Validates an IPv6 address — **no DNS, no network**.
      *
-     * This is MUCH safer and more reliable than regex validation.
-     * - No ReDoS risk
-     * - Handles all IPv6 formats (compressed, expanded, IPv4-mapped, etc.)
-     * - Properly validates address ranges
-     * - No performance issues with malicious input
+     * The input must contain a `:` and consist only of hex digits, `:`, and `.`
+     * (for IPv4-mapped forms) before it is handed to [java.net.InetAddress.getByName].
+     * A `:` can never appear in a DNS hostname, so this guard guarantees `getByName`
+     * parses the string as an IPv6 literal and never performs a blocking DNS lookup.
+     * The JDK parser still handles compression (`::`), expansion, and IPv4-mapped forms.
      *
      * Examples of valid IPv6:
      * - 2001:0db8:85a3:0000:0000:8a2e:0370:7334
      * - 2001:db8:85a3::8a2e:370:7334 (compressed)
-     * - ::1 (loopback)
-     * - fe80::1 (link-local)
-     * - ::ffff:192.0.2.1 (IPv4-mapped)
+     * - ::1 (loopback), :: (all zeros), fe80::1 (link-local)
      *
      * @param address The IPv6 address string to validate
      * @return true if valid IPv6, false otherwise
      */
-    public fun isValidIPv6(address: String): Boolean = try {
-        val addr = java.net.InetAddress.getByName(address)
-        addr is java.net.Inet6Address
-    } catch (e: Exception) {
-        false
+    public fun isValidIPv6(address: String): Boolean {
+        if (':' !in address) return false
+        if (address.any { it !in IPV6_LITERAL_CHARS }) return false
+        return try {
+            java.net.InetAddress.getByName(address) is java.net.Inet6Address
+        } catch (e: Exception) {
+            false
+        }
     }
 
+    private const val IPV6_LITERAL_CHARS = "0123456789abcdefABCDEF:."
+
     /**
-     * Validates if address is either valid IPv4 or IPv6.
-     *
-     * Uses InetAddress for proper validation without ReDoS risk.
+     * Validates if address is either a valid IPv4 or IPv6 literal. Purely syntactic —
+     * never resolves DNS.
      *
      * @param address The IP address string to validate
      * @return true if valid IPv4 or IPv6, false otherwise

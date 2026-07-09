@@ -14,8 +14,8 @@ dependencies {
     // Kotlinx Serialization (for ValidationErrorResponse)
     api(libs.kotlinx.serialization.json)
 
-    // Coroutines
-    implementation(libs.kotlinx.coroutines.core)
+    // Coroutines: `api` because the plugin config exposes CoroutineDispatcher in its public API.
+    api(libs.kotlinx.coroutines.core)
 
     // Testing
     testImplementation(kotlin("test"))
