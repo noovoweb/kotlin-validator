@@ -121,6 +121,14 @@ dependencies {
 }
 ```
 
+> **Coroutines version (Spring Boot):** Spring Boot's dependency management pins its own
+> `kotlinx-coroutines` version. If it's older than the 1.11.0 this library is built against,
+> validators fail to load at startup with `Lookup method resolution failed`. Override it to
+> match:
+> ```kotlin
+> extra["kotlin-coroutines.version"] = "1.11.0"
+> ```
+
 ```kotlin
 @Component
 class UserHandler(private val ctx: ValidationContextProvider) {
@@ -163,6 +171,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
 }
 ```
+
+> **Coroutines version (Spring Boot):** Spring Boot's dependency management pins its own
+> `kotlinx-coroutines` version. If it's older than the 1.11.0 this library is built against,
+> validators fail to load at startup with `Lookup method resolution failed`. Override it to
+> match:
+> ```kotlin
+> extra["kotlin-coroutines.version"] = "1.11.0"
+> ```
 
 ```kotlin
 @RestController
