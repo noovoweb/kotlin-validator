@@ -49,7 +49,7 @@ repositories {
     mavenCentral()
 }
 
-val kotlinValidatorVersion = "0.1.0-beta.9"
+val kotlinValidatorVersion = "0.1.0-beta.10"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-annotations:$kotlinValidatorVersion")
@@ -113,7 +113,7 @@ Each adapter exposes a simplified `payload.validate(...)` extension that auto-di
 <summary><b>Spring Boot WebFlux</b> (reactive)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.9"
+val kotlinValidatorVersion = "0.1.0-beta.10"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-webflux:$kotlinValidatorVersion")
@@ -156,7 +156,7 @@ Handle `ValidationException` in your `@ControllerAdvice` (or equivalent) to shap
 <summary><b>Spring Boot MVC</b> (blocking)</summary>
 
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.9"
+val kotlinValidatorVersion = "0.1.0-beta.10"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-spring-mvc:$kotlinValidatorVersion")
@@ -187,14 +187,16 @@ Spring's `@Valid` is also supported via the blocking adapter.
 <details>
 <summary><b>Ktor</b></summary>
 
+Requires **Ktor 3.x** — the adapter is built against Ktor 3 and is not compatible with Ktor 2.
+
 ```kotlin
-val kotlinValidatorVersion = "0.1.0-beta.9"
+val kotlinValidatorVersion = "0.1.0-beta.10"
 
 dependencies {
     implementation("com.noovoweb:kotlin-validator-ktor:$kotlinValidatorVersion")
-    implementation("io.ktor:ktor-server-core:2.3.12")
-    implementation("io.ktor:ktor-server-content-negotiation:2.3.12")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+    implementation("io.ktor:ktor-server-core:3.5.1")
+    implementation("io.ktor:ktor-server-content-negotiation:3.5.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.5.1")
 }
 ```
 

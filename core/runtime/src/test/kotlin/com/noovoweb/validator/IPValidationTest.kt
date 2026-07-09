@@ -238,6 +238,39 @@ class IPValidationTest {
     }
 
     @Test
+    fun `hostnames are rejected without a DNS lookup`() {
+        // A hostname passed to an IP validator must return false, and must do so without
+        // resolving DNS. A real DNS lookup is ~80ms each; if getByName were reached,
+        // 50 bogus hostnames would take multiple seconds. A pure syntactic check is
+        // sub-millisecond, so a generous 1s budget proves no network resolution happens.
+        val hostnames =
+            listOf(
+                "example.com",
+                "localhost",
+                "internal-service",
+                "metadata.google.internal",
+                "not-an-ip",
+                "face.feed", // all-hex-looking hostname (no colon) must not reach getByName
+                "cafe.babe"
+            )
+
+        // Correctness: every hostname is invalid for all three validators.
+        hostnames.forEach { host ->
+            assertFalse(ValidationPatterns.isValidIPv4(host), "hostname must not be valid IPv4: $host")
+            assertFalse(ValidationPatterns.isValidIPv6(host), "hostname must not be valid IPv6: $host")
+            assertFalse(ValidationPatterns.isValidIP(host), "hostname must not be valid IP: $host")
+        }
+
+        // No-network proof: 50 rounds of bogus-hostname validation stay far under a DNS budget.
+        val start = System.currentTimeMillis()
+        repeat(50) {
+            hostnames.forEach { host -> ValidationPatterns.isValidIP("$host-$it.example") }
+        }
+        val elapsed = System.currentTimeMillis() - start
+        assertTrue(elapsed < 1000, "IP validation resolved DNS (took ${elapsed}ms for 350 bogus hostnames)")
+    }
+
+    @Test
     fun `test whitespace handling`() {
         // InetAddress.getByName() trims whitespace, but we want exact matches
         assertFalse(ValidationPatterns.isValidIPv4(" 192.168.1.1"))

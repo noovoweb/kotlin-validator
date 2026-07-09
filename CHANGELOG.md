@@ -8,6 +8,24 @@ While the version is `0.x` / pre-release, the public API may still change betwee
 
 ## [Unreleased]
 
+## [0.1.0-beta.10] - 2026-07-08
+
+### Changed
+- `kotlinx-coroutines-core` is now an `api` dependency of the engine and Ktor modules
+  (was `implementation`), because their public API exposes `CoroutineDispatcher`. The
+  published POMs now declare coroutines at `compile` scope, so consumers no longer need
+  to add coroutines manually for generated validators to compile, and the version
+  constraint is visible to dependency managers.
+
+### Fixed
+- `@IPv4`, `@IPv6`, and `@IP` no longer perform a blocking DNS lookup. Previously
+  `InetAddress.getByName` was called before any syntactic check, so a hostname (or any
+  non-literal input) triggered a ~80 ms blocking DNS resolution on the validation thread —
+  a non-blocking violation and a mild abuse vector. Validation is now purely syntactic:
+  IPv4 is parsed directly, and IPv6 is guarded so `getByName` only ever sees a colon-bearing
+  literal (which can never resolve as a hostname). IPv4 parsing also rejects leading-zero
+  octets to prevent octal-obfuscation bypasses (e.g. `0177.0.0.1`).
+
 ## [0.1.0-beta.9] - 2026-07-08
 
 ### Changed
@@ -85,7 +103,8 @@ While the version is `0.x` / pre-release, the public API may still change betwee
   validators, nested/collection validation with precise error paths, coroutine-native
   execution, i18n, and Spring MVC / Spring WebFlux / Ktor adapters.
 
-[Unreleased]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.9...HEAD
+[Unreleased]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.10...HEAD
+[0.1.0-beta.10]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.9...v0.1.0-beta.10
 [0.1.0-beta.9]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.8...v0.1.0-beta.9
 [0.1.0-beta.8]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.7...v0.1.0-beta.8
 [0.1.0-beta.7]: https://github.com/noovoweb/kotlin-validator/compare/v0.1.0-beta.6...v0.1.0-beta.7
