@@ -121,12 +121,12 @@ dependencies {
 }
 ```
 
-> **Coroutines version (Spring Boot):** Spring Boot's dependency management pins its own
-> `kotlinx-coroutines` version. If it's older than the 1.11.0 this library is built against,
-> validators fail to load at startup with `Lookup method resolution failed`. Override it to
-> match:
+> **Coroutines version (Spring Boot):** this library requires `kotlinx-coroutines` **1.11.0 or
+> newer**. Spring Boot's dependency management pins its own version; if that's *older* than
+> 1.11.0, validators fail to load at startup with `Lookup method resolution failed`. In that
+> case — and only then — raise it (leave it alone if your Spring Boot already manages 1.11.0+):
 > ```kotlin
-> extra["kotlin-coroutines.version"] = "1.11.0"
+> extra["kotlin-coroutines.version"] = "1.11.0" // or newer
 > ```
 
 ```kotlin
@@ -172,12 +172,12 @@ dependencies {
 }
 ```
 
-> **Coroutines version (Spring Boot):** Spring Boot's dependency management pins its own
-> `kotlinx-coroutines` version. If it's older than the 1.11.0 this library is built against,
-> validators fail to load at startup with `Lookup method resolution failed`. Override it to
-> match:
+> **Coroutines version (Spring Boot):** this library requires `kotlinx-coroutines` **1.11.0 or
+> newer**. Spring Boot's dependency management pins its own version; if that's *older* than
+> 1.11.0, validators fail to load at startup with `Lookup method resolution failed`. In that
+> case — and only then — raise it (leave it alone if your Spring Boot already manages 1.11.0+):
 > ```kotlin
-> extra["kotlin-coroutines.version"] = "1.11.0"
+> extra["kotlin-coroutines.version"] = "1.11.0" // or newer
 > ```
 
 ```kotlin
@@ -613,7 +613,6 @@ Found a vulnerability? Email **info@noovoweb.com** rather than opening a public 
 | `./gradlew spotlessCheck` | Check formatting |
 | `./gradlew clean build` | Full clean build |
 | `./gradlew publishToMavenLocal` | Install to `~/.m2/repository` for local consumption |
-| `./gradlew publishAllPublicationsToGitHubPackagesRepository` | Publish to GitHub Packages (requires `gpr.user` + `gpr.token` with `write:packages` scope) |
 
 PRs welcome.
 

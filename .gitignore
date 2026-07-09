@@ -28,9 +28,7 @@ generated/
 # KSP generated sources
 **/generated/ksp/
 
-# Local / machine-specific config — never commit; keep credentials out of the repo.
-# Project build settings live in the tracked gradle.properties; GitHub Packages
-# credentials (gpr.user/gpr.token) belong in ~/.gradle/gradle.properties.
+# Local / machine-specific config — never commit.
 local.properties
 
 # Publishing
