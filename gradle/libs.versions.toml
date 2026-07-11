@@ -11,7 +11,7 @@ kotlinpoet = "2.3.0"
 junit-jupiter = "6.1.1"
 mockk = "1.14.11"
 compile-testing = "1.6.0"
-spotless = "8.5.1"
+spotless = "8.8.0"
 binary-compatibility-validator = "0.17.0"
 maven-publish = "0.30.0"
 
